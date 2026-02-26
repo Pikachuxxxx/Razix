@@ -258,8 +258,7 @@ namespace Razix {
                     ImGui::Text("Department     : %s", info.debugName);
                     ImGui::Separator();
                     auto& budget = passNode.getCurrentPassBudget();
-                    ImGui::Text("CPU Budget     : %.2f ms", budget.CPUframeBudget);
-                    ImGui::Text("Memory Budget  : %u MiB", budget.MemoryBudget);
+                    ImGui::Text("CPU Budget     : %.2f ms", budget);
                     ImGui::EndTooltip();
                 }
 
@@ -414,7 +413,10 @@ namespace Razix {
                 ImGui::SameLine();
 
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
-                ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", RZApplication::Get().getProjectUUID().prettyString().c_str());
+                char    uuid_str[37];
+                rz_uuid projectUUID = RZApplication::Get().getProjectUUID();
+                rz_uuid_to_pretty_str(&projectUUID, uuid_str);
+                ImGui::Text(ICON_FA_ID_CARD " project UUID : %s", uuid_str);
                 ImGui::PopStyleColor(1);
             }
             ImGui::End();

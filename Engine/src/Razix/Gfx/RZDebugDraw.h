@@ -8,13 +8,13 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Math/AABB.h"
 #include "Razix/Math/Frustum.h"
+#include "Razix/Math/RZAABB.h"
 
 namespace Razix {
 
     // Forward Declarations
-    class RZSceneCamera;
+    class RZCamera3D;
 
     namespace Gfx {
 
@@ -38,7 +38,7 @@ namespace Razix {
             static void StartUp();
             static void ShutDown();
 
-            static void BeginDraw(const Razix::RZSceneCamera* camera);
+            static void BeginDraw(const Razix::RZCamera3D* camera);
             static void IssueDrawCommands(rz_gfx_cmdbuf_handle cmdBuffer, rz_gfx_descriptor_heap_handle heap, rz_gfx_descriptor_table_handle frameData);
             static void EndDraw();
 
@@ -53,7 +53,7 @@ namespace Razix {
             static void DrawLine(const float3& start, const float3& end, const float3& colour);
             static void DrawLine(const float3& start, const float3& end, const float4& colour = float4(1.0f, 1.0f, 1.0f, 1.0f));
 
-            static void DrawAABB(const Maths::AABB& box, const float4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
+            static void DrawAABB(const rz_aabb& box, const float4& edgeColour, bool cornersOnly = false, f32 width = 0.02f);
             static void DrawGrid(u32 dimension, const float4& colour);
 
             static void DrawLight(Gfx::RZLight* light, const float4& colour);

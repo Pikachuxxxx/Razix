@@ -9,6 +9,8 @@
 
 #include <string.h>    // for memset, memcpy
 
+#define RAZIX_MEMORY_POISON 0xCD
+
 void* rz_malloc(size_t size, size_t alignment)
 {
     // TODO: Begin tracking allocation here
@@ -60,35 +62,37 @@ void* rz_mem_copy_to_heap(void* data, size_t size)
     return heapData;
 }
 
+#include <stdio.h>
+
 void* rz_realloc(void* oldPtr, size_t oldSize, size_t newSize, size_t alignment)
 {
     if (newSize == 0) {
-        rz_free(oldPtr);
+        if (oldPtr)
+            rz_free(oldPtr);
         return NULL;
     }
 
     if (!oldPtr) {
-        return rz_malloc(newSize, alignment);
+        void* addr = rz_malloc(newSize, alignment);
+        return addr;
     }
 
 #ifdef RAZIX_PLATFORM_WINDOWS
-    oldPtr = _aligned_realloc(oldPtr, newSize, alignment);
+    return _aligned_realloc(oldPtr, newSize, alignment);
 #elif RAZIX_PLATFORM_UNIX
-    void* newPtr = NULL;
-    if (posix_memalign(&newPtr, alignment, newSize) != 0) {
-        newPtr = NULL;
-        oldPtr = NULL;
+    void* newPtr = rz_malloc(newSize, alignment);
+    if (!newPtr) {
+        return NULL;    // Allocation failed, oldPtr is still valid
     }
-    if (newPtr) {
-        memcpy(newPtr, oldPtr, oldSize < newSize ? oldSize : newSize);
-        free(oldPtr);
-        oldPtr = newPtr;
-    } else {
-        oldPtr = NULL;
-    }
-#endif
 
-    return oldPtr;
+    size_t copySize = (oldSize < newSize) ? oldSize : newSize;
+    if (copySize > 0) {
+        memcpy(newPtr, oldPtr, copySize);
+    }
+
+    rz_free(oldPtr);
+    return newPtr;
+#endif
 }
 
 void* rz_realloc_aligned(void* oldPtr, size_t oldSize, size_t newSize)
@@ -131,6 +135,29 @@ size_t rz_mem_align(size_t size, size_t alignment)
     return (size + alignment_mask) & ~alignment_mask;
 }
 
+void* rz_align_ptr(void* ptr, size_t alignment)
+{
+    // alignment must be a power of 2
+    // static_assert((alignment & (alignment - 1)) == 0, "Alignment must be power of 2");
+    uintptr_t addr    = (uintptr_t) (ptr);
+    uintptr_t aligned = (addr + alignment - 1) & ~(alignment - 1);
+    return (void*) (aligned);
+}
+
+size_t rz_next_power_of_two(size_t size)
+{
+    size_t v = size;
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v |= v >> 32;
+    v++;
+    return v;
+}
+
 #ifdef RAZIX_DEBUG
 
 void* rz_debug_malloc(size_t size, size_t alignment, const char* filename, uint32_t lineNumber, const char* tag)
@@ -167,3 +194,11 @@ void rz_debug_free(void* address)
 }
 
 #endif
+
+RAZIX_API void rz_poison_memory(void* ptr, size_t size)
+{
+    // TODO: update tracking here
+    if (ptr) {
+        memset(ptr, RAZIX_MEMORY_POISON, size);
+    }
+}

@@ -5,10 +5,6 @@
 
 #include "Razix/Core/App/RZApplication.h"
 
-#include "Razix/Scene/RZEntity.h"
-
-#include "Razix/Scene/Components/RZComponents.h"
-
 /** Ex. https://sol2.readthedocs.io/en/latest/api/usertype.html
 	lua.new_usertype<object>( "object" );
 

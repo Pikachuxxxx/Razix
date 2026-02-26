@@ -57,6 +57,8 @@ typedef struct dx12_ctx
     ID3D12CommandSignature* drawIndirectSignature;
     ID3D12CommandSignature* drawIndexedIndirectSignature;
     ID3D12CommandSignature* dispatchIndirectSignature;
+    ID3D12PipelineLibrary*  pipelineLibrary;
+    void*                   pipelineCacheData;
 } dx12_ctx;
 
 typedef struct dx12_syncobj

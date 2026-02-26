@@ -10,6 +10,15 @@ namespace Razix {
      */
     namespace BuildUtils {
 
+        enum class BuildMode
+        {
+#if RAZIX_IS_DEVELOPMENT_BUILD
+            kDevelopment = 0,
+#elif RAZIX_IS_SHIPPING_BUILD
+            kShipping
+#endif
+        };
+
         enum class BuildConfig
         {
             DEBUG,
@@ -35,7 +44,7 @@ namespace Razix {
         };
 
         /* Gets the build configuration in which the engine was build */
-        BuildConfig getBuildConfig()
+        static BuildConfig getBuildConfig()
         {
 #ifdef RAZIX_DEBUG
             return BuildConfig::DEBUG;
@@ -46,12 +55,22 @@ namespace Razix {
 #endif
         }
 
-        Platform getPlatform()
+        static Platform getPlatform()
         {
 #ifdef RAZIX_PLATFORM_WINDOWS
             return Platform::WINDOWS;
 #endif
         }
+
+        static BuildMode getBuildMode()
+        {
+#if RAZIX_IS_DEVELOPMENT_BUILD
+            return BuildMode::kDevelopment;
+#elif RAZIX_IS_SHIPPING_BUILD
+            return BuildMode::kShipping;
+#endif
+        }
+
     }    // namespace BuildUtils
 
 }    // namespace Razix

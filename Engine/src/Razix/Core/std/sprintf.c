@@ -41,13 +41,17 @@
     F(FMT_MOD_t, ptrdiff_t, ptrdiff_t, base)                    \
     F(FMT_MOD_z, size_t, size_t, base)
 
-#define GET_ARG_S(mod, vartype, argtype, base)                                  \
-    case mod: {                                                                 \
-        vartype v = (vartype) va_arg(args, argtype);                            \
-        isNeg     = v < 0;                                                      \
-        val       = isNeg ? -v : v;                                             \
-        writtenBytes += itoa(val, (buf_span) {num_buf, sizeof(num_buf)}, base); \
-        break;                                                                  \
+#define GET_ARG_S(mod, vartype, argtype, base)                        \
+    case mod: {                                                       \
+        vartype v = (vartype) va_arg(args, argtype);                  \
+        isNeg     = v < 0;                                            \
+        unsigned long long uval =                                     \
+            isNeg ? (unsigned long long) (0 - (unsigned long long) v) \
+                  : (unsigned long long) v;                           \
+        writtenBytes += itoa(uval,                                    \
+            (buf_span) {num_buf, sizeof(num_buf)},                    \
+            base);                                                    \
+        break;                                                        \
     }
 
 #define GET_ARG_U(mod, vartype, argtype, base)                                \
@@ -428,7 +432,7 @@ int rz_vsnprintf(char* buf, size_t size, const char* fmt, va_list args)
 
     // get the first %
     // TODO: use SIMD path instead of strchr to load 16 bytes at once into SIMD registers
-    char*       scan_elem = strchr(fmt, FMT_SPECIFIER_DELIMITER_CHR);
+    const char* scan_elem = strchr(fmt, FMT_SPECIFIER_DELIMITER_CHR);
     const char* format    = fmt;
 
     if (bReadUntilNullChar)

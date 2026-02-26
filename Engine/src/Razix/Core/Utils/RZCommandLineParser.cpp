@@ -5,6 +5,9 @@
 
 #include "Razix/Core/Version/RazixVersion.h"
 
+// exception as it's CLI and no logging system has been started yet
+#include <iostream>
+
 namespace Razix {
     RZCommandLineParser::RZCommandLineParser()
     {

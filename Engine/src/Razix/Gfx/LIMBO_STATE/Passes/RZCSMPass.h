@@ -5,7 +5,7 @@
 #include "Razix/Gfx/Passes/Data/GlobalData.h"
 
 namespace Razix {
-    class RZSceneCamera;
+    class RZCamera3D;
     namespace Gfx {
 
         class RZDescriptorSet;
@@ -32,7 +32,7 @@ namespace Razix {
             RAZIX_INLINE rz_texture_handle getCSMArrayTex() const { return m_CSMArrayHandle; }
             RAZIX_INLINE const auto&       getCascades() const { return m_Cascades; }
 
-            static std::vector<Cascade> buildCascades(RZSceneCamera camera, float3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize);
+            static std::vector<Cascade> buildCascades(RZCamera3D camera, float3 dirLightDirection, u32 numCascades, f32 lambda, u32 shadowMapSize);
             static std::vector<f32>     buildCascadeSplits(u32 numCascades, f32 lambda, f32 nearPlane, f32 clipRange);
             static FrustumCorners       buildFrustumCorners(const float4x4& inversedViewProj, f32 splitDist, f32 lastSplitDist);
             static auto                 measureFrustum(const FrustumCorners& frustumCorners);

@@ -70,6 +70,22 @@ namespace Razix {
         void      pop_back();
         void      resize(size_type count, const T& value = T{});
 
+        T*       data();
+        const T* data() const;
+
+        void set_size(size_type newSize);
+        void set_data(const T* newData);
+
+        static constexpr size_type static_capacity()
+        {
+            return N;
+        }
+
+        static constexpr size_type static_type_size()
+        {
+            return sizeof(T);
+        }
+
     private:
         template<typename... Args>
         void construct(size_type index, Args&&... args)
@@ -96,8 +112,6 @@ namespace Razix {
     template<typename T, size_t N>
     RZFixedArray<T, N>::~RZFixedArray()
     {
-        for (u32 i = 0; i < m_Size; ++i)
-            destroy(m_Size);
         clear();
     }
 
@@ -142,7 +156,7 @@ namespace Razix {
     template<typename T, size_t N>
     RZFixedArray<T, N>::RZFixedArray(std::initializer_list<T> init)
     {
-        reserve(init.size());
+        RAZIX_CORE_ASSERT(init.size() <= N, "RZFixedArray: Initializer list size {0} exceeds capacity {1}", init.size(), N);
         for (const auto& item: init) {
             push_back(item);
         }
@@ -324,6 +338,33 @@ namespace Razix {
             destroy(--m_Size);
     }
 
+    template<typename T, size_t N>
+    T* RZFixedArray<T, N>::data()
+    {
+        return reinterpret_cast<T*>(m_Data);
+    }
+
+    template<typename T, size_t N>
+    const T* RZFixedArray<T, N>::data() const
+    {
+        RAZIX_CORE_ASSERT(m_Data != NULL, "RZFixedArray: Cannot access uninitialized array. Call reserve() first to allocate memory.");
+        return reinterpret_cast<const T*>(m_Data);
+    }
+
+    template<typename T, size_t N>
+    void RZFixedArray<T, N>::set_size(size_type newSize)
+    {
+        RAZIX_CORE_ASSERT(newSize <= N, "RZFixedArray: Cannot set size beyond fixed capacity of {0}", N);
+        m_Size = newSize;
+    }
+
+    template<typename T, size_t N>
+    void RZFixedArray<T, N>::set_data(const T* newData)
+    {
+        RAZIX_CORE_ASSERT(newData != nullptr, "RZFixedArray: Cannot set data to nullptr");
+        memcpy(m_Data, newData, sizeof(T) * N);
+    }
+
     //----------------------------------------------------------
     // RZDynamicArray
     //----------------------------------------------------------
@@ -376,6 +417,9 @@ namespace Razix {
         T*              data();
         const T*        data() const;
 
+        void set_size(size_type newSize);
+        void set_data(const T* newData);
+
         void push_back(const T& value);
         void push_back(T&& value);
         template<typename... Args>
@@ -383,6 +427,11 @@ namespace Razix {
         void      pop_back();
         void      resize(size_type count, const T& value = T{});
         void      reserve(size_type newCapacity);
+
+        static constexpr size_type static_type_size()
+        {
+            return sizeof(T);
+        }
 
     private:
         template<typename... Args>
@@ -413,8 +462,9 @@ namespace Razix {
     {
         if (initialCapacity == 0)
             return;
-        m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * initialCapacity));
-        m_Capacity = initialCapacity;
+        constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
+        m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * initialCapacity, alignment));
+        m_Capacity                 = initialCapacity;
         memset(m_Data, 0x0, sizeof(T) * initialCapacity);
     };
 
@@ -423,9 +473,10 @@ namespace Razix {
     {
         if (initialCapacity == 0)
             return;
-        m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * initialCapacity));
-        m_Size     = 0;
-        m_Capacity = initialCapacity;
+        constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
+        m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * initialCapacity, alignment));
+        m_Size                     = 0;
+        m_Capacity                 = initialCapacity;
         for (m_Size = 0; m_Size < initialCapacity; ++m_Size)
             construct(m_Size, value);
     };
@@ -441,11 +492,12 @@ namespace Razix {
     template<typename T>
     RZDynamicArray<T>::RZDynamicArray(const RZDynamicArray& other)
     {
-        if (m_Data)
-            rz_free(m_Data);
-        m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * other.m_Capacity));
-        m_Capacity = other.m_Capacity;
-        m_Size     = 0;
+        if (other.m_Capacity == 0)
+            return;
+        constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
+        m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * other.m_Capacity, alignment));
+        m_Capacity                 = other.m_Capacity;
+        m_Size                     = 0;
         for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
             construct(m_Size, other[m_Size]);
     }
@@ -455,13 +507,12 @@ namespace Razix {
     {
         if (this != &other) {
             clear();
-            // Allocate new memory if the current capacity is less than the other array's capacity
-            // Don't care about earlier data, we are overwriting it
             if (m_Capacity < other.m_Capacity) {
                 if (m_Data)
                     rz_free(m_Data);
-                m_Data     = reinterpret_cast<T*>(rz_malloc_aligned(sizeof(T) * other.m_Capacity));
-                m_Capacity = other.m_Capacity;
+                constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
+                m_Data                     = reinterpret_cast<T*>(rz_malloc(sizeof(T) * other.m_Capacity, alignment));
+                m_Capacity                 = other.m_Capacity;
             }
             m_Size = 0;
             for (m_Size = 0; m_Size < other.m_Size; ++m_Size)
@@ -659,6 +710,20 @@ namespace Razix {
     }
 
     template<typename T>
+    void RZDynamicArray<T>::set_size(size_type newSize)
+    {
+        m_Size = newSize;
+        resize(newSize);
+    }
+
+    template<typename T>
+    void RZDynamicArray<T>::set_data(const T* newData)
+    {
+        RAZIX_CORE_ASSERT(newData != nullptr, "RZDynamicArray: Cannot set data to nullptr");
+        memcpy(m_Data, newData, sizeof(T) * m_Size);
+    }
+
+    template<typename T>
     void RZDynamicArray<T>::push_back(const T& value)
     {
         reserve(1 + m_Size);
@@ -697,11 +762,17 @@ namespace Razix {
     template<typename T>
     void RZDynamicArray<T>::resize(size_type count, const T& value)
     {
-        if (count > m_Capacity)
+        // If value might alias into our own storage AND we need to grow,
+        // copy it first so reserve() doesn't invalidate the reference.
+        if (count > m_Capacity) {
+            T valueCopy(value);
             reserve(count);
-
-        while (m_Size < count)
-            construct(m_Size++, value);
+            while (m_Size < count)
+                construct(m_Size++, valueCopy);
+        } else {
+            while (m_Size < count)
+                construct(m_Size++, value);
+        }
         while (m_Size > count)
             destroy(--m_Size);
     }
@@ -717,16 +788,19 @@ namespace Razix {
         while (m_Capacity < newCapacity)
             m_Capacity = (m_Capacity == 0) ? RZ_DEFAULT_ARRAY_CAPACITY : m_Capacity * RZ_ARRAY_GROWTH_FACTOR;
 
-        T* newData = reinterpret_cast<T*>(rz_malloc_aligned(m_Capacity * sizeof(T)));
+        constexpr size_t alignment = alignof(T) < 16 ? 16 : alignof(T);
+        T*               newData   = reinterpret_cast<T*>(rz_malloc(m_Capacity * sizeof(T), alignment));
         RAZIX_CORE_ASSERT(newData != NULL, "RZDynamicArray: Memory allocation failed in reserve()");
 
         // Move the old data to the new newData
-        if (m_Data != NULL && m_Size > 0) {
-            // Do element-wise move construction to the new Memory
-            // We cannot just do a memcpy because that would skip the constructor call and lead to undefined behavior for complex types
-            for (size_type i = 0; i < m_Size; ++i) {
-                new (&newData[i]) T(rz_move(m_Data[i]));
-                m_Data[i].~T();
+        if (m_Data != NULL) {
+            if (m_Size > 0) {
+                // Do element-wise move construction to the new Memory
+                // We cannot just do a memcpy because that would skip the constructor call and lead to undefined behavior for complex types
+                for (size_type i = 0; i < m_Size; ++i) {
+                    new (&newData[i]) T(rz_move(m_Data[i]));
+                    m_Data[i].~T();
+                }
             }
             rz_free(m_Data);
         }

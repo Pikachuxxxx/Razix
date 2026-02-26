@@ -25,37 +25,7 @@ project "Tanu"
     ------------------------------------------------------------------------------
     -- Include directories
     ------------------------------------------------------------------------------
-    externalincludedirs {
-        "../Engine/src/Razix",
-        "../Engine",
-        "%{wks.location}/../Engine",
-        "%{wks.location}/../Engine/src",
-        "%{wks.location}/../Engine/src/Razix",
-        "%{wks.location}/../Engine/internal",
-        "%{wks.location}/../Engine/internal/RazixMemory",
-        "%{wks.location}/../Engine/internal/RZSTL",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.tracy}",
-        "%{IncludeDir.optick}",
-        "%{IncludeDir.Jolt}",
-        "%{IncludeDir.json}",
-        "%{IncludeDir.D3D12MA}",
-        "%{IncludeDir.dxc}",
-        "%{IncludeDir.volk}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        "%{ExperimentalIncludeDir.Eigen}",
-    }
+    setEngineVendorIncludes()
 
     ------------------------------------------------------------------------------
     -- Linked Libraries
@@ -70,6 +40,7 @@ project "Tanu"
         "SPIRVCross",
         "lua",
         "optick",
+        "LZ4",
         "Jolt",
         --"tracy",
     }

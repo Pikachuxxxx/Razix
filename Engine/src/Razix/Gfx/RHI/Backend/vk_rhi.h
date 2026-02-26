@@ -60,6 +60,7 @@ typedef struct vk_ctx
     VkPhysicalDeviceProperties       deviceProperties;
     VkPhysicalDeviceFeatures         deviceFeatures;
     VkPhysicalDeviceMemoryProperties memoryProperties;
+    VkPipelineCache                  pipelineCache;
 
         // Debug and validation
     #ifdef RAZIX_DEBUG

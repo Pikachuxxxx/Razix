@@ -2,32 +2,32 @@
 // clang-format off
 #include "rzxpch.h"
 // clang-format on
-#include "RZGeomShadersCubeTestPass.h"
+    #include "RZGeomShadersCubeTestPass.h"
 
-#include "Razix/Core/App/RZApplication.h"
-#include "Razix/Core/Markers/RZMarkers.h"
-#include "Razix/Core/RZEngine.h"
+    #include "Razix/Core/App/RZApplication.h"
+    #include "Razix/Core/Markers/RZMarkers.h"
+    #include "Razix/Core/RZEngine.h"
 
-#include "Razix/Gfx/RHI/API/RZPipeline.h"
-#include "Razix/Gfx/RHI/API/RZShader.h"
+    #include "Razix/Gfx/RHI/API/RZPipeline.h"
+    #include "Razix/Gfx/RHI/API/RZShader.h"
 
-#include "Razix/Gfx/RHI/RHI.h"
+    #include "Razix/Gfx/RHI/RHI.h"
 
-#include "Razix/Gfx/RZShaderLibrary.h"
+    #include "Razix/Gfx/RZShaderLibrary.h"
 
-#include "Razix/Gfx/Passes/Data/FrameData.h"
+    #include "Razix/Gfx/Passes/Data/FrameData.h"
 
-#include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
-#include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
+    #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
+    #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 
-#include "Razix/Scene/RZScene.h"
+    #include "Razix/Scene/RZScene.h"
 
-#include "Razix/Core/Utils/RZColorUtilities.h"
+    #include "Razix/Core/Utils/RZColorUtilities.h"
 
 namespace Razix {
     namespace Gfx {
 
-#define NUM_CUBE_FACES 6
+    #define NUM_CUBE_FACES 6
 
         void RZGeomShadersCubeTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
         {

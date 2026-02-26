@@ -13,9 +13,9 @@
 
 #include "Razix/Core/Job/RZJobSystem.h"
 
-//#include "Razix/Gfx/Materials/RZMaterial.h"
+#include "Razix/AssetSystem/RZAssetDB.h"
 
-#include "Razix/Core/Memory/RZCPUMemoryManager.h"
+//#include "Razix/Gfx/Materials/RZMaterial.h"
 
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
@@ -82,29 +82,67 @@ namespace Razix {
 
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
         //--------------------------------------------------------------------------
-        // Start Up Memory Managers
+        // Start Up Memory
         //--------------------------
-        //u32 SystemHeapSize = Mib(256);    // For now we only manage 256 Mib
-        //RZCPUMemoryManager::Get().Init(SystemHeapSize);
-        //
+        m_SystemAllocatorMutex = rz_critical_section_create();
+
+        // This is used by the asset system and other core engine system with big allocations
+        // RZResourceManager has it's own set of pools and allocators, their memory comes from rz_malloc/rz_free directly
+        // We only track asset system memory this way
+        // TODO: Exploring using SystemAllocator for RZResourceManager as well
+        u32 SystemHeapSize = Mib(256);
+        // TODO: Add this to the game budget ini file, for total heap budget
+        m_SystemAllocator.init(SystemHeapSize);
+
+        // Per-frame bump allocator based on CPU frame budget
+        u32 cpuMemoryFrameBudget = Memory::GetGlobalFrameAllocatorBudget();
+        // TODO: divide this between per thread frame allocators, this is just one for now so give it all the memory
+        m_FrameAllocator.init(cpuMemoryFrameBudget);
+
+        m_PacketAllocator.init(RAZIX_PACKETS * RAZIX_PACKET_SIZE);
         //u32 VRamInitSize = Mib(256);    // Initializing with 256 Mib of GPU memory
         //Graphics::RZGPUMemoryManager::Get().Init(VRamInitSize);
         //--------------------------------------------------------------------------
 
+        // Asset DB and System and Pools
+        // Use the SystemHeap along with department budgets for the RZAssetPools
+        // Create the asset DB with system allocator and list of asset types to register pools for
+        const Memory::MemoryPoolBudget assetBudget        = Memory::GetMemoryPoolBudget(Memory::RZ_MEM_POOL_TYPE_ASSET_POOL);
+        u64                            assetHeapSizeBytes = Mib(static_cast<u64>(assetBudget.HeapSizeMB));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes > 0, "Asset pool budget is 0 bytes!");
+
+        const u64 minAssetHeaderHeapBytes = RZAssetDB::ComputeMinHeaderBudgetBytesForMaxAssets(static_cast<u64>(RAZIX_MAX_ASSETS));
+        RAZIX_CORE_INFO("Initializing Asset Header Pool with minAssetHeaderHeapBytes: {0} KiB", in_Kib(minAssetHeaderHeapBytes));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeaderHeapBytes, "Asset header pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeaderHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
+        m_AssetHeaderAllocator.init(minAssetHeaderHeapBytes, RAZIX_CACHE_LINE_ALIGN);
+        assetHeapSizeBytes -= minAssetHeaderHeapBytes;
+
+        const u64 minAssetHeapBytes = RZAssetDB::ComputeMinPoolBudgetBytesForMaxAssets(static_cast<u64>(RAZIX_MAX_ASSETS));
+        RAZIX_CORE_INFO("Initializing Asset Pool with budget: {0} KiB and minAssetHeapBytes: {1} KiB", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes));
+        RAZIX_CORE_ASSERT(assetHeapSizeBytes >= minAssetHeapBytes, "Asset pool budget ({0} KiB) below minimum required ({1} KiB) for RAZIX_MAX_ASSETS={2}. Update RazixDepartmentBudgets.ini.", in_Kib(assetHeapSizeBytes), in_Kib(minAssetHeapBytes), static_cast<u64>(RAZIX_MAX_ASSETS));
+        m_AssetAllocator.init(assetHeapSizeBytes);
+
+        //--------------------------
+        // Asset DB startup
+        RZAssetDB::Get().Startup(m_AssetAllocator, m_AssetHeaderAllocator);
+
+        //--------------------------
         // Initialize Job System right after memory systems
         rz_job_system_startup(RAZIX_MAX_WORKER_THREADS);
         RAZIX_CORE_INFO("Job System started with {0} worker threads!", RAZIX_MAX_WORKER_THREADS);
+        //--------------------------
 
         // Sound Engine
         //Audio::RZSoundEngine::Get().StartUp();
         // TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO! TODO!
 
-        // Scene Manager
-        RZSceneManager::Get().StartUp();
+        // TODO: Scene Graph Manager
 
+        //--------------------------
         // Script Handler
         Scripting::RZLuaScriptHandler::Get().StartUp();
 
+        //--------------------------
         // Done once all kind of default or existing engine config file is loaded
         // command line takes precedence over config file
         if (RZEngine::Get().getCommandLineParser().isSet("vulkan"))
@@ -115,7 +153,8 @@ namespace Razix {
         if (RZEngine::Get().getCommandLineParser().isSet("render api"))
             rzGfxCtx_SetRenderAPI((rz_render_api) RZEngine::Get().getCommandLineParser().getValueAsInt("render api"));
 
-        // 5. Graphics API (last one in the engine to fire up)
+        //--------------------------
+        // Graphics API (last one in the engine to fire up)
         rz_gfx_context_desc gfxCtxDesc   = {};
         gfxCtxDesc.opts.enableValidation = m_EngineSettings.EnableAPIValidation;
         gfxCtxDesc.engineVer.major       = (uint32_t) RazixVersion.getVersionMajor();
@@ -127,10 +166,13 @@ namespace Razix {
             gfxCtxDesc.opts.enableValidation = true;
         rzGfxCtx_StartUp(gfxCtxDesc);
 
+        //--------------------------
         Gfx::RZResourceManager::Get().StartUp();
 
+        //--------------------------
         Gfx::RZShaderLibrary::Get().StartUp();
 
+        //--------------------------
         // Input setup and window pointers
         // TODO: Use #elif for other platforms
 #ifdef RAZIX_USE_GLFW_WINDOWS
@@ -178,14 +220,19 @@ namespace Razix {
 
         // Shutdown the lua script handle
         Scripting::RZLuaScriptHandler::Get().ShutDown();
-        // Shutdown the Scene Manager
-        RZSceneManager::Get().ShutDown();
+        // TODO: Shutdown the SceneGraph Manager
         // Shutdown the Audio Engine
         //Audio::RZSoundEngine::Get().ShutDown();
         // Shutdown Job System
         rz_job_system_shutdown();
         // Shutdown memory systems and free all the memory
-        //Graphics::RZGPUMemoryManager::Get().ShutDown();
+        RZAssetDB::Get().Shutdown();
+        m_AssetAllocator.shutdown();
+        m_SystemAllocator.shutdown();
+        m_FrameAllocator.shutdown();
+        m_PacketAllocator.shutdown();
+
+        rz_critical_section_destroy(&m_SystemAllocatorMutex);
         // Shutdown the VFS last
         RZVirtualFileSystem::Get().ShutDown();
 

@@ -35,7 +35,7 @@ namespace Razix {
      * Different departments that uses the engine, render graph passes are and engine systems are registered to one of the departments
      * Departments are used for debugging/profiling purposes to track memory usage and CPU/GPU timings
      */
-    enum class Department
+    enum class Department : u8
     {
         NONE,    // Unsafe
         Core,

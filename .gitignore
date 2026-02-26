@@ -1,5 +1,6 @@
 # Directories
 .vs/
+.vscode/
 # https://stackoverflow.com/questions/5533050/gitignore-exclude-folder-but-include-specific-subfolder
 # don't ignore the NSIS Bin folder
 !/Tools/Building.EngineInstaller/NSIS/Bin/**
@@ -37,6 +38,9 @@ Editor/src/generated/
 # Ignore logs
 Logs/
 *.log
+
+# Ignore PSO cache
+PSOCache
 
 # Test Images
 Tests/GfxTests/TestImages/

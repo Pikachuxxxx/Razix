@@ -578,7 +578,6 @@ namespace Razix {
         EXPECT_EQ(arr[2], "third");
     }
 
-
     TEST_F(RZDynamicArrayStringTest, ResizeWithStrings)
     {
         RZDynamicArray<std::string> arr(2, "a");

@@ -15,12 +15,12 @@ namespace Razix {
     };
 
     // Register the type
-    REFLECT_TYPE_START(TestStruct)
-    REFLECT_MEMBER(intValue)
-    REFLECT_MEMBER(floatValue)
-    REFLECT_MEMBER(doubleValue)
-    REFLECT_MEMBER(charValue)
-    REFLECT_TYPE_END(TestStruct)
+    RAZIX_REFLECT_TYPE_START(TestStruct)
+    RAZIX_REFLECT_PRIMITIVE(intValue)
+    RAZIX_REFLECT_PRIMITIVE(floatValue)
+    RAZIX_REFLECT_PRIMITIVE(doubleValue)
+    RAZIX_REFLECT_PRIMITIVE(charValue)
+    RAZIX_REFLECT_TYPE_END(TestStruct)
 
     // Fixture for Reflection Tests
     class RZReflectionTests : public ::testing::Test
@@ -69,22 +69,22 @@ namespace Razix {
         EXPECT_EQ(members[0].name, "intValue");
         EXPECT_EQ(members[0].typeName, typeid(int).name());
         EXPECT_EQ(members[0].offset, offsetof(TestStruct, intValue));
-        EXPECT_EQ(members[0].size, sizeof(int));
+        EXPECT_EQ(members[0].trivial.size, sizeof(int));
 
         EXPECT_EQ(members[1].name, "floatValue");
         EXPECT_EQ(members[1].typeName, typeid(float).name());
         EXPECT_EQ(members[1].offset, offsetof(TestStruct, floatValue));
-        EXPECT_EQ(members[1].size, sizeof(float));
+        EXPECT_EQ(members[1].trivial.size, sizeof(float));
 
         EXPECT_EQ(members[2].name, "doubleValue");
         EXPECT_EQ(members[2].typeName, typeid(double).name());
         EXPECT_EQ(members[2].offset, offsetof(TestStruct, doubleValue));
-        EXPECT_EQ(members[2].size, sizeof(double));
+        EXPECT_EQ(members[2].trivial.size, sizeof(double));
 
         EXPECT_EQ(members[3].name, "charValue");
         EXPECT_EQ(members[3].typeName, typeid(char).name());
         EXPECT_EQ(members[3].offset, offsetof(TestStruct, charValue));
-        EXPECT_EQ(members[3].size, sizeof(char));
+        EXPECT_EQ(members[3].trivial.size, sizeof(char));
     }
 
     // Test: Missing Type Metadata
@@ -99,12 +99,14 @@ namespace Razix {
     {
         bool flag;
         int  count;
+        float4 pos;
     };
 
-    REFLECT_TYPE_START(AnotherStruct)
-    REFLECT_MEMBER(flag)
-    REFLECT_MEMBER(count)
-    REFLECT_TYPE_END(AnotherStruct)
+    RAZIX_REFLECT_TYPE_START(AnotherStruct)
+    RAZIX_REFLECT_PRIMITIVE(flag)
+    RAZIX_REFLECT_PRIMITIVE(count)
+    RAZIX_REFLECT_PRIMITIVE(pos)
+    RAZIX_REFLECT_TYPE_END(AnotherStruct)
 
     TEST_F(RZReflectionTests, RegisterAnotherType)
     {
@@ -115,18 +117,23 @@ namespace Razix {
         EXPECT_EQ(metaData->typeName, typeid(AnotherStruct).name());
         EXPECT_EQ(metaData->size, sizeof(AnotherStruct));
 
-        ASSERT_EQ(metaData->members.size(), 2) << "AnotherStruct should have 2 members.";
+        ASSERT_EQ(metaData->members.size(), 3) << "AnotherStruct should have 3 members.";
 
         const auto& members = metaData->members;
 
         EXPECT_EQ(members[0].name, "flag");
         EXPECT_EQ(members[0].typeName, typeid(bool).name());
         EXPECT_EQ(members[0].offset, offsetof(AnotherStruct, flag));
-        EXPECT_EQ(members[0].size, sizeof(bool));
+        EXPECT_EQ(members[0].trivial.size, sizeof(bool));
 
         EXPECT_EQ(members[1].name, "count");
         EXPECT_EQ(members[1].typeName, typeid(int).name());
         EXPECT_EQ(members[1].offset, offsetof(AnotherStruct, count));
-        EXPECT_EQ(members[1].size, sizeof(int));
+        EXPECT_EQ(members[1].trivial.size, sizeof(int));
+
+        EXPECT_EQ(members[2].name, "pos");
+        EXPECT_EQ(members[2].typeName, typeid(float4).name());
+        EXPECT_EQ(members[2].offset, offsetof(AnotherStruct, pos));
+        EXPECT_EQ(members[2].trivial.size, sizeof(float4));
     }
 }    // namespace Razix

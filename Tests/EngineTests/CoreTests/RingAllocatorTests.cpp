@@ -9,7 +9,7 @@ namespace Razix {
         {
         protected:
             RZRingAllocator<int> allocator;
-            const size_t totalSize = 10;
+            const size_t         totalSize = 10;
 
             void SetUp() override
             {
@@ -31,7 +31,7 @@ namespace Razix {
         {
             RZRingAllocator<int> aligned_allocator;
             aligned_allocator.init(totalSize, 32);
-            void* buffer = aligned_allocator.allocate(0); // size is not used
+            void* buffer = aligned_allocator.allocate(0);    // size is not used
             EXPECT_NE(buffer, nullptr);
             EXPECT_EQ(reinterpret_cast<uintptr_t>(buffer) % 32, 0);
             aligned_allocator.shutdown();
@@ -51,7 +51,7 @@ namespace Razix {
         {
             EXPECT_FALSE(allocator.isFull());
             for (size_t i = 0; i < totalSize; ++i) {
-                allocator.put((int)i);
+                allocator.put((int) i);
             }
             EXPECT_TRUE(allocator.isFull());
         }
@@ -59,10 +59,10 @@ namespace Razix {
         TEST_F(RZRingAllocatorTests, WrapAround)
         {
             for (size_t i = 0; i < totalSize; ++i) {
-                allocator.put((int)i);
+                allocator.put((int) i);
             }
             EXPECT_TRUE(allocator.isFull());
-            
+
             // First element should be 0
             int val = allocator.get();
             EXPECT_EQ(val, 0);
@@ -77,12 +77,12 @@ namespace Razix {
 
             // Put another element
             allocator.put(101);
-            EXPECT_TRUE(allocator.isFull()); 
+            EXPECT_TRUE(allocator.isFull());
 
             // Get all elements
             for (size_t i = 2; i < totalSize; ++i) {
                 val = allocator.get();
-                EXPECT_EQ(val, (int)i);
+                EXPECT_EQ(val, (int) i);
             }
             val = allocator.get();
             EXPECT_EQ(val, 100);
@@ -103,5 +103,5 @@ namespace Razix {
             EXPECT_TRUE(allocator.empty());
             EXPECT_FALSE(allocator.isFull());
         }
-    }
-}
+    }    // namespace Memory
+}    // namespace Razix

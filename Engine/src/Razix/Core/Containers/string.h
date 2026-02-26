@@ -169,6 +169,11 @@ namespace Razix {
         void clear();
         void setLength(sz length);
         sz   hash() const;
+        void set_size(sz length);
+        void set_data(const char* newData);
+
+        inline sz    get_size() const { return m_length + 1; }    // +1 for null terminator
+        inline void* get_data() const { return m_is_using_heap ? m_data.ptr : (void*) m_data.sso; }
 
         RZString& append(const RZString& str);
         RZString& append(const RZString& str, sz pos, sz count = npos);

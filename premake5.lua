@@ -109,6 +109,45 @@ function apply_engine_global_config()
     end
 end
 
+function apply_sanitizer_config()
+    local sanitizer = _OPTIONS["sanitizer"]
+    if sanitizer and sanitizer ~= "off" then
+        print("Razix sanitizers enabled: " .. sanitizer)
+        defines { "RAZIX_ENABLE_SANITIZERS" }
+
+        local clangGccSanitizeFlag = nil
+        if sanitizer == "asan" then
+            clangGccSanitizeFlag = "-fsanitize=address"
+            defines { "RAZIX_SANITIZER_ASAN" }
+        elseif sanitizer == "ubsan" then
+            clangGccSanitizeFlag = "-fsanitize=undefined"
+            defines { "RAZIX_SANITIZER_UBSAN" }
+        elseif sanitizer == "tsan" then
+            clangGccSanitizeFlag = "-fsanitize=thread"
+            defines { "RAZIX_SANITIZER_TSAN" }
+        elseif sanitizer == "asan-ubsan" then
+            clangGccSanitizeFlag = "-fsanitize=address,undefined"
+            defines { "RAZIX_SANITIZER_ASAN", "RAZIX_SANITIZER_UBSAN" }
+        else
+            print("Unknown sanitizer option: " .. sanitizer)
+        end
+
+        if clangGccSanitizeFlag then
+            filter { "system:macosx or linux" }
+                buildoptions { clangGccSanitizeFlag, "-fno-omit-frame-pointer", "-fno-sanitize-recover=all" }
+                linkoptions  { clangGccSanitizeFlag }
+            filter {}
+        end
+
+        if sanitizer == "asan" then
+            filter { "system:windows", "toolset:msc" }
+                buildoptions { "/fsanitize=address" }
+                linkoptions  { "/fsanitize=address" }
+            filter {}
+        end
+    end
+end
+
 function install_hooks()
     if os.isdir(".git") then
         print("Installing Git hooks...")
@@ -166,6 +205,30 @@ workspace ( settings.workspace_name )
         "GoldMaster"
     }
 
+    BuildMode = _OPTIONS["buildmode"] or "Development"
+    if BuildMode == "Development" then
+        print("Selected Build Mode: Development")
+    elseif BuildMode == "Shipping" then
+        print("Selected Build Mode: Shipping")
+    else
+        print("Unknown Build Mode '" .. BuildMode .. "'. Supported build modes are: Development, Shipping")
+        os.exit(1)
+    end
+
+    if BuildMode == "Development" then
+        defines 
+        {
+            "RAZIX_IS_DEVELOPMENT_BUILD=1",
+            "RAZIX_IS_SHIPPING_BUILD=0",
+        }
+    elseif BuildMode == "Shipping" then
+        defines 
+        {
+            "RAZIX_IS_DEVELOPMENT_BUILD=0",
+            "RAZIX_IS_SHIPPING_BUILD=1",
+        }
+    end
+
     -- global config settings for all projects, override if necessary in project lua files 
     filter "configurations:Debug"
         defines { "RAZIX_DEBUG", "_DEBUG" }
@@ -197,6 +260,7 @@ workspace ( settings.workspace_name )
     end
 
     apply_engine_global_config()
+    apply_sanitizer_config()
     --install_hooks()
 
     ------------------------------------------------------------------------------
@@ -205,7 +269,6 @@ workspace ( settings.workspace_name )
 
     -- Build scripts for the Razix vendor dependencies
     group "Dependencies"
-        include "Engine/vendor/cereal.lua"
         include "Engine/vendor/eigen.lua"
         include "Engine/vendor/glfw.lua"
         include "Engine/vendor/imgui.lua"
@@ -216,6 +279,7 @@ workspace ( settings.workspace_name )
         include "Engine/vendor/SPIRVReflect.lua"
         include "Engine/vendor/tracy.lua"
         include "Engine/vendor/jolt.lua"
+        include "Engine/vendor/lz4.lua"
     group ""
 
     -- Build Script for Razix Engine (Core)

@@ -10,30 +10,6 @@
 
 namespace Razix {
 
-    /**
-	 * By default they are viewed as default type, 
-	 * these enums can be used to customize how reflection systems views them
-	 * for ex. a string can be just read-only or read-write or loaded by a file browser by UI
-	 * This helps with generating additional metadata into .DDL files and helps with UI generation
-	 */
-    enum class MetaDataViewHint
-    {
-        kDefault,
-        kReadOnly,
-        kReadWrite,
-        kRange,    // basically a slider
-        kFile,
-        kVector2d,
-        kVector3d,
-        kVector4d,
-        kToggle,
-        kIntPrecision,
-        kFloatPrecision,
-        // ADD MORE HERE
-        COUNT
-    };
-    static_assert((int) MetaDataViewHint::COUNT == 11);
-
     class RZTypeRegistry
     {
     public:
@@ -46,11 +22,31 @@ namespace Razix {
         template<typename T>
         static const TypeMetaData* getTypeMetaData()
         {
-            auto it = getRegistry().find(typeid(T));
+            return getTypeMetaData(typeid(T));
+        }
+
+        static const TypeMetaData* getTypeMetaData(std::type_index typeIdx)
+        {
+            auto it = getRegistry().find(typeIdx);
             if (it != getRegistry().end()) {
                 return &it->second;
             }
-            return nullptr;
+            return NULL;
+        }
+
+        template<typename T>
+        static bool isTypeTriviallySerializable()
+        {
+            return isTypeTriviallySerializable(typeid(T));
+        }
+
+        static bool isTypeTriviallySerializable(std::type_index typeIdx)
+        {
+            auto it = getRegistry().find(typeIdx);
+            if (it != getRegistry().end()) {
+                return it->second.bIsTriviallySerializable;
+            }
+            return false;
         }
 
     private:

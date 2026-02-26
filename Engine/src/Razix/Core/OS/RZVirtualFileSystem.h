@@ -71,7 +71,7 @@ namespace Razix {
 		 * @param path The virtual path to which the file is being written to  
 		 * @returns True, if the file was written successfully  
 		 */
-        bool writeFile(const RZString& path, u8* buffer, i64 size);
+        bool writeFile(const RZString& path, const u8* buffer, i64 size);
         /**
 		 * Writes the text file given the virtual path
 		 * 

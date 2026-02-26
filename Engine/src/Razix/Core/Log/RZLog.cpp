@@ -20,11 +20,11 @@
 
 #define LOG_MSG_PATTERN "%^ %n [%T] :: %v %$"
 
-#define EXPAND_VA_LIST_FMT_ARGS                            \
-    va_list args;                                          \
-    va_start(args, fmt);                                   \
-    char buffer[2048];                                     \
-    rz_vsnprintf(buffer, sizeof(buffer), fmt, args);       \
+#define EXPAND_VA_LIST_FMT_ARGS                      \
+    va_list args;                                    \
+    va_start(args, fmt);                             \
+    char buffer[2048];                               \
+    rz_vsnprintf(buffer, sizeof(buffer), fmt, args); \
     va_end(args);
 
 namespace Razix {

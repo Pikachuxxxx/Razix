@@ -1,4 +1,4 @@
-#include "Razix/Core/Memory/Allocators/RZLinearAllocator.h"
+#include "Razix/Core/Memory/Allocators/RZBumpAllocator.h"
 #include <gtest/gtest.h>
 
 namespace Razix {
@@ -7,9 +7,9 @@ namespace Razix {
         class RZLinearAllocatorTests : public ::testing::Test
         {
         protected:
-            RZLinearAllocator allocator;
-            const size_t      totalSize = 1024;
-            void              SetUp() override
+            RZBumpAllocator allocator;
+            const size_t    totalSize = 1024;
+            void            SetUp() override
             {
                 allocator.init(totalSize);
             }
@@ -31,8 +31,8 @@ namespace Razix {
 
         TEST_F(RZLinearAllocatorTests, InitializeWithValidSize)
         {
-            RZLinearAllocator testAllocator;
-            size_t            size = 2048;
+            RZBumpAllocator testAllocator;
+            size_t          size = 2048;
             testAllocator.init(size);
 
             EXPECT_EQ(testAllocator.getTotalSize(), size);
@@ -44,8 +44,8 @@ namespace Razix {
 
         TEST_F(RZLinearAllocatorTests, InitializeWithLargeSize)
         {
-            RZLinearAllocator testAllocator;
-            size_t            size = 1024 * 1024 * 10;    // 10MB
+            RZBumpAllocator testAllocator;
+            size_t          size = 1024 * 1024 * 10;    // 10MB
             testAllocator.init(size);
 
             EXPECT_EQ(testAllocator.getTotalSize(), size);
@@ -57,7 +57,7 @@ namespace Razix {
 
         TEST_F(RZLinearAllocatorTests, ShutdownFreesMemory)
         {
-            RZLinearAllocator testAllocator;
+            RZBumpAllocator testAllocator;
             testAllocator.init(1024);
             testAllocator.shutdown();
 
@@ -125,8 +125,8 @@ namespace Razix {
             void* ptr1 = allocator.allocate(32);
             void* ptr2 = allocator.allocate(0);
 
-            EXPECT_EQ(ptr1, ptr2);
-            EXPECT_EQ(allocator.getAllocatedSize(), 32);
+            EXPECT_NE(ptr1, ptr2);
+            EXPECT_EQ(ptr2, static_cast<uint8_t*>(allocator.getBase()) + 32);
         }
 
         // ============================================================================
@@ -231,7 +231,7 @@ namespace Razix {
 
         TEST_F(RZLinearAllocatorTests, AllocationAlignment)
         {
-            RZLinearAllocator aligned_allocator;
+            RZBumpAllocator aligned_allocator;
             aligned_allocator.init(totalSize, 32);
             void* mem_32 = aligned_allocator.allocate(256);
             EXPECT_NE(mem_32, nullptr);
@@ -265,7 +265,7 @@ namespace Razix {
 
         TEST_F(RZLinearAllocatorTests, WriteMultipleTypes)
         {
-            RZLinearAllocator testAllocator;
+            RZBumpAllocator testAllocator;
             testAllocator.init(2048);
 
             int*   intPtr   = (int*) testAllocator.allocate(sizeof(int) * 5);

@@ -6,8 +6,6 @@
 #include "Razix/Core/Memory/RZAllocationMetrics.h"
 #include "Razix/Core/Memory/RZMemoryFunctions.h"
 
-#include <iostream>
-
 #include "Razix/Core/Memory/vendor/tlsf/tlsf.h"
 
 namespace Razix {
@@ -17,7 +15,7 @@ namespace Razix {
         {
 #ifdef RAZIX_DEBUG
             if (used)
-                printf("[Heap Allocator] Found active allocation at : %p, size: %zu \n", ptr, size);
+                RAZIX_CORE_ERROR("[Heap Allocator] Found active allocation at : {0}, size: {1}", ptr, size);
 #endif
         }
 
@@ -34,10 +32,10 @@ namespace Razix {
             m_TLSFHandle = tlsf_create_with_pool(m_ChunkAddress, chunkSize);
 
 #ifdef RAZIX_DEBUG
-            if (float(chunkSize / 1024) < 1.0f)
-                std::cout << "[Heap Allocator] Creating TLSL pool... | size : " << float(chunkSize / 1024) << "Kb" << std::endl;
+            if ((static_cast<float>(in_Kib(chunkSize)) / 1024.0f) < 1.0f)
+                RAZIX_CORE_TRACE("[Heap Allocator] Creating TLSF pool... | size : {0} Kb", (chunkSize / 1024));
             else
-                std::cout << "[Heap Allocator] Creating TLSL pool... | size : " << float(chunkSize / (1024 * 1024)) << "Mb" << std::endl;
+                RAZIX_CORE_TRACE("[Heap Allocator] Creating TLSF pool... | size : {0} Mb", (chunkSize / (1024 * 1024)));
 #endif
         }
 
@@ -51,7 +49,7 @@ namespace Razix {
 
             if (allocatorStats.allocatedBytes) {
 #ifdef RAZIX_DEBUG
-                std::cout << "[Heap Allocator] Allocation still active | total size : " << m_TotalChunkSize << " allocated bytes : " << m_AllocatedSize << std::endl;
+                RAZIX_CORE_ERROR("[Heap Allocator] Allocation still active | total size : {0} allocated bytes : {1}", m_TotalChunkSize, m_AllocatedSize);
 #endif
                 throw std::runtime_error("[Heap Allocator] Allocation still active");
             }

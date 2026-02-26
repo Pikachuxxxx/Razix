@@ -23,6 +23,7 @@ namespace Razix {
 
             const uint64_t getChunkStartAddress() const { return (uint64_t) m_ChunkAddress; }
             const void*    getCurrentAllocation() { return m_CurrentAllocation; }
+            void*          getBase() override { return m_ChunkAddress; }
 
         private:
             void*  m_TLSFHandle;

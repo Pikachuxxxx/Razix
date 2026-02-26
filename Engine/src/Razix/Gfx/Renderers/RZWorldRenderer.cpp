@@ -97,33 +97,6 @@ namespace Razix {
             RZFileSystem::WriteTextFile(filename, filename.c_str());
         }
 
-        //-------------------------------------------------------------------------------------------
-
-        static void PrintGLFWRequiredExtensions(void)
-        {
-#ifdef RAZIX_RENDER_API_VULKAN
-            // First we are sending in the list of desired extensions by GLFW to interface with the WPI
-            u32   glfwExtensionsCount = 0;
-            cstr* glfwExtensions;
-            glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
-            RAZIX_CORE_TRACE("[Vulkan] GLFW loaded extensions count : {0}", glfwExtensionsCount);
-
-            // This is just for information and Querying purpose
-    #ifdef RAZIX_DEBUG
-            RAZIX_CORE_TRACE("GLFW Requested Extensions are : \n");
-            for (u32 i = 0; i < glfwExtensionsCount; i++) {
-                RAZIX_CORE_TRACE("\t");
-                int j = 0;
-                while (*(glfwExtensions[i] + j) != 0) {
-                    std::cout << *(glfwExtensions[i] + j);
-                    j++;
-                }
-                std::cout << std::endl;
-            }
-    #endif
-#endif
-        }
-
         //-----------------------------------------------------------------------------------
 
         static void SetupRazixImGuiStyle()
@@ -247,7 +220,6 @@ namespace Razix {
             memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
             m_FrameCount = 0;
 
-            PrintGLFWRequiredExtensions();
             // Create the swapchain
             GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
             rz_render_api api        = rzGfxCtx_GetRenderAPI();
@@ -433,6 +405,9 @@ namespace Razix {
 
         void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
         {
+            if (!scene)
+                return;
+
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
             m_FrameGraphBuildingInProgress = true;
 
@@ -499,15 +474,15 @@ namespace Razix {
                     // TODO: Pass jitter as separate, just to upload to GPU for other usage
                     //auto jitteredProjMatrix = sceneCam.getProjection() * jitterMatrix;
 
-                    auto& sceneCam                    = scene->getSceneCamera();
-                    gpuData.camera.projection         = sceneCam.getProjection();
-                    gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
-                    gpuData.camera.view               = sceneCam.getViewMatrix();
-                    gpuData.camera.inversedView       = inverse(gpuData.camera.view);
-                    gpuData.camera.prevViewProj       = m_PreviousViewProj;
-                    gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
-                    gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
-                    gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
+                    //auto& sceneCam                    = scene->getSceneCamera();
+                    //gpuData.camera.projection         = sceneCam.getProjection();
+                    //gpuData.camera.inversedProjection = inverse(gpuData.camera.projection);
+                    //gpuData.camera.view               = sceneCam.getViewMatrix();
+                    //gpuData.camera.inversedView       = inverse(gpuData.camera.view);
+                    //gpuData.camera.prevViewProj       = m_PreviousViewProj;
+                    //gpuData.camera.fov                = sceneCam.getPerspectiveVerticalFOV();
+                    //gpuData.camera.nearPlane          = sceneCam.getPerspectiveNearClip();
+                    //gpuData.camera.farPlane           = sceneCam.getPerspectiveFarClip();
 
                     // update and upload the UBO
                     auto                 frameDataBufferHandle = resources.get<RZFrameGraphBuffer>(data.frameData).getRHIHandle();
@@ -745,9 +720,9 @@ namespace Razix {
                     // Grid
                     RZDebugDraw::DrawGrid(125, float4(0.75f));
 
-                    // Render loop
-                    const RZSceneCamera& sceneCamera = scene->getSceneCamera();
-                    RZDebugDraw::BeginDraw(&sceneCamera);
+                // Render loop
+                //const RZCamera3D& sceneCamera = scene->getSceneCamera();
+                //RZDebugDraw::BeginDraw(&sceneCamera);
 
 #if 0
                     //// Draw all lights in the scene
@@ -784,8 +759,10 @@ namespace Razix {
                     //    // Bind push constants, VBO, IBO and draw
                     //    float4x4 transform = mesh_trans.GetGlobalTransform();
                     //
-                    //    if (mrc.Mesh && mrc.enableBoundingBoxes)
-                    //        RZDebugDraw::DrawAABB(mrc.Mesh->getBoundingBox().transform(transform), float4(0.0f, 1.0f, 0.0f, 1.0f));
+                    //    rz_aabb box = mrc.Mesh->getBoundingBox();
+                    //    rz_aabb transformed_box;
+                    //    rz_aabb_transform(&transformed_box, &box, &transform);
+                    //    RZDebugDraw::DrawAABB(transformed_box, float4(0.0f, 1.0f, 0.0f, 1.0f));
                     //}
 
                     //auto rt = resources.get<RZFrameGraphTexture>(data.DebugRT).getRHIHandle();
@@ -1309,7 +1286,7 @@ namespace Razix {
             if (m_IsFGFilePathDirty) {
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(settings, RZSceneManager::Get().getCurrentSceneMutablePtr());
+                buildFrameGraph(settings, NULL);
                 m_IsFGFilePathDirty = false;
             }
 

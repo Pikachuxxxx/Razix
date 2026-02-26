@@ -8,8 +8,6 @@
 
 #include "Razix/Core/std/thread.h"
 
-#include "Razix/Core/Utils/RZVendorOverrides.h"
-
 #include "Razix/Core/OS/RZWindow.h"
 
 #include "Razix/Core/Profiling/RZProfiling.h"
@@ -19,16 +17,11 @@
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
-#include "Razix/Scene/RZEntity.h"
-
 #include "Razix/Core/Utils/RZTime.h"
 #include "Razix/Core/Utils/RZTimestep.h"
 #include "Razix/Core/Utils/TRZSingleton.h"
 
-// Cereal
-#pragma warning(push, 0)
-#include <cereal/types/vector.hpp>
-#pragma warning(pop)
+#include <nlohmann/json.hpp>
 
 //! Some style guide rules are waved off for RZApplication class
 
@@ -52,9 +45,10 @@ namespace Razix {
     /* Determines the state of the application */
     enum class AppState
     {
-        Running,
-        Loading,
-        Closing
+        kRunning,
+        kLoading,
+        kClosing,
+        COUNT
     };
 
     /* The type of the application (Editor or Game) */
@@ -102,44 +96,34 @@ namespace Razix {
         inline RZString              getAppName() const { return m_ProjectName; }
         inline RZString              getProjectRoot() const { return m_ProjectPath; }
         inline void                  setProjectRoot(const RZString& projPath) { m_ProjectPath = projPath; }
-        inline WindowProperties&     getWindowProps() { return m_WindowProperties; }
-        inline RZUUID                getProjectUUID() const { return m_ProjectID; }
+        inline rz_uuid               getProjectUUID() const { return m_ProjectID; }
         inline void                  setViewportWindow(RZWindow* viewportWindow) { m_Window = viewportWindow; }
         inline AppType               getAppType() const { return m_appType; }
         inline void                  setAppType(AppType appType) { m_appType = appType; }
-        inline void                  disableGuizmoEditing() { m_EnableGuizmoEditing = false; }
-        inline void                  setGuizmoOperation(Guizmo::OPERATION operation) { m_GuizmoOperation = operation; }
-        inline void                  setGuizmoMode(Guizmo::MODE mode) { m_GuizmoMode = mode; }
-        inline void                  setGuizmoSnapAmount(f32 snapAmount) { m_GuizmoSnapAmount = snapAmount; }
         inline const AppState&       getAppState() const { return m_CurrentState; }
         inline void                  setAppState(AppState state) { m_CurrentState = state; }
 
-        // Application Save and Load Functions
-        RAZIX_DEFINE_SAVE_LOAD
+        void loadRazixProject(const nlohmann::ordered_json& jsonData);
+        void saverazixproject(nlohmann::ordered_json& j) const;
 
     private:
         static RZApplication* s_AppInstance;
 
-        AppState                 m_CurrentState              = AppState::Loading;
+        AppState                 m_CurrentState              = AppState::kLoading;
         AppType                  m_appType                   = AppType::kGame;
         RZString                 m_ProjectName               = "";
         RZString                 m_ProjectPath               = "";
-        u32                      m_RenderAPI                 = 0;    // Vulkan
         u32                      m_Frames                    = 0;
         u32                      m_Updates                   = 0;
-        RZTimestep               m_FPSTimestep               = {};
-        RZTimestep               m_UPSTimestep               = {};
-        RZWindow*                m_Window                    = nullptr;
-        WindowProperties         m_WindowProperties          = {};
-        RZUUID                   m_ProjectID                 = {};
-        RZDynamicArray<RZString> sceneFilePaths              = {};
-        Guizmo::OPERATION        m_GuizmoOperation           = Guizmo::TRANSLATE;
-        Guizmo::MODE             m_GuizmoMode                = Guizmo::WORLD;
-        f32                      m_GuizmoSnapAmount          = 0.0f;
-        bool                     m_EnableGuizmoEditing       = false;
-        RZEventDispatcher        m_EventDispatcher           = {};
+        RZWindow*                m_Window                    = NULL;
         rz_time_stamp            m_LastFrameTime             = {};
         rz_time_stamp            m_TotalTimeElapsedInSeconds = {};
+        RZTimestep               m_FPSTimestep               = {};
+        RZTimestep               m_UPSTimestep               = {};
+        rz_uuid                  m_ProjectID                 = {};
+        RZDynamicArray<RZString> m_SceneFilePaths            = {};
+        RZEventDispatcher        m_EventDispatcher           = {};
+        WindowProperties         m_WindowProperties          = {};
 
     private:
         RAZIX_NONCOPYABLE_CLASS(RZApplication);

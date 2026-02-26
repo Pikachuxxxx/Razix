@@ -70,8 +70,8 @@ namespace Razix {
     // Test for ColorToARGB
     TEST_F(RZColorUtilitiesTests, ColorToARGB)
     {
-        float4 color = float4(0.5f, 0.25f, 0.75f, 1.0f);    // RGBA format
-        uint32_t  argb  = Razix::ColorToARGB(color);
+        float4   color = float4(0.5f, 0.25f, 0.75f, 1.0f);    // RGBA format
+        uint32_t argb  = Razix::ColorToARGB(color);
 
         // Verify conversion to ARGB format
         uint8_t a = (argb >> 24) & 0xFF;

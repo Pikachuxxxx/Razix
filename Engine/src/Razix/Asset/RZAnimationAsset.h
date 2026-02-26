@@ -1,0 +1,37 @@
+#ifndef _RZ_ANIMATION_ASSET_H_
+#define _RZ_ANIMATION_ASSET_H_
+
+#include "Razix/AssetSystem/RZAssetBase.h"
+
+#include "Razix/Core/Reflection/RZReflection.h"
+
+#include "Razix/Core/RZHandle.h"
+
+namespace Razix {
+
+    struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZAnimationAsset
+    {
+        RAZIX_ASSET
+
+        u32       FrameCount;
+        u32       BoneCount;
+        f32       Duration;
+        f32       FrameRate;
+        rz_handle SkeletonHandle;
+        rz_handle AnimationDataHandle;
+        bool      bShouldLoop;
+        u8        _pad0[7];
+    };
+
+    RAZIX_REFLECT_TYPE_START(RZAnimationAsset)
+    RAZIX_REFLECT_ASSET_HEADER
+    RAZIX_REFLECT_PRIMITIVE(FrameCount)
+    RAZIX_REFLECT_PRIMITIVE(BoneCount)
+    RAZIX_REFLECT_PRIMITIVE(Duration)
+    RAZIX_REFLECT_PRIMITIVE(FrameRate)
+    RAZIX_REFLECT_PRIMITIVE(bShouldLoop)
+    RAZIX_REFLECT_TYPE_END(RZAnimationAsset)
+
+};    // namespace Razix
+
+#endif    // _RZ_ANIMATION_ASSET_H_

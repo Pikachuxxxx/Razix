@@ -172,19 +172,21 @@
 
 // TODO: Define a Razix Static Assert
 
-    #define RAZIX_CORE_ASSERT(x, ...)                                                                                \
-        {                                                                                                            \
-            if (!(x)) {                                                                                              \
-                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                                 \
-            }                                                                                                        \
+    #define RAZIX_CORE_ASSERT(x, ...)                                                               \
+        {                                                                                           \
+            if (!(x)) {                                                                             \
+                RAZIX_CORE_ERROR("Assertions Failed: at Line {0} in File {1}", __LINE__, __FILE__); \
+                RAZIX_CORE_ERROR("\t Details: {0}", __VA_ARGS__);                                   \
+                RAZIX_DEBUG_BREAK();                                                                \
+            }                                                                                       \
         }
-    #define RAZIX_ASSERT(x, ...)                                                                                     \
-        {                                                                                                            \
-            if (!(x)) {                                                                                              \
-                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                                 \
-            }                                                                                                        \
+    #define RAZIX_ASSERT(x, ...)                                                               \
+        {                                                                                      \
+            if (!(x)) {                                                                        \
+                RAZIX_ERROR("Assertions Failed: at Line {0} in File {1}", __LINE__, __FILE__); \
+                RAZIX_ERROR("\t Details: {0}", __VA_ARGS__);                                   \
+                RAZIX_DEBUG_BREAK();                                                           \
+            }                                                                                  \
         }
     // Generic conditioned Assertions
     #define RAZIX_ASSERT_NO_MESSAGE(condition)                                                     \
@@ -195,12 +197,13 @@
             }                                                                                      \
         }
 
-    #define RAZIX_ASSERT_MESSAGE(condition, ...)                                                                     \
-        {                                                                                                            \
-            if (!(condition)) {                                                                                      \
-                RAZIX_CORE_ERROR("Assertions Failed: {0} at Line {1} in File {2}", __VA_ARGS__, __LINE__, __FILE__); \
-                RAZIX_DEBUG_BREAK();                                                                                 \
-            }                                                                                                        \
+    #define RAZIX_ASSERT_MESSAGE(condition, ...)                                                    \
+        {                                                                                           \
+            if (!(condition)) {                                                                     \
+                RAZIX_CORE_ERROR("Assertions Failed: at Line {0} in File {1}", __LINE__, __FILE__); \
+                RAZIX_CORE_ERROR("\t Details: {0}", __VA_ARGS__);                                   \
+                RAZIX_DEBUG_BREAK();                                                                \
+            }                                                                                       \
         }
 #else
     #define RAZIX_CORE_ASSERT(x, ...)
@@ -223,8 +226,8 @@
         RAZIX_DEBUG_BREAK();                                                                              \
     }
 
-// Max number of objects in a scene
-#define MAX_OBJECTS 2048
+// Max number of objects in a scene at any given movement in runtime
+#define RAZIX_MAX_OBJECTS 2048
 
 // Stringize
 #define STRINGIZE2(s)         #s
@@ -247,7 +250,11 @@
 #define CAST_TO_FG_BUF_DESC (Razix::Gfx::RZFrameGraphBuffer::Desc)
 
 // right bit shift (useful for converting integer based color to hex)
-#define RZ_BIT_SHIFT(x) (1 << x)
+#ifndef __cplusplus
+    #define RZ_BIT_SHIFT(x) (1 << x)
+#else
+    #define RZ_BIT_SHIFT(x) (1u << static_cast<u32>(x))
+#endif    // __cplusplus
 #define RETURN_IF_BIT_NOT_SET(val, b) \
     if ((val & b) != b) return;
 #define RETURN_IF_BIT_SET(val, b) \
@@ -502,22 +509,10 @@ static constexpr float operator""_inKib(unsigned long long int x)
     return (float) x / (1 << 10);
 }
 
+    #define RAZIX_PACKET_SIZE Kib(64)    // Max size of each packet in a 2-sided allocator
+    #define RAZIX_PACKETS     1024       // Total number of two-sided allocations
+
 #endif    //   __cplusplus
-
-/****************************************************************************************************
- *                                         Vendor Settings                                          * 
-****************************************************************************************************/
-
-#define RAZIX_DEFINE_SAVE_LOAD   \
-    template<class Archive>      \
-    void load(Archive& archive); \
-                                 \
-    template<class Archive>      \
-    void save(Archive& archive) const;
-
-#define RAZIX_SEREALIZE     \
-    template<class Archive> \
-    void serialize(Archive& archive);
 
 /****************************************************************************************************
  *                                                  Misc                                            * 
@@ -565,3 +560,30 @@ static constexpr float operator""_inKib(unsigned long long int x)
 #endif
 
 #define RAZIX_TLS RAZIX_THREAD_LOCAL_STORAGE
+
+#define RAZIX_VTABLE_PTR_SIZE_BYTES    8
+#define RAZIX_COLD_DATA_PTR_SIZE_BYTES 8
+
+/****************************************************************************************************
+ *                                        World Unitts                                              * 
+ ****************************************************************************************************/
+
+#define RAZIX_WORLD_UNIT_METERS      1
+#define RAZIX_WORLD_UNIT_CENTIMETERS 0.01f
+
+#define RAZIX_WORLD_UNIT      RAZIX_WORLD_UNIT_METERS
+#define RAZIX_UNITS_PER_METER (1.0f / RAZIX_WORLD_UNIT)
+
+#define RAZIX_GRAVITY        9.81f  /* m/s² */
+#define RAZIX_SPEED_OF_SOUND 343.0f /* m/s at 20°C */
+
+#define RAZIX_REF_HUMAN_HEIGHT   1.8f   /* meters */
+#define RZZIX_REF_DOOR_HEIGHT    2.1f   /* meters */
+#define RZZIX_REF_CAR_LENGTH     4.5f   /* meters */
+#define RZZIX_REF_FOOTBALL_FIELD 100.0f /* meters */
+
+#define RAZIX_SCALE_FROM_BLENDER 1.0f    /* Blender meters → Razix meters */
+#define RZZIX_SCALE_FROM_MAYA    0.01f   /* Maya cm → Razix meters */
+#define RZZIX_SCALE_FROM_3DSMAX  0.0254f /* 3ds Max inches → Razix meters */
+#define RZZIX_SCALE_FROM_HOUDINI 1.0f    /* Houdini meters → Razix meters */
+#define RZZIX_SCALE_FROM_C4D     0.01f   /* Cinema 4D cm → Razix meters */

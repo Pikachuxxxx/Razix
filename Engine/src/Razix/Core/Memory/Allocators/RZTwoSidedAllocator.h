@@ -26,8 +26,9 @@ namespace Razix {
             void deallocate_top(size_t size);
             void deallocate_bottom(size_t size);
 
-            void clear_top();
-            void clear_bottom();
+            void  clear_top();
+            void  clear_bottom();
+            void* getBase() override { return m_Chunk; }
 
         private:
             uint8_t* m_Chunk     = nullptr; /* Allocator chunk                                */

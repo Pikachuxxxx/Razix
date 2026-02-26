@@ -9,7 +9,7 @@ namespace Razix {
         {
         protected:
             RZTwoSidedAllocator allocator;
-            const size_t totalSize = 1024;
+            const size_t        totalSize = 1024;
 
             void SetUp() override
             {
@@ -98,17 +98,17 @@ namespace Razix {
 
         TEST_F(RZTwoSidedAllocatorTests, Clear)
         {
-            void* top_mem1 = allocator.allocate_top(128);
+            void* top_mem1    = allocator.allocate_top(128);
             void* bottom_mem1 = allocator.allocate_bottom(128);
-            
+
             allocator.clear_top();
             allocator.clear_bottom();
 
-            void* top_mem2 = allocator.allocate_top(128);
+            void* top_mem2    = allocator.allocate_top(128);
             void* bottom_mem2 = allocator.allocate_bottom(128);
 
             EXPECT_EQ(top_mem1, top_mem2);
             EXPECT_EQ(bottom_mem1, bottom_mem2);
         }
-    }
-}
+    }    // namespace Memory
+}    // namespace Razix

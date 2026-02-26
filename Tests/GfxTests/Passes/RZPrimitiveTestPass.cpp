@@ -2,8 +2,8 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
+#include "Razix/Gfx/Cameras/RZCamera3D.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
-#include "Razix/Scene/RZSceneCamera.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -98,7 +98,6 @@ namespace Razix {
                 // Define spacing between cubes (adjust as needed)
                 float spacing = 2.5f;    // Gap between cube centers
 
-
                 // Calculate position with proper centering
                 float tx = (static_cast<float>(x) - static_cast<float>(gridSize - 1) * 0.5f) * spacing;
                 float ty = (static_cast<float>(y) - static_cast<float>(gridSize - 1) * 0.5f) * spacing;
@@ -163,9 +162,9 @@ namespace Razix {
             createInstanceDataCPU();
             createIndirectArgs();
 
-            RZSceneCamera camera;
-            u32           winW = RZApplication::Get().getWindow()->getWidth();
-            u32           winH = RZApplication::Get().getWindow()->getHeight();
+            RZCamera3D camera;
+            u32        winW = RZApplication::Get().getWindow()->getWidth();
+            u32        winH = RZApplication::Get().getWindow()->getHeight();
             camera.setViewportSize(winW, winH);
             camera.setPosition({0.0f, 0.0f, 15.0f});
             camera.setForward({0.0f, 0.0f, 1.0f});

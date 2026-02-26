@@ -48,8 +48,6 @@
 #include <tracy/TracyC.h>
 // GLM
 //  Managed by Engine Math.h
-// Cereal
-#include <cereal/cereal.hpp>
 // Physics Engine
 // The Jolt headers don't include Jolt.h. Always include Jolt.h before including any other Jolt header.
 #include <Jolt/Jolt.h>

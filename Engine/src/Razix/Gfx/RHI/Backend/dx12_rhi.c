@@ -7,6 +7,8 @@
 
 #include <malloc.h>    // for alloca
 
+#include <direct.h>    // for mkdir for PSOCache
+
 // TYpe friendly defines
 #define DX12Context g_GfxCtx.dx12
 #define DX12Device  g_GfxCtx.dx12.device10
@@ -31,18 +33,46 @@ typedef struct HRESULTDescriptionEntry
     const char* description;
 } HRESULTDescriptionEntry;
 
-static HRESULTDescriptionEntry hresult_errors[] = {
+static const HRESULTDescriptionEntry hresult_errors[] = {
+    // Success
     {S_OK, "Operation successful"},
+    {S_FALSE, "Operation successful, but returned false"},
+
+    // Generic COM / Win32
     {E_ABORT, "Operation aborted"},
     {E_ACCESSDENIED, "General access denied error"},
     {E_FAIL, "Unspecified failure"},
-    {E_HANDLE, "Handle that is not valid"},
-    {E_INVALIDARG, "One or more arguments are not valid"},
+    {E_HANDLE, "Invalid handle"},
+    {E_INVALIDARG, "One or more arguments are invalid"},
     {E_NOINTERFACE, "No such interface supported"},
     {E_NOTIMPL, "Not implemented"},
     {E_OUTOFMEMORY, "Failed to allocate necessary memory"},
-    {E_POINTER, "Pointer that is not valid"},
+    {E_POINTER, "Invalid pointer"},
     {E_UNEXPECTED, "Unexpected failure"},
+
+    // DXGI core
+    {DXGI_ERROR_DEVICE_HUNG, "GPU hung due to invalid commands"},
+    {DXGI_ERROR_DEVICE_REMOVED, "GPU device removed or reset"},
+    {DXGI_ERROR_DEVICE_RESET, "GPU device reset due to bad commands"},
+    {DXGI_ERROR_DRIVER_INTERNAL_ERROR, "Driver encountered an internal error"},
+    {DXGI_ERROR_INVALID_CALL, "Invalid call to DXGI API"},
+    {DXGI_ERROR_NOT_FOUND, "Requested item not found"},
+    {DXGI_ERROR_MORE_DATA, "Buffer too small, more data available"},
+    {DXGI_ERROR_UNSUPPORTED, "Unsupported feature or request"},
+    {DXGI_ERROR_ACCESS_DENIED, "Access denied to resource"},
+    {DXGI_ERROR_FRAME_STATISTICS_DISJOINT, "Frame statistics are disjoint"},
+    {DXGI_ERROR_WAIT_TIMEOUT, "Timeout while waiting for GPU"},
+    {DXGI_ERROR_NOT_CURRENTLY_AVAILABLE, "Resource not currently available"},
+
+    // Swapchain / presentation
+    {DXGI_ERROR_INVALID_CALL, "Invalid DXGI call (often swapchain misuse)"},
+    {DXGI_STATUS_OCCLUDED, "Window occluded, present skipped"},
+    {DXGI_STATUS_MODE_CHANGED, "Display mode changed"},
+    {DXGI_STATUS_NO_REDIRECTION, "No redirection performed"},
+
+    // D3D12 specific
+    {D3D12_ERROR_ADAPTER_NOT_FOUND, "Requested adapter not found"},
+    {D3D12_ERROR_DRIVER_VERSION_MISMATCH, "Driver version mismatch"},
 };
 #endif
 
@@ -65,6 +95,16 @@ static bool dx12_util_check_hresult(HRESULT hr, const char* func, const char* fi
     if (hr != S_OK) {
         const char* desc = dx12_util_hresult_to_string(hr);
         RAZIX_RHI_LOG_ERROR("[D3D12] HRESULT Error :: %s\n -> In function %s (%s:%d)\n", desc, func, file, line);
+
+        if (hr == DXGI_ERROR_DEVICE_REMOVED) {
+            HRESULT reason = ID3D12Device10_GetDeviceRemovedReason(DX12Device);
+
+            RAZIX_RHI_LOG_ERROR(
+                "Device removed. Reason = 0x%08X (%s)",
+                reason,
+                dx12_util_hresult_to_string(reason));
+        }
+
         return false;
     }
     return true;
@@ -1171,6 +1211,7 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
         &uploadBuffer);
 
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to create upload buffer for texture: 0x%08X", hr);
         return;
     }
@@ -1178,6 +1219,7 @@ static void dx12_util_upload_pixel_Data(rz_gfx_texture* texture, rz_gfx_texture_
     void* mappedData = NULL;
     hr               = ID3D12Resource_Map(uploadBuffer, 0, NULL, &mappedData);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to map upload buffer: 0x%08X", hr);
         ID3D12Resource_Release(uploadBuffer);
         return;
@@ -1259,12 +1301,14 @@ static void dx12_util_upload_buffer_data(rz_gfx_buffer* buffer, rz_gfx_buffer_de
         &IID_ID3D12Resource,
         &uploadBuffer);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to create upload buffer for buffer: 0x%08X", hr);
         return;
     }
     void* mappedData = NULL;
     hr               = ID3D12Resource_Map(uploadBuffer, 0, NULL, &mappedData);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to map upload buffer: 0x%08X", hr);
         ID3D12Resource_Release(uploadBuffer);
         return;
@@ -1347,14 +1391,17 @@ static IDXGIAdapter4* dx12_util_select_best_adapter(IDXGIFactory7* factory, D3D_
         HRESULT        hr       = IDXGIFactory7_EnumAdapters1(factory, i, &adapter1);
         if (hr == DXGI_ERROR_NOT_FOUND)
             break;
-        if (FAILED(hr))
+        if (FAILED(hr)) {
+            CHECK_HR(hr);
             continue;
+        }
 
         IDXGIAdapter4* adapter4 = NULL;
         hr                      = IDXGIAdapter1_QueryInterface(adapter1, &IID_IDXGIAdapter4, &adapter4);
         IDXGIAdapter1_Release(adapter1);
 
         if (FAILED(hr)) {
+            CHECK_HR(hr);
             RAZIX_RHI_LOG_ERROR("[D3D12] Failed to query IDXGIAdapter4 (HRESULT = 0x%08X)", (unsigned int) hr);
             continue;
         }
@@ -1362,6 +1409,7 @@ static IDXGIAdapter4* dx12_util_select_best_adapter(IDXGIFactory7* factory, D3D_
         DXGI_ADAPTER_DESC3 desc = {0};
         hr                      = IDXGIAdapter4_GetDesc3(adapter4, &desc);
         if (FAILED(hr)) {
+            CHECK_HR(hr);
             RAZIX_RHI_LOG_ERROR("[D3D12] Failed to get adapter description (HRESULT = 0x%08X)", (unsigned int) hr);
             IDXGIAdapter4_Release(adapter4);
             continue;
@@ -1669,6 +1717,7 @@ static void dx12_util_update_swapchain_rtvs(rz_gfx_swapchain* sc)
         ID3D12Resource* d3dresource = NULL;
         HRESULT         hr          = IDXGISwapChain4_GetBuffer(sc->dx12.swapchain4, i, &IID_ID3D12Resource, (void**) &d3dresource);
         if (FAILED(hr)) {
+            CHECK_HR(hr);
             RAZIX_RHI_LOG_ERROR("[D3D12] Failed to get backbuffer %u from swapchain (HRESULT = 0x%08X)", i, (unsigned int) hr);
 
             for (uint32_t j = 0; j < i; ++j) {
@@ -1844,6 +1893,58 @@ static void dx12_util_destroy_command_signatures(dx12_ctx* ctx)
     }
 }
 
+static void dx12_util_dump_pipeline_cache(ID3D12Device10* device, ID3D12PipelineLibrary* pipelineLibrary)
+{
+    uint32_t size = (uint32_t) ID3D12PipelineLibrary_GetSerializedSize(pipelineLibrary);
+
+    void* data = malloc(size);
+    if (!data) {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate memory for pipeline cache serialization");
+        return;
+    }
+
+    CHECK_HR(ID3D12PipelineLibrary_Serialize(pipelineLibrary, data, size));
+
+#if defined(_WIN32)
+    _mkdir("PSOCache");
+#endif
+
+    FILE* f = fopen("PSOCache/dx12_pipeline_library.bin", "wb");
+    if (f) {
+        fwrite(data, 1, size, f);
+        fclose(f);
+    }
+
+    free(data);
+}
+
+static void* dx12_util_load_pipeline_cache(const char* path, uint32_t* outSize)
+{
+    FILE* f = fopen(path, "rb");
+    if (!f) {
+        RAZIX_RHI_LOG_WARN("Pipeline cache file not found: %s", path);
+        return NULL;
+    }
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    if (size <= 0) {
+        RAZIX_RHI_LOG_WARN("Pipeline cache file is empty: %s", path);
+        fclose(f);
+        return NULL;
+    }
+    void* data = malloc((size_t) size);
+    if (!data) {
+        RAZIX_RHI_LOG_ERROR("Failed to allocate memory for pipeline cache loading");
+        fclose(f);
+        return NULL;
+    }
+    fread(data, 1, (size_t) size, f);
+    fclose(f);
+    *outSize = (uint32_t) size;
+    return data;
+}
+
 //---------------------------------------------------------------------------------------------
 // Public API functions
 
@@ -1928,12 +2029,28 @@ static void dx12_GlobalCtxInit(rz_gfx_context_desc init)
 
     dx12_util_create_command_signatures(&DX12Context);
 
+    // Create the virgin pipeline library
+    uint32_t psoCacheSize = 0;
+    // This blob needs to stay until the lifetime of the pipeline library
+    g_GfxCtx.dx12.pipelineCacheData = dx12_util_load_pipeline_cache("PSOCache/dx12_pipeline_library.bin", &psoCacheSize);
+    CHECK_HR(ID3D12Device10_CreatePipelineLibrary(DX12Device, g_GfxCtx.dx12.pipelineCacheData, psoCacheSize, &IID_ID3D12PipelineLibrary, &DX12Context.pipelineLibrary));
+
     RAZIX_RHI_LOG_INFO("D3D12 Global context initialized successfully");
 }
 
 static void dx12_GlobalCtxDestroy(void)
 {
     dx12_util_destroy_command_signatures(&DX12Context);
+
+    if (DX12Context.pipelineLibrary) {
+        dx12_util_dump_pipeline_cache(DX12Device, DX12Context.pipelineLibrary);
+
+        ID3D12PipelineLibrary_Release(DX12Context.pipelineLibrary);
+        DX12Context.pipelineLibrary = NULL;
+
+        free(g_GfxCtx.dx12.pipelineCacheData);
+        g_GfxCtx.dx12.pipelineCacheData = NULL;
+    }
 
     if (DX12Context.directQ) {
         ID3D12CommandQueue_Release(DX12Context.directQ);
@@ -2243,6 +2360,7 @@ static void dx12_CreateRootSignature(void* where)
     ID3DBlob* errorBlob     = NULL;
     HRESULT   hr            = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to serialize root signature: %s", errorBlob ? (const char*) ID3D10Blob_GetBufferPointer(errorBlob) : "Unknown error");
         if (errorBlob) ID3D10Blob_Release(errorBlob);
         return;
@@ -2324,12 +2442,6 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
                                               ? D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
                                               : D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
         dxElement->InstanceDataStepRate = elem->instanceStepRate;
-
-        printf("Element %d: SemanticName = %s, Format = %d, Offset = %d\n",
-            i,
-            elem->pSemanticName,
-            elem->format,
-            elem->alignedByteOffset);
     }
     // stride is set during VeretxBuffers binding and is decided by the user, unlike in VK it must be given at runtime, so yeah
     D3D12_INPUT_LAYOUT_DESC input_layout = {0};
@@ -2422,12 +2534,36 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     desc.SampleDesc.Quality = 0;
     desc.SampleMask         = UINT_MAX;    // No sample mask
 
+    //----------------------------
+    // PSO libray cache
+    //----------------------------
+    //D3D12_CACHED_PIPELINE_STATE cached_pso_desc = {0};
+    //desc.CachedPSO                              = cached_pso_desc;
+
+    if (DX12Context.pipelineLibrary) {
+        ID3D12PipelineState* cachedPso = NULL;
+        HRESULT              hr        = ID3D12PipelineLibrary_LoadGraphicsPipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, &desc, &IID_ID3D12PipelineState, (void**) &cachedPso);
+        CHECK_HR(hr);
+        if (SUCCEEDED(hr) && cachedPso != NULL) {
+            pso->dx12.pso = cachedPso;
+            RAZIX_RHI_LOG_INFO("Loaded D3D12 Graphics Pipeline State Object (PSO) from pipeline library cache");
+            return;
+        }
+    }
+
     // Create the pipeline state object
     HRESULT hr = ID3D12Device10_CreateGraphicsPipelineState(DX12Device, &desc, &IID_ID3D12PipelineState, (void**) &pso->dx12.pso);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Pipeline State Object (PSO): 0x%08X", hr);
         return;
     }
+
+    if (DX12Context.pipelineLibrary) {
+        // store the created PSO in the pipeline library cache
+        CHECK_HR(ID3D12PipelineLibrary_StorePipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, pso->dx12.pso));
+    }
+
     RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
     TAG_OBJECT(pso->dx12.pso, pso->resource.pCold->pName);
 }
@@ -2453,12 +2589,32 @@ static void dx12_CreateComputePipeline(rz_gfx_pipeline* pso)
     //----------------------------
     desc.CS = dx12_util_shader_bytecode_to_d3d12_shader(&pShaderDesc->compute.cs);
 
+    //----------------------------
+    // PSO libray cache
+    //----------------------------
+    if (DX12Context.pipelineLibrary) {
+        ID3D12PipelineState* cachedPso = NULL;
+        HRESULT              hr        = ID3D12PipelineLibrary_LoadComputePipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, &desc, &IID_ID3D12PipelineState, &cachedPso);
+        if (SUCCEEDED(hr) && cachedPso != NULL) {
+            pso->dx12.pso = cachedPso;
+            RAZIX_RHI_LOG_INFO("Loaded D3D12 Compute Pipeline State Object (PSO) from pipeline library cache");
+            return;
+        }
+    }
+
     // Create the pipeline state object
     HRESULT hr = ID3D12Device10_CreateComputePipelineState(DX12Device, &desc, &IID_ID3D12PipelineState, (void**) &pso->dx12.pso);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Pipeline State Object (PSO): 0x%08X", hr);
         return;
     }
+
+    if (DX12Context.pipelineLibrary) {
+        // store the created PSO in the pipeline library cache
+        CHECK_HR(ID3D12PipelineLibrary_StorePipeline(DX12Context.pipelineLibrary, (LPCWSTR) pso->resource.pCold->pName, pso->dx12.pso));
+    }
+
     RAZIX_RHI_LOG_INFO("D3D12 Pipeline State Object (PSO) created successfully");
     TAG_OBJECT(pso->dx12.pso, pso->resource.pCold->pName);
 }
@@ -2543,10 +2699,11 @@ static void dx12_CreateTexture(void* where)
     // Create the texture resource
     HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(texture->resource.hot.currentState), isRtvDsv ? &optClear : NULL, &IID_ID3D12Resource, &texture->dx12.resource);
     if (FAILED(hr)) {
-        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Texture2D: 0x%08X", hr);
+        CHECK_HR(hr);
+        RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Texture: 0x%08X", hr);
         return;
     }
-    RAZIX_RHI_LOG_INFO("D3D12 Texture2D created successfully");
+    RAZIX_RHI_LOG_INFO("D3D12 Texture created successfully");
     TAG_OBJECT(texture->dx12.resource, texture->resource.pCold->pName);
 
     // Upload pixel data if provided
@@ -2644,6 +2801,7 @@ static void dx12_CreateBuffer(void* where)
     // Create the buffer resource
     HRESULT hr = ID3D12Device10_CreateCommittedResource(DX12Device, &heapProps, D3D12_HEAP_FLAG_NONE, &resDesc, dx12_util_res_state_translate(buffer->resource.hot.currentState), NULL, &IID_ID3D12Resource, &buffer->dx12.resource);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Buffer: 0x%08X", hr);
         return;
     }
@@ -2699,6 +2857,7 @@ static void dx12_CreateDescriptorHeap(void* where)
     d3d12Desc.NodeMask = 0;    // Single GPU, no multi-GPU support
     HRESULT hr         = ID3D12Device10_CreateDescriptorHeap(DX12Device, &d3d12Desc, &IID_ID3D12DescriptorHeap, (void**) &heap->dx12.heap);
     if (FAILED(hr)) {
+        CHECK_HR(hr);
         RAZIX_RHI_LOG_ERROR("Failed to create D3D12 Descriptor Heap: 0x%08X", hr);
         return;
     }
@@ -2864,6 +3023,7 @@ static void dx12_WaitOnPrevCmds(const rz_gfx_syncobj* frameSyncobj)
         // Set the fence event and check for failure
         HRESULT hr = ID3D12Fence_SetEventOnCompletion(frameSyncobj->dx12.fence, frameSyncobj->waitSyncpoint, frameSyncobj->dx12.eventHandle);
         if (FAILED(hr)) {
+            CHECK_HR(hr);
             RAZIX_RHI_LOG_ERROR("[WAIT ERR] SetEventOnCompletion(%llu) failed -> 0x%08X", frameSyncobj->waitSyncpoint, hr);
         }
 

@@ -19,7 +19,6 @@
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #include "Razix/Core/Utils/RZColorUtilities.h"
-#include "Razix/Scene/RZScene.h"
 
 namespace Razix {
     namespace Gfx {

@@ -4,8 +4,16 @@ Razix is a High Performance Engine for a game called "Tanu"! it is not a generic
 
 _Tanu = Body/Her_
 
+_Tanu, a girl trapped in a CASSETTE TAPE HEAD she doesn’t belong to,
+goes to a carnival and learns ciphers. One night she decodes a strange letter from a boy
+and starts dreaming his memories, where she becomes a real fun girl/real-self. She also
+finds her clothes react to her emotions protecting her, changing shape, glowing. She fights
+dream monsters that guard pieces of truth about the boy and falls in love. Each boss she kills
+opens new dreams and puzzles that help her see more of him and herself. She goes on a journey
+of self discovery and to find love for the boy._
+
 Tanu Mood Board:
-![](./Tanu/Design/ProjectTanu.drawio.png)
+![](./Tanu/Design/ProjectTanu_ITERATION_2.drawio.png)
 
 [tanu_mood.txt - thoughts about the direction of the game](./Tanu/Design/tanu_mood.txt)
 

@@ -78,6 +78,11 @@ project "Razix"
         "VK_NO_PROTOTYPES",
     }
 
+    if _OPTIONS["memtrack"] == "on" then
+        print("Razix engine is being built with MEM_ALLOC_TRACKING, perf will take a hit!")
+        defines { "RAZIX_ENABLE_MEM_ALLOC_TRACKING" }
+    end
+
     -- Razix Engine source files (Global)
     files
     {
@@ -91,12 +96,29 @@ project "Razix"
         "vendor/imgui/backends/imgui_impl_vulkan.cpp",
     }
 
-    -- Lazily add the platform files based on OS config
-	-- Also remove the core module, they are compiled as a library
+    -- Assembly Implementations
+    filter { "architecture:ARM64", "system:macosx" }
+        files { "src/Razix/**_arm64.S" }
+    filter { "architecture:x86_64", "system:windows or linux" }
+        files { "src/Razix/**_x64_gas.S" }
+
+    -- On Windows, use clang to compile GAS (.S) files since MASM (ml64.exe) does not support them
+    filter { "system:windows", "files:src/Razix/**_x64_gas.S" }
+        buildmessage "Assembling %{file.name} with Clang..."
+        buildcommands {
+            "clang -c -D_WIN32 \"%{file.relpath}\" -o \"%{cfg.objdir}/%{file.basename}.obj\""
+        }
+        buildoutputs {
+            "%{cfg.objdir}/%{file.basename}.obj"
+        }
+    filter {}
+
+    -- Lazily add the platform files based on OS configurations
+    -- Also remove the core module, they are compiled as a library
     removefiles
     {
         --------------------------
-        -- just until we finish off RHI
+        -- just until we finish off RHI and AssetIsEverything
         "src/Razix/Gfx/LIMBO_STATE/**",
         --------------------------
         "src/Razix/Platform/**",
@@ -104,44 +126,7 @@ project "Razix"
         "src/Razix/Core/Memory/vendor/mmgr/mmgr.cpp",
     }
 
-    -- For MacOS
-    externalincludedirs
-    {
-        -- Engine
-        "./",
-        "../",
-        "internal/",
-        "src/",
-        "src/Razix",
-        "%{wks.location}/../Engine",
-        "%{wks.location}/../Engine/src",
-        "%{wks.location}/../Engine/src/Razix",
-        "%{wks.location}/../Engine/internal",
-        "%{wks.location}/../Engine/internal/RazixMemory",
-        "%{wks.location}/../Engine/internal/RZSTL",
-        "%{IncludeDir.GLFW}",
-        "%{IncludeDir.Glad}",
-        "%{IncludeDir.stb}",
-        "%{IncludeDir.glm}",
-        "%{IncludeDir.ImGui}",
-        "%{IncludeDir.spdlog}",
-        "%{IncludeDir.cereal}",
-        "%{IncludeDir.SPIRVReflect}",
-        "%{IncludeDir.SPIRVCross}",
-        "%{IncludeDir.entt}",
-        "%{IncludeDir.lua}",
-        "%{IncludeDir.tracy}",
-        "%{IncludeDir.optick}",
-        "%{IncludeDir.Jolt}",
-        "%{IncludeDir.json}",
-        "%{IncludeDir.D3D12MA}",
-        "%{IncludeDir.dxc}",
-        "%{IncludeDir.volk}",
-        "%{IncludeDir.Razix}",
-        "%{IncludeDir.vendor}",
-        -- Experimental Vendor
-        "%{ExperimentalIncludeDir.Eigen}",
-    }
+    setEngineVendorIncludes()
 
     -- Razix engine external linkage libraries (Global)
     links
@@ -157,6 +142,7 @@ project "Razix"
         "optick",
         "tracy",
         "Jolt",
+        "LZ4",
         -- Shaders
         "Shaders",
     }
@@ -169,6 +155,7 @@ project "Razix"
     -- Disable PCH for vendors
     filter 'files:vendor/**.cpp'
         flags  { 'NoPCH' }
+
     filter 'files:vendor/**.c'
         flags  { 'NoPCH' }
 

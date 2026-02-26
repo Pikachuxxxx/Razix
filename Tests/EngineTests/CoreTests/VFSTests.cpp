@@ -81,7 +81,7 @@ namespace Razix {
 
             // Check if the new path resolves correctly
             RZString resolvedPath;
-            bool        result = RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixNewContent", resolvedPath, true);
+            bool     result = RZVirtualFileSystem::Get().resolvePhysicalPath("//RazixNewContent", resolvedPath, true);
             EXPECT_TRUE(result);
             EXPECT_EQ(resolvedPath.c_str(), newPhysicalPath);
         }

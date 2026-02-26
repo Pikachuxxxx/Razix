@@ -33,6 +33,8 @@ namespace Razix {
             void put(T item);
             T    get();
 
+            void* getBase() override { return m_Buffer; }
+
         private:
             std::mutex m_Mutex;               /* Mutex to make read/write from ring buffer thread safe */
             T*         m_Buffer    = nullptr; /* Raw data buffer of type T                             */

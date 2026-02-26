@@ -25,6 +25,33 @@ newoption
 
 newoption
 {
+    trigger     = "memtrack",
+    value       = "state",
+    description = "Enable Razix memory allocation tracking",
+    allowed     =
+    {
+        { "on",  "Enable memory allocation tracking" },
+        { "off", "Disable memory allocation tracking" }
+    }
+}
+
+newoption
+{
+	trigger     = "sanitizer",
+	value       = "sanitizer",
+	description = "Enable Razix sanitizers (Razix project only)",
+	allowed     =
+	{
+		{ "off",        "Disable sanitizers" },
+		{ "asan",       "AddressSanitizer" },
+		{ "ubsan",      "UndefinedBehaviorSanitizer" },
+		{ "tsan",       "ThreadSanitizer" },
+		{ "asan-ubsan", "AddressSanitizer + UndefinedBehaviorSanitizer" }
+	}
+}
+
+newoption
+{
 	trigger     = "teamid",
 	value	    = "id",
 	description = "development team id for apple developers"
@@ -49,4 +76,16 @@ newaction {
     execute     = function ()
         os.execute("python Scripts/run_gfx_tests.py")
     end
+}
+
+newoption
+{
+    trigger     = "buildmode",
+    value       = "buildmode",
+    description = "Choose a build mode for shipping the game/engine (Development, Shipping)",
+    allowed     =
+    {
+        { "development", "Development build with debug symbols, devutils and optimizations" },
+        { "shipping", "Shipping build with optimizations and no debug symbols" }
+    }
 }

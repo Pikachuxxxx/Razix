@@ -2,10 +2,18 @@
 
 #include "Razix/Gfx/RHI/RHI.h"
 
+// for PSO cache, RHI will create and manage it, too much for engine to handle single file right
+// TODO: maybe pass the file path instead when Engine loads, from rz_gfx_context_desc
+#if defined(_WIN32)
+    #include <direct.h>
+#else
+    #include <sys/stat.h>
+#endif
+
 #if defined(RAZIX_PLATFORM_MACOS)
 // Select macOS Vulkan driver backend here
     #define RAZIX_MACOS_MOLTENVK
-    // Experimental driver backend, build your own mesa 26.0.0 for the latest kosmickrisp drivers! until then it's disabled
+// Experimental driver backend, build your own mesa 26.0.0 for the latest kosmickrisp drivers! until then it's disabled
 //    #define RAZIX_MACOS_KOSMICKRISP_DRIVER
 // https://www.lunarg.com/a-vulkan-on-metal-mesa-3d-graphics-driver/
 // https://gitlab.freedesktop.org/mesa/mesa/-/issues/11990
@@ -2468,6 +2476,65 @@ static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* tex
     texture->resource.hot.currentState = afterState;
 }
 
+static void vk_util_dump_pipeline_cache(VkDevice device, VkPipelineCache cache)
+{
+    VkResult res;
+    size_t   cacheSize = 0;
+
+    res = vkGetPipelineCacheData(device, cache, &cacheSize, NULL);
+    if (res != VK_SUCCESS || cacheSize == 0)
+        return;
+
+    // TODO: use engine <-> RHI provided rz_malloc callback or mem pool for this
+    void* data = malloc(cacheSize);
+    if (!data)
+        return;
+
+    res = vkGetPipelineCacheData(device, cache, &cacheSize, data);
+    if (res != VK_SUCCESS) {
+        free(data);
+        return;
+    }
+
+#if defined(_WIN32)
+    _mkdir("PSOCache");
+#else
+    mkdir("PSOCache", 0755);
+#endif
+
+    FILE* f = fopen("PSOCache/vk_pipeline_cache.bin", "wb");
+    if (f) {
+        fwrite(data, 1, cacheSize, f);
+        fclose(f);
+    }
+
+    RAZIX_RHI_LOG_INFO("[Vulkan] Dumping PSO cache... | size: %zu", cacheSize);
+
+    free(data);
+}
+
+static void* vk_util_load_pipeline_cache(VkDevice device, uint32_t* outSize)
+{
+    FILE* f = fopen("PSOCache/vk_pipeline_cache.bin", "rb");
+    if (!f) {
+        *outSize = 0;
+        return NULL;
+    }
+    fseek(f, 0, SEEK_END);
+    *outSize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    void* data = malloc(*outSize);
+    if (!data) {
+        fclose(f);
+        *outSize = 0;
+        return NULL;
+    }
+    fread(data, 1, *outSize, f);
+    fclose(f);
+
+    return data;
+}
+
 //---------------------------------------------------------------------------------------------
 
 static void vk_GlobalCtxInit(rz_gfx_context_desc init)
@@ -2481,7 +2548,7 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     // Check validation layer support
     if (init.opts.enableValidation) {
         if (!vk_util_check_validation_layer_support()) {
-            RAZIX_RHI_LOG_ERROR("Validation lay.hers requested, but not available");
+            RAZIX_RHI_LOG_ERROR("Validation layers requested, but not available");
         }
     }
 
@@ -2625,12 +2692,27 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     g_GraphicsFeatures.MinLaneWidth                 = subgroupProps.subgroupSize;
     g_GraphicsFeatures.MaxLaneWidth                 = subgroupProps.subgroupSize;
 
+    // Virgin pipeline cache for first run
+    uint32_t                  cacheSize = 0;
+    void*                     cache     = vk_util_load_pipeline_cache(VKDEVICE, &cacheSize);
+    VkPipelineCacheCreateInfo pci       = {0};
+    pci.sType                           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    pci.initialDataSize                 = cacheSize;
+    pci.pInitialData                    = cache;
+    CHECK_VK(vkCreatePipelineCache(VKDEVICE, &pci, NULL, &g_GfxCtx.vk.pipelineCache));
+    free(cache);
+
     RAZIX_RHI_LOG_INFO("Vulkan RHI backend initialized successfully");
 }
 
 static void vk_GlobalCtxDestroy(void)
 {
     RAZIX_RHI_LOG_INFO("Destroying Vulkan RHI backend");
+
+    if (g_GfxCtx.vk.pipelineCache != VK_NULL_HANDLE) {
+        vk_util_dump_pipeline_cache(VKDEVICE, g_GfxCtx.vk.pipelineCache);
+        vkDestroyPipelineCache(VKDEVICE, g_GfxCtx.vk.pipelineCache, NULL);
+    }
 
     if (VKCONTEXT.device) {
         vkDestroyDevice(VKCONTEXT.device, NULL);
@@ -3394,8 +3476,7 @@ static void vk_CreateGraphicsPipeline(rz_gfx_pipeline* pipeline)
     graphicsPipelineCI.pStages    = shaderStages;
     graphicsPipelineCI.stageCount = stageCount;
 
-    // TODO: use pipeline cache for faster load times
-    CHECK_VK(vkCreateGraphicsPipelines(VKDEVICE, VK_NULL_HANDLE, 1, &graphicsPipelineCI, NULL, &pso->vk.pipeline));
+    CHECK_VK(vkCreateGraphicsPipelines(VKDEVICE, g_GfxCtx.vk.pipelineCache, 1, &graphicsPipelineCI, NULL, &pso->vk.pipeline));
     TAG_OBJECT(pso->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pso->resource.pCold->pName);
 }
 
@@ -3432,7 +3513,7 @@ static void vk_CreateComputePipeline(rz_gfx_pipeline* pipeline)
     computePipelineCI.flags                       = 0;
     computePipelineCI.stage                       = shaderStageCI;
 
-    CHECK_VK(vkCreateComputePipelines(VKDEVICE, VK_NULL_HANDLE, 1, &computePipelineCI, NULL, &pipeline->vk.pipeline));
+    CHECK_VK(vkCreateComputePipelines(VKDEVICE, g_GfxCtx.vk.pipelineCache, 1, &computePipelineCI, NULL, &pipeline->vk.pipeline));
     TAG_OBJECT(pipeline->vk.pipeline, VK_OBJECT_TYPE_PIPELINE, pipeline->resource.pCold->pName);
 }
 
