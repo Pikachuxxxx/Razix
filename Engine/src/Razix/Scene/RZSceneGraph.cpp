@@ -1,6 +1,7 @@
 // clang-format off
 #include "rzxpch.h"
 #include <Core/Containers/string.h>
+#include <Core/RZCore.h>
 #include <cstring>
 // clang-format on
 #include "RZSceneGraph.h"
@@ -44,4 +45,22 @@ rz_scene_graph* rz_scene_graph_create(Memory::RZHeapAllocator& heapAllocator, u3
     }
 
     return sg;
+}
+
+rz_scene_graph* rz_scene_graph_create_from_file(Memory::RZHeapAllocator& heapAllocator, const char* pFileData, u64 fileSize)
+{
+    RAZIX_UNUSED(heapAllocator);
+    RAZIX_UNUSED(pFileData);
+    RAZIX_UNUSED(fileSize);
+
+    RAZIX_UNIMPLEMENTED_METHOD;
+    return NULL;
+}
+
+void rz_scene_graph_destroy(Memory::RZHeapAllocator& heapAllocator, rz_scene_graph* pSceneGraph)
+{
+    if (pSceneGraph) {
+        heapAllocator.deallocate(pSceneGraph->pZones);
+        heapAllocator.deallocate(pSceneGraph);
+    }
 }
