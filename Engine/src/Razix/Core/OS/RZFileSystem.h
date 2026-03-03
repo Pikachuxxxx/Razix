@@ -17,7 +17,7 @@ namespace Razix {
     /**
      * Represents a single file change event returned by RZFileWatcher::poll
      */
-    struct RZFileChange
+    struct RAZIX_API RZFileChange
     {
         RZString       path;
         RZFileChangeType type;
@@ -32,7 +32,7 @@ namespace Razix {
 
     using RZFileWatcherPollFn = void (*)(RZFileWatcher* watcher, RZFileChange* outChanges, int* inOutCount, int maxChanges);
 
-    struct RZFileWatcher
+    struct RAZIX_API RZFileWatcher
     {
         void*             platform;    // OS-specific state
         RZFileWatcherPollFn poll;
