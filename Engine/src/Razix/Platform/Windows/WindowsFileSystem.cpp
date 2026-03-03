@@ -6,6 +6,7 @@
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <Windows.h>
     #include <fileapi.h>
+    #include <string>
     #include <wtypes.h>
 
 namespace Razix {
@@ -124,6 +125,171 @@ namespace Razix {
     bool RZFileSystem::WriteTextFile(const RZString& path, const RZString& text)
     {
         return WriteFile(path, (u8*) &text[0], text.size());
+    }
+
+    //--------------------------------------------------------------------------
+    // File Watcher
+    //--------------------------------------------------------------------------
+
+    struct WindowsFileWatcherState
+    {
+        HANDLE       hDir;
+        bool         watchFile;           // true = single-file mode
+        RZString     rootPath;            // watched directory path
+        RZString     filterFileName;      // non-empty when watchFile == true
+        DWORD        notifyFilter;
+        BYTE         buffer[8192];
+        OVERLAPPED   overlapped;
+        bool         pendingIo;
+    };
+
+    static void WindowsFileWatcherPoll(RZFileWatcher* watcher, RZFileChange* outChanges, int* inOutCount, int maxChanges)
+    {
+        if (!watcher || !watcher->platform || !outChanges || !inOutCount)
+            return;
+
+        auto* state = static_cast<WindowsFileWatcherState*>(watcher->platform);
+        *inOutCount  = 0;
+
+        // Issue or re-issue ReadDirectoryChangesW if not already pending
+        if (!state->pendingIo) {
+            BOOL ok = ::ReadDirectoryChangesW(
+                state->hDir,
+                state->buffer,
+                sizeof(state->buffer),
+                FALSE,
+                state->notifyFilter,
+                NULL,
+                &state->overlapped,
+                NULL);
+            if (ok)
+                state->pendingIo = true;
+            else
+                return;
+        }
+
+        // Non-blocking: check if IO has completed
+        DWORD bytesTransferred = 0;
+        BOOL  result           = ::GetOverlappedResult(state->hDir, &state->overlapped, &bytesTransferred, FALSE);
+        if (!result) {
+            // IO still pending or error – nothing to report yet
+            return;
+        }
+
+        state->pendingIo = false;
+
+        if (bytesTransferred == 0)
+            return;
+
+        const BYTE* ptr = state->buffer;
+        while (*inOutCount < maxChanges) {
+            const auto* info = reinterpret_cast<const FILE_NOTIFY_INFORMATION*>(ptr);
+
+            // Convert wide filename to narrow
+            int len = WideCharToMultiByte(CP_UTF8, 0, info->FileName, (int) (info->FileNameLength / sizeof(WCHAR)), NULL, 0, NULL, NULL);
+            if (len > 0) {
+                std::string name(len, '\0');
+                WideCharToMultiByte(CP_UTF8, 0, info->FileName, (int) (info->FileNameLength / sizeof(WCHAR)), &name[0], len, NULL, NULL);
+
+                // In single-file mode, only process entries that match our target file
+                bool shouldProcess = !state->watchFile || state->filterFileName.empty() || (state->filterFileName == name.c_str());
+                if (shouldProcess) {
+                    RZFileChange& change = outChanges[*inOutCount];
+                    change.path          = (state->rootPath + "/" + name.c_str()).c_str();
+
+                    switch (info->Action) {
+                        case FILE_ACTION_MODIFIED:
+                            change.type = RZFileChangeType::Modified;
+                            ++(*inOutCount);
+                            break;
+                        case FILE_ACTION_ADDED:
+                        case FILE_ACTION_RENAMED_NEW_NAME:
+                            change.type = RZFileChangeType::Added;
+                            ++(*inOutCount);
+                            break;
+                        case FILE_ACTION_REMOVED:
+                        case FILE_ACTION_RENAMED_OLD_NAME:
+                            change.type = RZFileChangeType::Removed;
+                            ++(*inOutCount);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            if (info->NextEntryOffset == 0)
+                break;
+            ptr += info->NextEntryOffset;
+        }
+
+        // Reset overlapped for next call
+        ZeroMemory(&state->overlapped, sizeof(state->overlapped));
+    }
+
+    static void WindowsFileWatcherDestroy(RZFileWatcher* watcher)
+    {
+        if (!watcher || !watcher->platform)
+            return;
+
+        auto* state = static_cast<WindowsFileWatcherState*>(watcher->platform);
+        if (state->hDir != INVALID_HANDLE_VALUE)
+            CloseHandle(state->hDir);
+
+        delete state;
+        delete watcher;
+    }
+
+    static RZFileWatcher* CreateWindowsWatcher(const RZString& dirPath, bool watchFile, const RZString& fileName)
+    {
+        HANDLE hDir = CreateFileA(
+            dirPath.c_str(),
+            FILE_LIST_DIRECTORY,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            NULL,
+            OPEN_EXISTING,
+            FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+            NULL);
+
+        if (hDir == INVALID_HANDLE_VALUE)
+            return nullptr;
+
+        auto* state              = new WindowsFileWatcherState();
+        state->hDir              = hDir;
+        state->watchFile         = watchFile;
+        state->rootPath          = dirPath;
+        state->filterFileName    = fileName;
+        state->notifyFilter      = FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_SIZE;
+        state->pendingIo         = false;
+        ZeroMemory(&state->overlapped, sizeof(state->overlapped));
+        ZeroMemory(state->buffer, sizeof(state->buffer));
+
+        auto* watcher    = new RZFileWatcher();
+        watcher->platform = state;
+        watcher->poll     = WindowsFileWatcherPoll;
+        watcher->destroy  = WindowsFileWatcherDestroy;
+        return watcher;
+    }
+
+    RZFileWatcher* RZFileSystem::CreateFileWatcherForDirectory(const RZString& directoryPath)
+    {
+        return CreateWindowsWatcher(directoryPath, false, RZString());
+    }
+
+    RZFileWatcher* RZFileSystem::CreateFileWatcherForFile(const RZString& filePath)
+    {
+        // Watch the parent directory and filter by file name
+        std::string path = filePath.c_str();
+        size_t      sep  = path.find_last_of("/\\");
+        std::string dir  = (sep != std::string::npos) ? path.substr(0, sep) : ".";
+        std::string file = (sep != std::string::npos) ? path.substr(sep + 1) : path;
+        return CreateWindowsWatcher(dir.c_str(), true, file.c_str());
+    }
+
+    void RZFileSystem::DestroyFileWatcher(RZFileWatcher* watcher)
+    {
+        if (watcher && watcher->destroy)
+            watcher->destroy(watcher);
     }
 }    // namespace Razix
 
