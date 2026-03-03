@@ -273,6 +273,24 @@ namespace Razix {
         ZeroMemory(&state->overlapped, sizeof(state->overlapped));
         ZeroMemory(state->buffer, sizeof(state->buffer));
 
+        // Arm the watcher immediately so events occurring before the first poll() call are not missed.
+        BOOL initialWatchStarted = ::ReadDirectoryChangesW(
+            state->hDir,
+            state->buffer,
+            sizeof(state->buffer),
+            FALSE,
+            state->notifyFilter,
+            NULL,
+            &state->overlapped,
+            NULL);
+        if (!initialWatchStarted) {
+            state->~WindowsFileWatcherState();
+            rz_free(state);
+            CloseHandle(hDir);
+            return nullptr;
+        }
+        state->pendingIo = true;
+
         void* watcherMem = rz_malloc(sizeof(RZFileWatcher), alignof(RZFileWatcher));
         if (!watcherMem) {
             state->~WindowsFileWatcherState();
