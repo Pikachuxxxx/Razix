@@ -372,8 +372,11 @@ namespace Razix {
         auto* state = static_cast<MacOSFileWatcherState*>(watcher->platform);
         *inOutCount  = 0;
 
-        // Flush any pending FSEvents synchronously
+        // Ask FSEvents to flush any pending events to the dispatch queue.
         FSEventStreamFlushSync(state->stream);
+        // Wait for all work currently on the dispatch queue (including the callback)
+        // to complete before we read from the ring buffer.
+        dispatch_sync(state->queue, ^{});
 
         while (state->pendingTail != state->pendingHead && *inOutCount < maxChanges) {
             outChanges[*inOutCount] = state->pending[state->pendingTail];
