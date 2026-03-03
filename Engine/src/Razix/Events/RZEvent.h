@@ -2,6 +2,7 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Core/Containers/hash_map.h"
 #include "Razix/Core/Containers/string.h"
 
 #include "Razix/Core/std/utility.h"
@@ -38,6 +39,10 @@ namespace Razix {
         kMouseMoved,
         kMouseScrolled,
         // TODO: Joystick events
+        // File System
+        kFileChanged,
+        kFileCreated,
+        kFileDeleted,
         // Asset System
         kAssetCreated,
         kAssetModified,

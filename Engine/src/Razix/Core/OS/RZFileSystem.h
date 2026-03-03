@@ -3,6 +3,41 @@
 #include "Razix/Core/Containers/string.h"
 
 namespace Razix {
+
+    /**
+     * Describes the kind of change detected by an RZFileWatcher
+     */
+    enum class RZFileChangeType
+    {
+        Modified,
+        Added,
+        Removed
+    };
+
+    /**
+     * Represents a single file change event returned by RZFileWatcher::poll
+     */
+    struct RAZIX_API RZFileChange
+    {
+        RZString       path;
+        RZFileChangeType type;
+    };
+
+    /**
+     * Opaque file-watcher handle.
+     * One watcher per root path (file or directory).
+     * The caller owns the watcher and must call RZFileSystem::DestroyFileWatcher when done.
+     */
+    struct RZFileWatcher;
+
+    using RZFileWatcherPollFn = void (*)(RZFileWatcher* watcher, RZFileChange* outChanges, int* inOutCount, int maxChanges);
+
+    struct RAZIX_API RZFileWatcher
+    {
+        void*             platform;    // OS-specific state
+        RZFileWatcherPollFn poll;
+    };
+
     /**
      * Provides a OS independent interface to Interact with the files stored on the host
      */
@@ -108,6 +143,32 @@ namespace Razix {
 
             return !IsRelativePath(path);
         }
+
+        /**
+         * Creates a file watcher that monitors the given directory for changes.
+         * The caller owns the returned watcher and must destroy it with DestroyFileWatcher.
+         *
+         * @param directoryPath  Absolute or relative path to the directory to watch
+         * @returns Pointer to a new RZFileWatcher, or nullptr on failure
+         */
+        static RZFileWatcher* CreateFileWatcherForDirectory(const RZString& directoryPath);
+
+        /**
+         * Creates a file watcher that monitors a single file for changes.
+         * The caller owns the returned watcher and must destroy it with DestroyFileWatcher.
+         *
+         * @param filePath  Absolute or relative path to the file to watch
+         * @returns Pointer to a new RZFileWatcher, or nullptr on failure
+         */
+        static RZFileWatcher* CreateFileWatcherForFile(const RZString& filePath);
+
+        /**
+         * Destroys a file watcher previously created by CreateFileWatcherForDirectory
+         * or CreateFileWatcherForFile and releases all associated OS resources.
+         *
+         * @param watcher  The watcher to destroy; must not be used after this call
+         */
+        static void DestroyFileWatcher(RZFileWatcher* watcher);
     };
 
 }    // namespace Razix
