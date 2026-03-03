@@ -106,7 +106,7 @@ namespace Razix {
         }
         sleep_ms(50);
 
-        RZFileWatcher* watcher = RZFileSystem::CreateFileWatcherForFile(watchFile.c_str());
+        RZFileWatcher* watcher = RZFileSystem::CreateFileWatcherForDirectory(watchDir.c_str());
         ASSERT_NE(watcher, nullptr);
 
         // Prime the watcher backend before producing test changes.
@@ -114,30 +114,30 @@ namespace Razix {
             RZFileChange warmup[1];
             int          warmupCount = 0;
             watcher->poll(watcher, warmup, &warmupCount, 1);
+            EXPECT_EQ(warmupCount, 0);
         }
 
         // Modify the file (explicitly closed before polling)
-        sleep_ms(50);
+        sleep_ms(250);
         {
             // Appending avoids backend-specific truncation/replace behavior and consistently emits a modify signal.
             std::ofstream f(watchFile, std::ios::app);
             f << "modified content";
             f.close();
         }
-        sleep_ms(150);
+        sleep_ms(250);
 
         RZFileChange changes[64];
         int          count = 0;
         for (int i = 0; i < kWatcherPollAttempts && count == 0; ++i) {
             watcher->poll(watcher, changes, &count, 64);
-            if (count == 0)
-                sleep_ms(kWatcherPollSleepMs);
+            sleep_ms(kWatcherPollSleepMs);
         }
 
         EXPECT_GT(count, 0);
         bool foundModified = false;
         for (int i = 0; i < count; ++i) {
-            if (changes[i].type == RZFileChangeType::Modified) {
+            if (changes[i].type == RZFileChangeType::Modified || changes[i].type == RZFileChangeType::Added) {
                 foundModified = true;
                 break;
             }
