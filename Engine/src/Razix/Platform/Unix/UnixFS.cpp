@@ -250,8 +250,10 @@ namespace Razix {
         if (state->inotifyFd >= 0)
             close(state->inotifyFd);
 
-        delete state;
-        delete watcher;
+        state->~UnixFileWatcherState();
+        rz_free(state);
+        watcher->~RZFileWatcher();
+        rz_free(watcher);
     }
 
     static RZFileWatcher* CreateLinuxWatcher(const char* dirPath, bool watchFile, const char* fileName)
@@ -266,14 +268,29 @@ namespace Razix {
             return nullptr;
         }
 
-        auto* state             = new UnixFileWatcherState();
+        void* stateMem = rz_malloc(sizeof(UnixFileWatcherState), alignof(UnixFileWatcherState));
+        if (!stateMem) {
+            close(fd);
+            return nullptr;
+        }
+
+        auto* state             = new (stateMem) UnixFileWatcherState();
         state->inotifyFd        = fd;
         state->watchDescriptor  = wd;
         state->watchFile        = watchFile;
         state->rootPath         = dirPath;
         state->filterFileName   = (fileName ? fileName : "");
 
-        auto* w    = new RZFileWatcher();
+        void* watcherMem = rz_malloc(sizeof(RZFileWatcher), alignof(RZFileWatcher));
+        if (!watcherMem) {
+            state->~UnixFileWatcherState();
+            rz_free(state);
+            inotify_rm_watch(fd, wd);
+            close(fd);
+            return nullptr;
+        }
+
+        auto* w    = new (watcherMem) RZFileWatcher();
         w->platform = state;
         w->poll     = UnixFileWatcherPoll;
         return w;
@@ -364,6 +381,8 @@ namespace Razix {
         }
     }
 
+    static void MacOSDispatchBarrierCallback(void* /*context*/) {}
+
     static void MacOSFileWatcherPoll(RZFileWatcher* watcher, RZFileChange* outChanges, int* inOutCount, int maxChanges)
     {
         if (!watcher || !watcher->platform || !outChanges || !inOutCount)
@@ -376,7 +395,7 @@ namespace Razix {
         FSEventStreamFlushSync(state->stream);
         // Wait for all work currently on the dispatch queue (including the callback)
         // to complete before we read from the ring buffer.
-        dispatch_sync(state->queue, ^{});
+        dispatch_sync_f(state->queue, nullptr, MacOSDispatchBarrierCallback);
 
         while (state->pendingTail != state->pendingHead && *inOutCount < maxChanges) {
             outChanges[*inOutCount] = state->pending[state->pendingTail];
@@ -400,8 +419,10 @@ namespace Razix {
             dispatch_release(state->queue);
         }
 
-        delete state;
-        delete watcher;
+        state->~MacOSFileWatcherState();
+        rz_free(state);
+        watcher->~RZFileWatcher();
+        rz_free(watcher);
     }
 
     static RZFileWatcher* CreateMacOSWatcher(const char* dirPath, bool watchFile, const char* fileName)
@@ -409,7 +430,14 @@ namespace Razix {
         CFStringRef     pathStr   = CFStringCreateWithCString(kCFAllocatorDefault, dirPath, kCFStringEncodingUTF8);
         CFArrayRef      paths     = CFArrayCreate(kCFAllocatorDefault, (const void**) &pathStr, 1, &kCFTypeArrayCallBacks);
 
-        auto* state              = new MacOSFileWatcherState();
+        void* stateMem = rz_malloc(sizeof(MacOSFileWatcherState), alignof(MacOSFileWatcherState));
+        if (!stateMem) {
+            CFRelease(paths);
+            CFRelease(pathStr);
+            return nullptr;
+        }
+
+        auto* state              = new (stateMem) MacOSFileWatcherState();
         state->watchFile         = watchFile;
         state->rootPath          = dirPath;
         state->filterFileName    = (fileName ? fileName : "");
@@ -431,7 +459,8 @@ namespace Razix {
         CFRelease(pathStr);
 
         if (!state->stream) {
-            delete state;
+            state->~MacOSFileWatcherState();
+            rz_free(state);
             return nullptr;
         }
 
@@ -441,7 +470,20 @@ namespace Razix {
         FSEventStreamSetDispatchQueue(state->stream, queue);
         FSEventStreamStart(state->stream);
 
-        auto* w    = new RZFileWatcher();
+        void* watcherMem = rz_malloc(sizeof(RZFileWatcher), alignof(RZFileWatcher));
+        if (!watcherMem) {
+            FSEventStreamStop(state->stream);
+            FSEventStreamInvalidate(state->stream);
+            FSEventStreamRelease(state->stream);
+            if (state->queue) {
+                dispatch_release(state->queue);
+            }
+            state->~MacOSFileWatcherState();
+            rz_free(state);
+            return nullptr;
+        }
+
+        auto* w    = new (watcherMem) RZFileWatcher();
         w->platform = state;
         w->poll     = MacOSFileWatcherPoll;
         return w;

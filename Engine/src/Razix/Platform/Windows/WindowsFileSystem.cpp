@@ -2,6 +2,7 @@
 #include "rzxpch.h"
 // clang-format on
 #include "Razix/Core/OS/RZFileSystem.h"
+#include "Razix/Core/Memory/RZMemoryFunctions.h"
 
 #ifdef RAZIX_PLATFORM_WINDOWS
     #include <Windows.h>
@@ -236,8 +237,10 @@ namespace Razix {
         if (state->hDir != INVALID_HANDLE_VALUE)
             CloseHandle(state->hDir);
 
-        delete state;
-        delete watcher;
+        state->~WindowsFileWatcherState();
+        rz_free(state);
+        watcher->~RZFileWatcher();
+        rz_free(watcher);
     }
 
     static RZFileWatcher* CreateWindowsWatcher(const RZString& dirPath, bool watchFile, const RZString& fileName)
@@ -254,7 +257,13 @@ namespace Razix {
         if (hDir == INVALID_HANDLE_VALUE)
             return nullptr;
 
-        auto* state              = new WindowsFileWatcherState();
+        void* stateMem = rz_malloc(sizeof(WindowsFileWatcherState), alignof(WindowsFileWatcherState));
+        if (!stateMem) {
+            CloseHandle(hDir);
+            return nullptr;
+        }
+
+        auto* state              = new (stateMem) WindowsFileWatcherState();
         state->hDir              = hDir;
         state->watchFile         = watchFile;
         state->rootPath          = dirPath;
@@ -264,7 +273,15 @@ namespace Razix {
         ZeroMemory(&state->overlapped, sizeof(state->overlapped));
         ZeroMemory(state->buffer, sizeof(state->buffer));
 
-        auto* watcher    = new RZFileWatcher();
+        void* watcherMem = rz_malloc(sizeof(RZFileWatcher), alignof(RZFileWatcher));
+        if (!watcherMem) {
+            state->~WindowsFileWatcherState();
+            rz_free(state);
+            CloseHandle(hDir);
+            return nullptr;
+        }
+
+        auto* watcher    = new (watcherMem) RZFileWatcher();
         watcher->platform = state;
         watcher->poll     = WindowsFileWatcherPoll;
         return watcher;

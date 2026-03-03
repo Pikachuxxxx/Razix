@@ -3,7 +3,7 @@
 
 namespace Razix {
 
-    class RAZIX_API RZFileChangedEvent : public RZEvent
+    class RZFileChangedEvent : public RZEvent
     {
     public:
         RZFileChangedEvent(const RZString& path)
@@ -23,7 +23,7 @@ namespace Razix {
         RZString m_Path;
     };
 
-    class RAZIX_API RZFileCreatedEvent : public RZEvent
+    class RZFileCreatedEvent : public RZEvent
     {
     public:
         RZFileCreatedEvent(const RZString& path)
@@ -43,7 +43,7 @@ namespace Razix {
         RZString m_Path;
     };
 
-    class RAZIX_API RZFileDeletedEvent : public RZEvent
+    class RZFileDeletedEvent : public RZEvent
     {
     public:
         RZFileDeletedEvent(const RZString& path)
