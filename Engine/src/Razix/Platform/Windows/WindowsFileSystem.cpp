@@ -267,7 +267,6 @@ namespace Razix {
         auto* watcher    = new RZFileWatcher();
         watcher->platform = state;
         watcher->poll     = WindowsFileWatcherPoll;
-        watcher->destroy  = WindowsFileWatcherDestroy;
         return watcher;
     }
 
@@ -288,8 +287,7 @@ namespace Razix {
 
     void RZFileSystem::DestroyFileWatcher(RZFileWatcher* watcher)
     {
-        if (watcher && watcher->destroy)
-            watcher->destroy(watcher);
+        WindowsFileWatcherDestroy(watcher);
     }
 }    // namespace Razix
 

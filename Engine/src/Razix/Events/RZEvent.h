@@ -2,6 +2,7 @@
 
 #include "Razix/Core/RZCore.h"
 
+#include "Razix/Core/Containers/hash_map.h"
 #include "Razix/Core/Containers/string.h"
 
 #include "Razix/Core/std/utility.h"

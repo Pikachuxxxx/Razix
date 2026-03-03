@@ -276,7 +276,6 @@ namespace Razix {
         auto* w    = new RZFileWatcher();
         w->platform = state;
         w->poll     = UnixFileWatcherPoll;
-        w->destroy  = UnixFileWatcherDestroy;
         return w;
     }
 
@@ -296,18 +295,19 @@ namespace Razix {
 
     void RZFileSystem::DestroyFileWatcher(RZFileWatcher* watcher)
     {
-        if (watcher && watcher->destroy)
-            watcher->destroy(watcher);
+        UnixFileWatcherDestroy(watcher);
     }
 
     #elif defined(RAZIX_PLATFORM_MACOS)
 
         #include <CoreServices/CoreServices.h>
+        #include <dispatch/dispatch.h>
         #include <string>
 
     struct MacOSFileWatcherState
     {
         FSEventStreamRef stream;
+        dispatch_queue_t queue;
         bool             watchFile;
         std::string      rootPath;
         std::string      filterFileName;
@@ -393,6 +393,9 @@ namespace Razix {
             FSEventStreamInvalidate(state->stream);
             FSEventStreamRelease(state->stream);
         }
+        if (state->queue) {
+            dispatch_release(state->queue);
+        }
 
         delete state;
         delete watcher;
@@ -409,6 +412,7 @@ namespace Razix {
         state->filterFileName    = (fileName ? fileName : "");
         state->pendingHead       = 0;
         state->pendingTail       = 0;
+        state->queue             = nullptr;
 
         FSEventStreamContext ctx = {0, state, nullptr, nullptr, nullptr};
         state->stream            = FSEventStreamCreate(
@@ -428,14 +432,15 @@ namespace Razix {
             return nullptr;
         }
 
-        // Schedule on a private run-loop thread so callbacks fire asynchronously
-        FSEventStreamScheduleWithRunLoop(state->stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        // Store the dispatch queue in the state so we can release it on destroy
+        dispatch_queue_t queue = dispatch_queue_create("com.razix.filewatcher", DISPATCH_QUEUE_SERIAL);
+        state->queue           = queue;
+        FSEventStreamSetDispatchQueue(state->stream, queue);
         FSEventStreamStart(state->stream);
 
         auto* w    = new RZFileWatcher();
         w->platform = state;
         w->poll     = MacOSFileWatcherPoll;
-        w->destroy  = MacOSFileWatcherDestroy;
         return w;
     }
 
@@ -455,8 +460,7 @@ namespace Razix {
 
     void RZFileSystem::DestroyFileWatcher(RZFileWatcher* watcher)
     {
-        if (watcher && watcher->destroy)
-            watcher->destroy(watcher);
+        MacOSFileWatcherDestroy(watcher);
     }
 
     #else

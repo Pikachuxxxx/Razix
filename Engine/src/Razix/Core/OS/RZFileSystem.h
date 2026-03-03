@@ -30,14 +30,12 @@ namespace Razix {
      */
     struct RZFileWatcher;
 
-    using RZFileWatcherPollFn    = void (*)(RZFileWatcher* watcher, RZFileChange* outChanges, int* inOutCount, int maxChanges);
-    using RZFileWatcherDestroyFn = void (*)(RZFileWatcher* watcher);
+    using RZFileWatcherPollFn = void (*)(RZFileWatcher* watcher, RZFileChange* outChanges, int* inOutCount, int maxChanges);
 
     struct RZFileWatcher
     {
-        void*                platform;    // OS-specific state
-        RZFileWatcherPollFn  poll;
-        RZFileWatcherDestroyFn destroy;
+        void*             platform;    // OS-specific state
+        RZFileWatcherPollFn poll;
     };
 
     /**
