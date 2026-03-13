@@ -1,28 +1,29 @@
-Game idea: Help me bring shape to this
+Game idea: Narrative action adventure lifestyle game about a gir's self discovery
+using magical clothes, trauma healing and her quest for love.
 
 The game has 2 parallel track the smaller track that happes very once in a while...
 
 The main track:
+Tanu is a 25 year old girl one day goes to a carnival with her girl friends and buys a gun and this carnival
+has all kinds of stalls to help women learn all 66 skills as described in kamasurtra
+(crypto maths, cooking etc.) she learns how to solve crypto and then smokes some weed and falls into a
+boss level and learns about her powers that her clothes cna help fend off evil also she finds a
+crypto vienere cipher from a guy and solves and goes on a journer yo find her true self and the boy
 
-_Tanu, a girl trapped in a CASSETTE TAPE HEAD she doesn’t belong to,
-goes to a carnival and learns ciphers. One night she decodes a strange letter from a boy
-and starts dreaming his memories, where she becomes a real fun girl/real-self. She also
-finds her clothes react to her emotions protecting her, changing shape, glowing. She fights
-dream monsters that guard pieces of truth about the boy and falls in love. Each boss she kills
-opens new dreams and puzzles that help her see more of him and herself. She goes on a journey
-of self discovery and to find love for the boy._
+In this journely she fights off evil and also searches for clues to get closed to the boy by solving puzzles
 
-An orphan one day goes to a carnival with her girl friends and buys a gun and this carnival has all kinds of stalls to help women learn all 66 skills as described in kamasurtra (crypto maths, cooking etc.) she learns how to solve crypto and then smokes some weed and falls into a boss level and learns about her powers that her clothes cna help fend off evil also she finds a crypto vienere cipher from a guy and solves and goes on a journer yo find her true self and the boy
+The actual puzzles comes from a alternative timeline where a boy makes it, idk how she gets it
+thought and how that girl dreams of her battles in her sleep and gets curious about her and gives
+cluies to find her and fight off better this is the gfoal of the game
 
-In this journely she gights off evil and also searches for clues to get closed to the boy by solving puzzles
+Now she also goes on top of moundatines and etc and all and kills the mamasan goons and frees of
+her girlfriends and the carnival helps her get more skills and boss fights and puzzles agains
 
-The actual puzzles comes from a alternative timeline where a boy makes it, idk how she gets it thought and how that girl dreams of her battles in her sleep and gets curious about her and gives cluies to find her and fight off better this is the gfoal of the game
-
-Now she also goes on top of moundatines and etc and all and kills the mamasan goons and frees of her girlfriends and the carnival helps her get more skills and boss fights and puzzles agains
-
-Give structure to this and design episode n and boss fight and parallel tracks, don't use points just paragraphcs stc. and help me make the clothes powers game mechanics as core and fun and write the abstract of the story first in a simple GDD 
-
-Tanu, a girl trapped in a house she doesn’t belong to, goes to a carnival and learns ciphers. One night she decodes a strange letter from a boy and starts dreaming his memories. She also finds her clothes react to her emotions protecting her, changing shape, glowing. She fights dream monsters that guard pieces of truth about the boy. Each boss she kills opens new dreams and puzzles that help her see more of him and herself.
+Tanu, a girl trapped in a house she doesn’t belong to, goes to a carnival and learns ciphers.
+One night she decodes a strange letter from a boy and starts dreaming his memories
+. She also finds her clothes react to her emotions protecting her, changing shape, glowing.
+She fights dream monsters that guard pieces of truth about the boy. Each boss she kills opens
+new dreams and puzzles that help her see more of him and herself.
 
 Dream World:
 
@@ -64,3 +65,16 @@ She realizes she can use her dream self to affect the real world.
 Dream world art shading inspirations: (CEL shading)
 - https://www.shadertoy.com/view/3cf3W8
 - colors: https://www.shadertoy.com/view/wdSBz3
+
+Ending:
+Tanu wakes, up, she reads the messages in her phone, perplexed to have already read them. 
+She feels deep in love and happy looking at the phone, with a wide smile, her mouth appears or not, 
+Or with a lot of enthusiasm she texts
+Player needs to type out "I'm ready, if forever's real, let it be with you."
+The boy reads it.
+Cuts to marriage sequence, play the first song:
+https://music.apple.com/in/album/adedo-maayalley/1276265966?i=1276266258
+This is also a drawing, check insta saved for reference.
+Love transcends dreams, show it's a loop
+LOOP: their kid is this, girl! 
+Tanu's daughter is Tanu
