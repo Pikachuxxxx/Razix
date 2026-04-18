@@ -13,6 +13,7 @@
 // C++ compatible due to AssetSystem and the need to interact with other engine systems which are mostly C++
 
 // TODO: don't export non-public functions as RAZIX_API, they are only exposed here to make ASM implementation readable
+// TODO: Use bump allocator everywhere instead of heap allocator even for rz_scene_nodes?
 
 //-----------------------------------------------------------------------------
 // Constants & Defines
@@ -27,7 +28,8 @@
 #define RAZIX_TANU_ZONE_DIM_IN_METERS 128                              // each zone covers 128x128 meters grid in Tanu
 #define RAZIX_ZONE_DIM_IN_METERS      RAZIX_TANU_ZONE_DIM_IN_METERS    // abstracting game specific needs
 #define RAZIX_SCENE_DIMS              2                                // by default we will the scene with a 2x2 grid of zones
-#define RAZIX_DEFAULT_ZONES_COUNT     RAZIX_SCENE_DIMS* RAZIX_SCENE_DIMS
+#define RAZIX_DEFAULT_ZONES_COUNT     RAZIX_SCENE_DIMS * RAZIX_SCENE_DIMS
+
 using namespace Razix;
 
 #ifdef __cplusplus
@@ -46,6 +48,7 @@ extern "C"
         RZ_NODE_FLAG_VISIBLE     = (1 << 1),
         RZ_NODE_FLAG_STATIC      = (1 << 2),    // never moves at runtime, even it's chilren are static, it is recommend to store all static nodes under a single root transform node
         RZ_NODE_FLAG_PLACEHOLDER = (1 << 3),    // asset still loading async
+        RZ_NDOE_FLAG_COUNT       = 5
     } rz_node_flags;
 
     //-----------------------------------------------------------------------------
@@ -130,12 +133,13 @@ extern "C"
     {
         char    name[RAZIX_NODE_NAME_MAX];
         rz_aabb bounds;
-        u32     eventHash;
+        u32     eventHash; // TODO: Use RZUUID instead?
     } rz_global_trigger;
 
     // Scene Graph
     typedef struct rz_scene_graph
     {
+        char               name[RAZIX_ZONE_NAME_MAX];
         u32                version;
         rz_aabb            sceneBounds;
         u32                gridDims[3];
@@ -158,15 +162,13 @@ extern "C"
     //-----------------------------------------------------------------------------
     // API Functions
     //-----------------------------------------------------------------------------
-
-    //-----------------------------------------------------------------------------
     // Lifecycle
     // Creates a scenegraph with a single zone by default
-    RAZIX_API rz_scene_graph* rz_scene_graph_create(Memory::RZHeapAllocator& heapAllocator, u32 gridDim);
+    RAZIX_API rz_scene_graph* rz_scene_graph_create(const char* name, Memory::RZHeapAllocator& heapAllocator, u32 gridDim);
     RAZIX_API rz_scene_graph* rz_scene_graph_create_from_file(Memory::RZHeapAllocator& heapAllocator, const void* pFileData, u64 fileSize);
-    RAZIX_API void            rz_scene_graph_destroy(rz_scene_graph* sg);
+    RAZIX_API void            rz_scene_graph_destroy(Memory::RZHeapAllocator& heapAllocator, rz_scene_graph* sg);
     //-----------------------------------------------------------------------------
-    // Master update — called once per frame by game thread. Zone selection/loading, Transform updates, node culling etc.
+    // Master update - called once per frame by game thread. Zone selection/loading, Transform updates, node culling etc.
     RAZIX_API void rz_scene_graph_update(rz_scene_graph* sg, float3 observerPosition, f32 deltaTime);
     //-----------------------------------------------------------------------------
     // Zone Lifecycle
@@ -233,7 +235,7 @@ extern "C"
     //-----------------------------------------------------------------------------
 
     RAZIX_API rz_scene_graph_manager* rz_scene_graph_manager_create(Memory::RZHeapAllocator& heapAllocator);
-    RAZIX_API void                    rz_scene_graph_manager_destroy(rz_scene_graph_manager* mgr);
+    RAZIX_API void                    rz_scene_graph_manager_destroy(Memory::RZHeapAllocator& heapAllocator, rz_scene_graph_manager* mgr);
     RAZIX_API void                    rz_scene_graph_manager_load_scene(rz_scene_graph_manager* mgr, const char* path);
     RAZIX_API void                    rz_scene_graph_manager_unload_scene(rz_scene_graph_manager* mgr);
     RAZIX_API void                    rz_scene_graph_manager_queue_scene(rz_scene_graph_manager* mgr, const char* path);

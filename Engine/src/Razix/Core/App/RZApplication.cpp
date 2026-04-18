@@ -31,6 +31,15 @@
 
 #define ENABLE_IMGUI_EVENT_DATA_CAPTURE 0
 
+/* Application Serialization */
+#define RZ_JSON_KEY_ROOT           "Razix Application"
+#define RZ_JSON_KEY_PROJECT_NAME   "Project Name"
+#define RZ_JSON_KEY_ENGINE_VERSION "Engine Version"
+#define RZ_JSON_KEY_PROJECT_ID     "Project ID"
+#define RZ_JSON_KEY_WIDTH          "Width"
+#define RZ_JSON_KEY_HEIGHT         "Height"
+#define RZ_JSON_KEY_SCENES         "Scenes"
+
 namespace Razix {
 
     RZApplication* RZApplication::s_AppInstance = NULL;
@@ -64,6 +73,7 @@ namespace Razix {
             RZString projectPath = RZEngine::Get().getCommandLineParser().getValueAsString("project file path");
             RZString projectName = RZEngine::Get().getCommandLineParser().getValueAsString("project file name");
             RZString fullPath    = projectPath + projectName + RZString(".razixproject");
+            m_ProjectPath = projectPath;
             RAZIX_CORE_TRACE("[Application] Command line resolved full project path : {0}", fullPath);
             RAZIX_CORE_INFO("[Application] Opening the project file de-serialization...");
 
@@ -76,9 +86,7 @@ namespace Razix {
             }
             auto                   jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
             nlohmann::ordered_json data        = nlohmann::ordered_json::parse(jsonStrData);
-            // pass this off to the load function below
             loadRazixProject(data);
-            m_ProjectPath = projectPath;
         } else {
             RAZIX_CORE_WARN("[Application] command line args for project file path and name are not set...using App args to resolve *.razixproject");
             // TODO: If command line is not provided or doesn't use engine default sandbox project we need some way to resolve the project root directory, make this agnostic we need not redirect to sandbox by default it must be provided as a placeholder value instead as a fall back
@@ -95,7 +103,6 @@ namespace Razix {
             }
             auto                   jsonStrData = RZFileSystem::ReadTextFile(physicalPath);
             nlohmann::ordered_json data        = nlohmann::ordered_json::parse(jsonStrData);
-
             loadRazixProject(data);
         }
 
@@ -434,15 +441,6 @@ namespace Razix {
 
         operator RZString() const { return RZString(value.c_str()); }
     };
-
-    /* Application Serialization */
-#define RZ_JSON_KEY_ROOT           "Razix Application"
-#define RZ_JSON_KEY_PROJECT_NAME   "Project Name"
-#define RZ_JSON_KEY_ENGINE_VERSION "Engine Version"
-#define RZ_JSON_KEY_PROJECT_ID     "Project ID"
-#define RZ_JSON_KEY_WIDTH          "Width"
-#define RZ_JSON_KEY_HEIGHT         "Height"
-#define RZ_JSON_KEY_SCENES         "Scenes"
 
     static bool ValidateRequiredProjectFields(const nlohmann::ordered_json& root)
     {

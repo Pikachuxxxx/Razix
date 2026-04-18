@@ -16,6 +16,8 @@
 
 #include "Razix/Gfx/Renderers/RZWorldRenderer.h"
 
+#include "Razix/Scene/RZSceneGraph.h"
+
 #include "Razix/Scripting/RZLuaScriptHandler.h"
 
 //! Some style guide rules are waved off for RZEngine class
@@ -83,13 +85,12 @@ namespace Razix {
         inline const EngineSettings&          getGlobalEngineSettings() { return m_EngineSettings; }
         inline Gfx::RZWorldRenderer&          getWorldRenderer() { return m_WorldRenderer; }
         inline Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        //inline Gfx::RZShaderLibrary&          getShaderLibrary() { return m_ShaderLibrary; }
+        inline rz_scene_graph_manager& getSceneManager() { return *m_SceneGraphManager; }
 
         inline Razix::Memory::RZHeapAllocator&     getSystemAllocator() { return m_SystemAllocator; }
         inline Razix::Memory::RZHeapAllocator&     getAssetAllocator() { return m_AssetAllocator; }
         inline Razix::Memory::RZBumpAllocator&     getFrameAllocator() { return m_FrameAllocator; }
         inline Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
-
         inline rz_critical_section& getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
 
     private:
@@ -100,6 +101,7 @@ namespace Razix {
         RZVirtualFileSystem                m_VirtualFileSystem;
         Scripting::RZLuaScriptHandler      m_LuaScriptHandlerSystem;
         Gfx::RZWorldRenderer               m_WorldRenderer;
+        rz_scene_graph_manager*            m_SceneGraphManager;
         Razix::Memory::RZHeapAllocator     m_SystemAllocator;
         Razix::Memory::RZHeapAllocator     m_AssetAllocator;
         Razix::Memory::RZHeapAllocator     m_AssetHeaderAllocator;
