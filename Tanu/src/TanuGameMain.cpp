@@ -20,16 +20,19 @@ public:
         rz_scene_graph_manager& sceneGraphManager = RZEngine::Get().getSceneManager();
         if (sceneGraphManager.pActiveScene == NULL && m_TanuDefaultSceneGraph == NULL) {
             m_TanuDefaultSceneGraph = rz_scene_graph_create("<rz_scene_tanu_default_scn>", RZEngine::Get().getSystemAllocator(), RAZIX_SCENE_DIMS);
-            sceneGraphManager.pActiveScene = m_TanuDefaultSceneGraph;
+            rz_scene_graph_manager_set_active_scene(&sceneGraphManager, m_TanuDefaultSceneGraph);
 
             // Add some test nodes to the scene graph, perhaps an empty cube
             rz_zone* default_tanu_scn_zone_0 = rz_scene_graph_get_active_zone(m_TanuDefaultSceneGraph);
             // Create a root level transform node under the zone root.
             
             // Let's create the assets first
+            // As for ownership, once we attach them to scenegraph, they will be deleted when out of scope, so typically when zone is unloaded 
+            // or when we destroy the scene graph altogether.
             rz_asset_handle cube_transform_asset = RZAssetDB::Get().createAsset<RZTransformAsset>("Cube_Transform_Asset"); 
             rz_asset_handle cube_mesh_asset = RZAssetDB::Get().createAsset<RZMeshAsset>("Cube_Mesh_Asset");
-
+            
+            // TODO: Add utils functions in RZAssetDB to handle this mess of functions for transform asset and pool
             // Get the asset data and fill it with some data, for now we can just leave it empty or fill with some dummy data
             // RZTransformAsset* cube_transform_asset_data = RZAssetDB::Get().getAssetResourceMutablePtr()<RZTransformAsset>(cube_transform_asset);
             // we need to get a little weird here to fill the transform asset manaually since its SOA design, using scene manager makes it easu but for now deal with it.
@@ -40,6 +43,7 @@ public:
 
             RZMeshAsset* cube_mesh_asset_data = RZAssetDB::Get().getAssetResourceMutablePtr<RZMeshAsset>(cube_mesh_asset);
             RAZIX_UNUSED(cube_mesh_asset_data);
+            // TODO: Fill this mesh data, for the sake of testing let's leave it empty, we will use a placeholder cube with unlit default sahder for testing
 
             i32 cube_transform_node_idx = rz_scene_graph_attach_asset(m_TanuDefaultSceneGraph, default_tanu_scn_zone_0->rootNodeIndex, "<rz_scn_node_cube_transform>", rz_uuid_generate(), cube_transform_asset);
             // Now add Mesh node as child to this first level parent node
