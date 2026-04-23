@@ -8,6 +8,8 @@
 namespace Razix {
 
     // TODO: To be merged with RZMesh class
+    // TODO: Use rz_handle for VertexBufferHandle and IndexBufferHandle instead of u32
+    // TODO: Also RZMeshFactory will create these RZMeshAssets raw data without material data tied to it.
     struct RAZIX_ALIGN_TO(RAZIX_16B_ALIGN) RZMeshAsset
     {
         RAZIX_ASSET
@@ -19,7 +21,7 @@ namespace Razix {
         float3   BoundsMin;
         f32      BoundsRadius;
         float3   BoundsMax;
-        u8       _pad0[4];
+       u8       _pad0[4];
         RZString MeshPath;
         RZString MaterialPath;
     };

@@ -49,6 +49,24 @@
 #include "Razix/Events/RZKeyEvent.h"
 #include "Razix/Events/RZMouseEvent.h"
 
+// Asset System
+#include "Razix/AssetSystem/RZAssetDB.h"
+#include "Razix/AssetSystem/RZAssetPool.h"
+#include "Razix/Asset/RZAnimationAsset.h"
+#include "Razix/Asset/RZAssetRefAsset.h"
+#include "Razix/Asset/RZAudioAsset.h"
+#include "Razix/Asset/RZCameraAsset.h"
+#include "Razix/Asset/RZClothAsset.h"
+#include "Razix/Asset/RZGameDataAsset.h"
+#include "Razix/Asset/RZLightAsset.h"
+#include "Razix/Asset/RZLuaScriptAsset.h"
+#include "Razix/Asset/RZMaterialAsset.h"
+#include "Razix/Asset/RZMeshAsset.h"
+#include "Razix/Asset/RZPhysicsMaterialAsset.h"
+#include "Razix/Asset/RZTextureAsset.h"
+#include "Razix/Asset/RZTransformAsset.h"
+#include "Razix/Asset/RZVignerePuzzleAsset.h"
+
 // Graphics API
 #include "Razix/Gfx/RHI/RHI.h"
 
