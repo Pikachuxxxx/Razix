@@ -65,7 +65,12 @@ namespace Razix {
                 ComputeDispatches = 0;
                 GPUMemoryUsed     = 0;
                 UsedRAM           = 0;
-                PassTimings.clear();
+                {
+                    // PassTimings is written by the render thread (RAZIX_TIME_STAMP_END) while
+                    // reset() runs on the game thread
+                    RZScopedCriticalSection lock(PassTimingsMutex);
+                    PassTimings.clear();
+                }
             }
         };
 
