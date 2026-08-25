@@ -19,11 +19,14 @@
 #include "Razix/Gfx/Resources/RZResourceManager.h"
 
 #include "Razix/Core/Utils/RZColorUtilities.h"
+#include <Gfx/Passes/IRZPass.h>
+
+#include "Razix/Gfx/RZWorld.h"
 
 namespace Razix {
     namespace Gfx {
 
-        void RZToneMapPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZToneMapPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
         {
             auto tonemapShader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kTonemap);
 
@@ -96,7 +99,7 @@ namespace Razix {
                 [=](const ToneMapPassData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
-                    RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Tonemap);
+                    RETURN_IF_BIT_NOT_SET(world->rendererSettings.renderFeatures, RendererFeature_Tonemap);
 
                     RAZIX_TIME_STAMP_BEGIN("Tonemap Pass");
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();
@@ -146,7 +149,7 @@ namespace Razix {
                     {
                         u32 tonemapMode;
                     } m_PushConstantData           = {};
-                    m_PushConstantData.tonemapMode = settings->tonemapMode;
+                    m_PushConstantData.tonemapMode = world->rendererSettings.tonemapMode;
                     rzRHI_BindRootConstant(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, m_RootSignature, 0, sizeof(PushConstant), &m_PushConstantData);
 
                     // Full screen quad, just 3 tris, generated in the vertex shader

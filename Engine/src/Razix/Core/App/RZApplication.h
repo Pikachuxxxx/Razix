@@ -85,7 +85,6 @@ namespace Razix {
 
         virtual void OnStart() {}
         virtual void OnUpdate(const RZTimestep& dt) {}
-        virtual void OnRender() {}
         virtual void OnQuit() {}
         virtual void OnImGui() {}
         virtual void OnResize(u32 width, u32 height) {}
@@ -118,12 +117,12 @@ namespace Razix {
         RZWindow*                m_Window                    = NULL;
         rz_time_stamp            m_LastFrameTime             = {};
         rz_time_stamp            m_TotalTimeElapsedInSeconds = {};
-        RZTimestep               m_FPSTimestep               = {};
         RZTimestep               m_UPSTimestep               = {};
         rz_uuid                  m_ProjectID                 = {};
         RZDynamicArray<RZString> m_SceneFilePaths            = {};
         RZEventDispatcher        m_EventDispatcher           = {};
         WindowProperties         m_WindowProperties          = {};
+        rz_thread_handle         m_RenderThread = {};
 
     private:
         RAZIX_NONCOPYABLE_CLASS(RZApplication);
@@ -132,10 +131,6 @@ namespace Razix {
         void Start();
         /* Updates the engine and application runtime systems */
         void Update(const RZTimestep& dt);
-        /* Renders the application and Engine rendering commands */
-        void Render();
-        /* Used to render GUI */
-        void RenderGUI();
 
         // Event callbacks
         void OnEvent(RZEvent& event);
@@ -146,10 +141,6 @@ namespace Razix {
         bool OnMouseButtonReleased(RZMouseButtonReleasedEvent& e);
         bool OnKeyPress(RZKeyPressedEvent& e);
         bool OnKeyRelease(RZKeyReleasedEvent& e);
-
-        void renderEngineImGuiElements();
-        void renderRuntimeAssetsIconsOnImGui();
-        void renderEngineStatsOnImGui();
     };
 
     /**

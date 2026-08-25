@@ -143,7 +143,7 @@ extern "C"
         u32                version;
         rz_aabb            sceneBounds;
         u32                gridDims[3];
-        f32                zonePhysicalSize;    // useually equal to RAZIX_ZONE_DIM_IN_METERS
+        f32                zonePhysicalSize;    // usually equal to RAZIX_ZONE_DIM_IN_METERS
         rz_zone*           pZones;
         u32                zoneCount;
         u32                activeZoneIndex;
@@ -240,6 +240,7 @@ extern "C"
     RAZIX_API void                    rz_scene_graph_manager_unload_scene(rz_scene_graph_manager* mgr);
     RAZIX_API void                    rz_scene_graph_manager_queue_scene(rz_scene_graph_manager* mgr, const char* path);
     RAZIX_API void                    rz_scene_graph_manager_set_active_scene(rz_scene_graph_manager* mgr, rz_scene_graph* scene);
+    RAZIX_API rz_scene_graph*         rz_scene_graph_get_active_scene(const rz_scene_graph_manager* mgr);
 
     //-----------------------------------------------------------------------------
     // S-Expression Tokenizer (SIMD-accelerated)

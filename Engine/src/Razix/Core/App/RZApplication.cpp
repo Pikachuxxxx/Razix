@@ -17,6 +17,8 @@
 
 #include "Razix/Events/ApplicationEvent.h"
 
+#include "Razix/Gfx/RZRenderThread.h"
+
 #include "Razix/Scene/RZSceneGraph.h"
 
 #include <Core/Log/RZLog.h>
@@ -73,7 +75,7 @@ namespace Razix {
             RZString projectPath = RZEngine::Get().getCommandLineParser().getValueAsString("project file path");
             RZString projectName = RZEngine::Get().getCommandLineParser().getValueAsString("project file name");
             RZString fullPath    = projectPath + projectName + RZString(".razixproject");
-            m_ProjectPath = projectPath;
+            m_ProjectPath        = projectPath;
             RAZIX_CORE_TRACE("[Application] Command line resolved full project path : {0}", fullPath);
             RAZIX_CORE_INFO("[Application] Opening the project file de-serialization...");
 
@@ -241,9 +243,9 @@ namespace Razix {
         Razix::RZSplashScreen::Get().setLogString("Creating world renderer");
         Razix::RZEngine::Get().getWorldRenderer().create(m_Window, m_Window->getWidth(), m_Window->getHeight());
 
-        if (RZEngine::Get().isEngineInTestMode() == false) {
-            Razix::RZSplashScreen::Get().setLogString("Building FrameGraph...");
-            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(Razix::RZEngine::Get().getWorldSettings(), NULL);
+        // Build the framegraph when we feel it's good to go, maybe once we build a new world, but typically it must be done everyframe and we compile it everytime
+        if (!RZEngine::Get().isEngineInTestMode()) {
+            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(RZWorld{});
         }
 
         m_CurrentState = AppState::kRunning;
@@ -263,6 +265,11 @@ namespace Razix {
         // Start the Engine Client side!
         Start();
         //-----------------
+        
+        // Launch render thread once we know all app start up is done 
+        Razix::RZSplashScreen::Get().setLogString("Launching Render Thread...");
+        // Launch the render thread here
+        m_RenderThread = Gfx::RenderThreadCreate();
     }
 
     bool RZApplication::RenderFrame()
@@ -280,11 +287,10 @@ namespace Razix {
         rz_time_stamp currTime = rz_time_now();
         RZEngine::Get().ResetStats();
         auto& stats = RZEngine::Get().GetStatistics();
-        m_FPSTimestep.Update(currTime);
         m_UPSTimestep.Update(currTime);
 
         // Update the stats
-        stats.DeltaTime = m_FPSTimestep.GetTimestepMs();
+        stats.DeltaTime = m_UPSTimestep.GetTimestepMs();
 
         // Poll for Input events
         m_Window->ProcessInput();
@@ -310,12 +316,7 @@ namespace Razix {
         // Update the Engine systems
         Update(m_UPSTimestep);
 
-        // Render the Graphics
-        Render();
         m_Frames++;
-
-        // RenderGUI
-        RenderGUI();
 
         // Update the window and it's surface/video out
         m_Window->OnWindowUpdate();
@@ -327,13 +328,12 @@ namespace Razix {
             if (rz_get_elapsed_ms(m_TotalTimeElapsedInSeconds, currTime) > 1000.0f) {
                 m_TotalTimeElapsedInSeconds = currTime;
 
-                stats.FramesPerSecond  = (u32) m_FPSTimestep.GetCurrentFPS();
                 stats.UpdatesPerSecond = (u32) m_UPSTimestep.GetCurrentFPS();
                 //RAZIX_CORE_TRACE("FPS : {0} (dt: {1}ms) | Avg FPS: {2}", stats.FramesPerSecond, stats.DeltaTime, (u32) m_FPSTimestep.GetAverageFPS());
                 //RAZIX_CORE_TRACE("UPS : {0} ms", stats.UpdatesPerSecond);
 
                 // update window signature with FPS
-                auto sig = GetAppWindowTitleSignature(m_ProjectName) + " | FPS: " + rz_to_string(stats.FramesPerSecond) + " Avg. FPS: " + rz_to_string((u32) m_FPSTimestep.GetAverageFPS());
+                auto sig = GetAppWindowTitleSignature(m_ProjectName) + " | FPS: " + rz_to_string(stats.FramesPerSecond);
                 m_Window->setTitle(sig.c_str());
             }
         }
@@ -358,9 +358,12 @@ namespace Razix {
     {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
-        // TODO: Check if it's the primary or not and make sure you render only to the Primary Camera, if not then don't render!!!!
-        // TODO: Update the renderer stuff here
-        // TODO: Update Scene Graph here
+        // TODO: Update Scene Graph here and then build the RZWorld for handoff to Render Thread via atomics and ring buffer
+        // const rz_scene_graph_manager& sceneGraphMgr   = RZEngine::Get().getSceneManager();
+        // rz_scene_graph*               currActiveScene = rz_scene_graph_get_active_scene(&sceneGraphMgr);
+        // rz_scene_graph_update(currActiveScene, float3(0, 0, 0), dt.GetTimestepMs());
+
+        // Now use the House API to build the RZWorld and update the global render thread world slot using atomics for safe hand-off
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {
@@ -374,55 +377,15 @@ namespace Razix {
         OnUpdate(dt);
     }
 
-    void RZApplication::Render()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        OnRender();
-
-        Razix::RZEngine::Get().getWorldRenderer().drawFrame(Razix::RZEngine::Get().getWorldSettings(), NULL);
-    }
-
-    void RZApplication::RenderGUI()
-    {
-        RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
-
-        auto ctx = ImGui::GetCurrentContext();
-        if (!ctx || RZEngine::Get().isEngineInTestMode())
-            return;
-
-        // TODO: Well GLFW needs to be removed at some point and we need to use native functions
-        ImGui_ImplGlfw_NewFrame();
-
-        // FIXME: https://github.com/ocornut/imgui/issues/6064
-
-        // Update ImGui
-        ImGuiIO& io = ImGui::GetIO();
-        (void) io;
-
-        ImGui::NewFrame();
-        //ImGuizmo::BeginFrame();
-
-        //ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
-        // World Renderer Tools
-        RZEngine::Get().getWorldRenderer().OnImGui();
-
-        // User GUI
-        RZEngine::Get().getScriptHandler().OnImGui(NULL);
-
-        // Client side
-        OnImGui();
-
-        // Engine App GUI
-        renderEngineStatsOnImGui();
-    }
-
     void RZApplication::Quit()
     {
+        // Kill render thread and the framegraph before client side can clean up it's resources
+        Gfx::RenderThreadDestroy(m_RenderThread);
+
         // Client side quit customization
         OnQuit();
 
+        // destroy world renderer resources after client side custommization is done
         Razix::RZEngine::Get().getWorldRenderer().destroy();
 
         // Save the scene and the Application
@@ -569,123 +532,4 @@ namespace Razix {
         RAZIX_CORE_INFO("[Application] Project saved successfully: {0}", projectFullPath);
     }
 
-    void RZApplication::renderEngineImGuiElements()
-    {
-        renderRuntimeAssetsIconsOnImGui();
-        renderEngineStatsOnImGui();
-    }
-
-    void RZApplication::renderRuntimeAssetsIconsOnImGui()
-    {
-#if 0
-        // Guizmo Controls for an Entity
-        if (m_EnableGuizmoEditing) {
-            auto currentScene = RZSceneManager::Get().getCurrentSceneMutablePtr();
-            //auto&          registry     = currentScene->getRegistry();
-            //auto           cameraView   = registry.view<CameraComponent>();
-            //RZSceneCamera* cam          = nullptr;
-            //if (!cameraView.empty()) {
-            //    // By using front we get the one and only or the first one in the list of camera entities
-            //    cam = &cameraView.get<CameraComponent>(cameraView.front()).Camera;
-            //}
-
-//            auto& cam = currentScene->getSceneCamera();
-
-            // Guizmo Editing Here
-            TransformComponent& tc              = m_GuizmoEntity.GetComponent<TransformComponent>();
-            float4x4           transformMatrix = tc.GetLocalTransform();
-//            float4x4           deltaMatrix     = float4x4(1.0f);
-
-            //ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, value_ptr(transformMatrix));
-
-            // https://github.com/CedricGuillemet/ImGuizmo/issues/237
-            //ImGuizmo::Manipulate(value_ptr(cam.getViewMatrix()), value_ptr(cam.getProjectionRaw()), (ImGuizmo::OPERATION) m_GuizmoOperation, (ImGuizmo::MODE) m_GuizmoMode, value_ptr(transformMatrix), value_ptr(deltaMatrix), &m_GuizmoSnapAmount);
-
-            f32 matrixTranslation[3], matrixRotation[3], matrixScale[3];
-            //ImGuizmo::DecomposeMatrixToComponents(&(transformMatrix[0][0]), matrixTranslation, matrixRotation, matrixScale);
-
-            tc.Translation = float3(matrixTranslation[0], matrixTranslation[1], matrixTranslation[2]);
-            tc.Rotation    = float3(radians(matrixRotation[0]), radians(matrixRotation[1]), radians(matrixRotation[2]));
-            tc.Scale       = float3(matrixScale[0], matrixScale[1], matrixScale[2]);
-            tc.Transform   = transformMatrix;
-        }
-
-        // TODO: As for Icons of the components or any other entities we will get them using the entt
-        // Get their position in the worldspace and check it against the camera frustum and
-        // convert it to screen space and render a non-clickable ImGui::Button with the FontIcon as image
-#endif
-    }
-
-    void RZApplication::renderEngineStatsOnImGui()
-    {
-        // Engine Stats
-        {
-            // Engine stats
-            ImGuiWindowFlags     window_flags     = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
-            const f32            DISTANCE         = 10.0f;
-            const ImGuiViewport* viewport         = ImGui::GetMainViewport();
-            ImVec2               work_area_pos    = viewport->WorkPos;    // Use work area to avoid menu-bar/task-bar, if any!
-            ImVec2               work_area_size   = viewport->WorkSize;
-            ImVec2               window_pos       = ImVec2((1 & 1) ? (work_area_pos.x + work_area_size.x - DISTANCE) : (work_area_pos.x + DISTANCE), (1 & 2) ? (work_area_pos.y + work_area_size.y - DISTANCE) : (work_area_pos.y + DISTANCE));
-            ImVec2               window_pos_pivot = ImVec2((1 & 1) ? 1.0f : 0.0f, (1 & 2) ? 1.0f : 0.0f);
-            ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-            ImGui::SetNextWindowBgAlpha(0.35f);    // Transparent background
-
-            ImGui::Begin("Engine Stats", 0, window_flags);
-            {
-                auto& stats = RZEngine::Get().GetStatistics();
-                ImGui::Text("Engine Stats");
-                ImGui::Indent();
-                {
-                    // TODO: Add Average timings (CPU + GPU) and avg FPS
-                    ImGui::Text("FPS                        : %.5d", stats.FramesPerSecond);
-                    ImGui::Text("CPU time                   : %5.2f ms", stats.DeltaTime);
-
-                    ImGui::Separator();
-                    ImGui::Text("API calls");
-
-                    ImGui::Text("Total Draw calls           : %d", stats.NumDrawCalls);
-                    ImGui::Indent();
-                    {
-                        ImGui::BulletText("Draws                : %d", stats.Draws);
-                        ImGui::BulletText("Indexed Draws        : %d", stats.IndexedDraws);
-                        ImGui::BulletText("Compute Dispatches   : %d", stats.ComputeDispatches);
-                    }
-                    ImGui::Unindent();
-
-                    ImGui::Separator();
-                    ImGui::Text("Memory Usage");
-
-                    ImGui::Indent();
-                    {
-                        ImGui::BulletText("Used VRAM            : %f Gib", stats.GPUMemoryUsed);
-                        ImGui::BulletText("Total VRAM           : %f Gib", stats.TotalGPUMemory);
-                        ImGui::BulletText("Total RAM            : %f Gib", stats.UsedRAM);
-                    }
-                    ImGui::Unindent();
-
-                    ImGui::Separator();
-                    ImGui::Text("Meshes Renderer            : %d", stats.MeshesRendered);
-                    ImGui::Text("Vertices count             : %d", stats.VerticesCount);
-                }
-                ImGui::Unindent();
-
-                ImGui::Separator();
-                //ImGui::Text("Pass Timings");
-                if (ImGui::TreeNode("Pass Timings")) {
-                    f32 Totaldt = 0.0f;
-                    for (auto& [name, dt]: stats.PassTimings) {
-                        Totaldt += dt;
-                        ImGui::BulletText("%-23s : %5.2f ms", name.c_str(), dt);
-                    }
-                    ImGui::Separator();
-                    ImGui::BulletText("%-23s : %5.2f ms", "Passes Sum", Totaldt);
-                    ImGui::BulletText("%-23s : %5.2f ms", "Acquire + Flip", stats.DeltaTime - Totaldt);
-                    ImGui::TreePop();
-                }
-            }
-            ImGui::End();
-        }
-        ImGui::Render();
-    }
 }    // namespace Razix

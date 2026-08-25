@@ -29,7 +29,7 @@ namespace Razix {
 
     #define NUM_CUBE_FACES 6
 
-        void RZGeomShadersCubeTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZGeomShadersCubeTestPass::addPass(FrameGraph::RZFrameGraph& framegraph, const RZWorld* world)
         {
             // Create the shader and the pipeline
             auto shader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::ColorGrading);

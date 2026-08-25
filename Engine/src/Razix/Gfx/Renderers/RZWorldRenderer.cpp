@@ -3,6 +3,7 @@
 #include <Core/Log/RZLog.h>
 #include <Core/RZCore.h>
 #include <Core/RZHandle.h>
+#include <Gfx/RZWorld.h>
 // clang-format on
 #include "RZWorldRenderer.h"
 
@@ -231,7 +232,7 @@ namespace Razix {
                     RAZIX_CORE_ERROR("Failed to get Win32 window handle from GLFW!");
                     return;
                 }
-                rzRHI_CreateSwapchain(&m_Swapchain, &hwnd, width, height);
+                rzRHI_CreateSwapchain(&m_Swapchain, &hwnd, width, height);]
 
             } else if (api == RZ_RENDER_API_VULKAN) {
                 VkSurfaceKHR surface = VK_NULL_HANDLE;
@@ -403,11 +404,13 @@ namespace Razix {
          * 1. In Razix we use CCW winding order for front facing triangles => Also, back facing faces are pointed towards the camera
          */
 
-        void RZWorldRenderer::buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene)
+        void RZWorldRenderer::buildFrameGraph(const RZWorld& world)
         {
-            if (!scene)
-                return;
-
+            RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
+           
+            // if(world.worldInFlightIdx < 0)
+            //     return; 
+            
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
             m_FrameGraphBuildingInProgress = true;
 
@@ -452,7 +455,7 @@ namespace Razix {
                     gpuData.time += gpuData.deltaTime;
                     gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
                     gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    gpuData.renderFeatures = settings.renderFeatures;
+                    gpuData.renderFeatures = world.rendererSettings.renderFeatures;
 
                     // TODO: Support other types of frame jittering (Stratified etc.)
                     m_Jitter = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
@@ -659,7 +662,7 @@ namespace Razix {
             //-------------------------------
             // Skybox Pass
             //-------------------------------
-            m_SkyboxPass.addPass(m_FrameGraph, scene, &settings);
+            m_SkyboxPass.addPass(m_FrameGraph, &world);
             auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -969,6 +972,11 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
                     ImDrawData* imDrawData = ImGui::GetDrawData();
+                    RAZIX_CORE_TRACE("[ImGui] DrawData: valid={0}, CmdListsCount={1}, TotalVtxCount={2}, TotalIdxCount={3}",
+                        imDrawData != NULL,
+                        imDrawData ? imDrawData->CmdListsCount : 0,
+                        imDrawData ? imDrawData->TotalVtxCount : 0,
+                        imDrawData ? imDrawData->TotalIdxCount : 0);
                     if (!imDrawData || imDrawData->TotalVtxCount == 0 || imDrawData->TotalIdxCount == 0)
                         return;
 
@@ -1034,6 +1042,8 @@ namespace Razix {
                         // FIXME: ImGuizmo integration //ImGuizmo::SetDrawlist(cmd_list);
                         for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+                            RAZIX_CORE_TRACE("[ImGui] DrawCmd list={0} idx={1}: ElemCount={2}, UserCallback={3}, TextureId={4}",
+                                i, j, pcmd->ElemCount, pcmd->UserCallback != NULL, (void*) pcmd->TextureId);
                             // Note: pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
                             rz_gfx_descriptor_table_handle fontAtlasTexTable = *(rz_gfx_descriptor_table_handle*) pcmd->TextureId;
 
@@ -1080,7 +1090,7 @@ namespace Razix {
             //-------------------------------
             // Tonemap Pass
             //-------------------------------
-            m_TonemapPass.addPass(m_FrameGraph, scene, &settings);
+            m_TonemapPass.addPass(m_FrameGraph, &world);
 
             //-------------------------------
             // Composition Pass
@@ -1242,30 +1252,28 @@ namespace Razix {
             //-------------------------------
             // Simple Shadow map Pass
             //-------------------------------
-            m_ShadowPass.addPass(m_FrameGraph, scene, &settings);
+            m_ShadowPass.addPass(m_FrameGraph, &world);
 
             //-------------------------------
             // GBuffer Pass
             //-------------------------------
-            m_GBufferPass.addPass(m_FrameGraph, scene, &settings);
+            m_GBufferPass.addPass(m_FrameGraph, &world);
             auto& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
             //-------------------------------
             // PBR Deferred Pass
             //-------------------------------
-            m_PBRDeferredPass.addPass(m_FrameGraph, scene, &settings);
+            m_PBRDeferredPass.addPass(m_FrameGraph, &world);
             auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
             // Composition Pass
             //-------------------------------
             m_FrameGraph.getBlackboard().setFinalOutputName("SceneHDR");
-            m_CompositePass.addPass(m_FrameGraph, scene, &settings);
-
+            m_CompositePass.addPass(m_FrameGraph, &world);
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph....");
             m_FrameGraph.compile();
-
     #ifndef RAZIX_GOLD_MASTER
             // Dump the Frame Graph for visualization
             // NOTE: Careful this won't write to the Engine directory this is inside bin and build artifact
@@ -1277,16 +1285,20 @@ namespace Razix {
             m_FrameGraphBuildingInProgress = false;
         }
 
-        void RZWorldRenderer::drawFrame(RZRendererSettings& settings, Razix::RZScene* scene)
+        void RZWorldRenderer::drawFrame(const RZWorld& world)
         {
             m_FrameCount++;
+
+            rz_time_stamp currTime = rz_time_now();
+            auto& stats = RZEngine::Get().GetStatistics();
+            m_FPSTimestep.Update(currTime);
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
             if (m_IsFGFilePathDirty) {
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(settings, NULL);
+                buildFrameGraph(world);
                 m_IsFGFilePathDirty = false;
             }
 
@@ -1357,7 +1369,7 @@ namespace Razix {
                 // swapchain capture is done before presentation
                 if (m_ReadSwapchainThisFrame) {
                     m_ReadSwapchainThisFrame = false;
-
+                    RAZIX_CORE_TRACE("Readbing back swapchain image...");
                     // Wait for rendering to be done before capturing
                     rzRHI_FlushGPUWork(frameSyncobj);
                     rzRHI_InsertSwapchainTextureReadback(&m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], &m_LastSwapchainReadback);
@@ -1374,6 +1386,14 @@ namespace Razix {
                 // Advance the frame index, we are using a ring buffer so wrap around after max frames in flight
                 m_RenderSync.frameSync.inFlightSyncIdx = (m_RenderSync.frameSync.inFlightSyncIdx + 1) % RAZIX_MAX_FRAMES_IN_FLIGHT;
             }
+
+            {
+                if (rz_get_elapsed_ms(m_TotalTimeElapsedRendererTS, currTime) > 1000.0f) {
+                    m_TotalTimeElapsedRendererTS = currTime;
+                    stats.FramesPerSecond = (u32) m_FPSTimestep.GetCurrentFPS();
+                }
+            }
+
         }
 
         void RZWorldRenderer::OnUpdate(RZTimestep dt)

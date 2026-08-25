@@ -8,8 +8,8 @@ namespace Razix {
         class RZWaveIntrinsicsTestPass : public IRZPass
         {
         public:
-            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
-            void destroy() override;
+            void addPass(RZFrameGraph& framegraph, const RZWorld* world) override;
+            void destroy();
 
         private:
             rz_gfx_pipeline_handle       m_Pipeline;

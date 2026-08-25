@@ -18,7 +18,7 @@ public:
     void OnStart() override
     {
         RZEngine::Get().getWorldRenderer().clearFrameGraph();
-        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTextureTestPass, nullptr, &RZEngine::Get().getWorldSettings());
+        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTextureTestPass, nullptr);
         RAZIX_CORE_INFO("Compiling FrameGraph ....");
         RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
 

@@ -43,16 +43,13 @@ public:
 
             RZMeshAsset* cube_mesh_asset_data = RZAssetDB::Get().getAssetResourceMutablePtr<RZMeshAsset>(cube_mesh_asset);
             RAZIX_UNUSED(cube_mesh_asset_data);
-            // TODO: Fill this mesh data, for the sake of testing let's leave it empty, we will use a placeholder cube with unlit default sahder for testing
+
+            // TODO: Fill this mesh data, for the sake of testing let's leave it empty, we will use a placeholder cube with unlit default shader for testing with initial render thread and RZWorld
 
             i32 cube_transform_node_idx = rz_scene_graph_attach_asset(m_TanuDefaultSceneGraph, default_tanu_scn_zone_0->rootNodeIndex, "<rz_scn_node_cube_transform>", rz_uuid_generate(), cube_transform_asset);
             // Now add Mesh node as child to this first level parent node
             i32 cube_mesh_node_idx = rz_scene_graph_attach_asset(m_TanuDefaultSceneGraph, cube_transform_node_idx, "<rz_scn_node_cube_mesh>", rz_uuid_generate(), cube_mesh_asset);
         }
-    }
-
-    void OnRender() override
-    {
     }
 
     void OnQuit() override

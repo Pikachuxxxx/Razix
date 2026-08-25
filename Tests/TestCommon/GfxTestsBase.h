@@ -19,7 +19,7 @@ namespace Razix {
     {
     public:
         RZGfxTestAppBase(const RZString& projectRoot, u32 numFrames = TEST_APP_NUM_FRAMES_DEFAULT, const RZString& appName = "RazixGfxTestApp")
-            : RZApplication(projectRoot, appName), m_NumFrames(numFrames), m_CurrentFrame(0)
+            : RZApplication(projectRoot, appName), m_NumFrames(numFrames)
         {
             RZApplication::Init();
 
@@ -35,19 +35,20 @@ namespace Razix {
         {
         }
 
-        void OnRender() override
+        void OnUpdate(const RZTimestep& dt) override
         {
-            RAZIX_INFO("Current Frame: {0}", m_CurrentFrame);
+            RAZIX_UNUSED(dt);
+            u64 currFrameCount = RZEngine::Get().getWorldRenderer().getFrameCount();
+            // RAZIX_INFO("Current Frame: {0}", currFrameCount);
 
-            if (m_CurrentFrame == 10) {
+            if (currFrameCount == 10) {
                 RZEngine::Get().getWorldRenderer().setReadbackSwapchainThisFrame();
             }
 
-            if (m_CurrentFrame >= m_NumFrames) {
+            if (currFrameCount >= m_NumFrames) {
                 // Request app to close
                 RZApplication::Get().setAppState(AppState::kClosing);
             }
-            m_CurrentFrame++;
         }
 
         void OnQuit() override
@@ -63,7 +64,6 @@ namespace Razix {
 
     protected:
         i32                            m_NumFrames;
-        i32                            m_CurrentFrame;
         RZString                       m_GoldenImagePath;
         RZString                       m_ScreenShotPath;
         const rz_gfx_texture_readback* m_SwapchainReadback;

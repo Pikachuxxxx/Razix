@@ -1,23 +1,30 @@
 #pragma once
 
-namespace Razix {
+#include "Razix/Gfx/RZWorld.h"
 
-    class RZScene;
-    class RZWorld;
-    class RZSceneView;
+struct rz_scene_graph;
+
+namespace Razix {
 
     namespace Gfx {
 
-        // [Source]: https://github.com/skaarj1989/SupernovaEngine
+        // [Source]: Inspited by my dear friend Dawid's https://github.com/skaarj1989/SupernovaEngine
 
         /**
          * House: High-Level Renderer for converting Asset/SceneGraph data into RHI-ready render commands for the Razix Engine.
-         * I DON’T CARE IF IT’S A DEFERRED PIPELINE OR A FORWARD+ PATH — IT’S NEVER LUPUS.
+         * I DON'T CARE IF IT'S A DEFERRED PIPELINE OR A FORWARD+ PATH IT'S NEVER LUPUS.
+         *
+         * How and where is this API used?
+         * As a first step this is used in the GameThread to convert the scene graph data into RZWorld to handoff to the RenderThread 
+         * Once that is done RenderThead can use the RZWorld internally to build drawable, batches and final draw data for more optimal data
+         * before any framegraph execution happens we do further processing of the RZWorld data inside the render thread and hand off 
+         * to final frame graph execution.
+         * '
          */
-        namespace House {
+        namespace House{
 
 #if 0
-
+        // These structs are only used by the Render Thread for building RHI commands
         struct Drawable
         {
             rz_handle material;
@@ -27,7 +34,6 @@ namespace Razix {
 
         using Drawables = RZFixedArray<Drawable, 1024>; // 1024 drawables per job
 
-
         struct Batch
         {
             rz_handle vertexBuffer;
@@ -36,7 +42,6 @@ namespace Razix {
         };
 
         using Batches = RZFixedArray<Batch, 1024>; // 1024 batches per job
-
 
         struct DrawData
         {
@@ -53,10 +58,11 @@ namespace Razix {
         struct DrawCommandLists
         {
         };
-
 #endif
 
-            //RZWorld*  BuildRazixWorld(RZScene* scenes, RZSceneView* views);
+            RZWorld  BuildRazixWorldFromSceneData(const rz_scene_graph* sceneGraph);
+
+            // TODO: Will be implemented when asset system is done and Render thread is in full effect
             //Drawables BuildDrawables(RZWorld* world);
             //Batches   BuildBatches(Drawables* drawables);
             //

@@ -1,4 +1,5 @@
 #include "Razix/Core/std/thread.h"
+#include <Core/Log/RZLog.h>
 
 #ifdef RAZIX_PLATFORM_UNIX
 
@@ -82,7 +83,8 @@ static void* _rz_thread_entry(void* args)
             _rz_set_thread_priority_high();
             break;
     }
-
+    
+    
     if (local.cb)
         local.cb(local.pUserData);
     return NULL;
@@ -117,7 +119,6 @@ rz_thread_handle rz_thread_create(const char* name, rz_thread_priority priority,
     }
 
     // Set/Get attributes on thread like sched policy, stack size etc.
-
     err = pthread_create((pthread_t*) &handle, &attr, _rz_thread_entry, pBootStrap);
     pthread_attr_destroy(&attr);
     if (err != 0) {

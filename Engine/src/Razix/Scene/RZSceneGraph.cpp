@@ -535,3 +535,11 @@ void rz_scene_graph_manager_set_active_scene(rz_scene_graph_manager* mgr, rz_sce
     if (mgr)
         mgr->pActiveScene = scene;
 }
+
+rz_scene_graph* rz_scene_graph_get_active_scene(const rz_scene_graph_manager* mgr)
+{
+     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+    if (mgr)
+        return mgr->pActiveScene;
+    return NULL;
+}

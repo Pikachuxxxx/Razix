@@ -33,6 +33,9 @@
 
 #include "Razix/Math/Grid.h"
 
+#include "Razix/Gfx/RZWorld.h"
+#include <Core/Utils/RZTime.h>
+
 // Debug Macro Settings
 
 // TODO: [HiZ] https://miketuritzin.com/post/hierarchical-depth-buffers/
@@ -122,9 +125,14 @@ namespace Razix {
 
             void create(RZWindow* window, u32 width, u32 height);
             void destroy();
-
-            void buildFrameGraph(RZRendererSettings& settings, Razix::RZScene* scene);
-            void drawFrame(RZRendererSettings& settings, Razix::RZScene* scene);
+            
+            // FIXME: this is run only once and when we hot-reload the framegraph from file, now we can let the RenderThread run this once but 
+            // the problem is with RZWorld lifetime, we need some world to build the framegraph for, now when is the first and least we can get this?
+            // Let's see, typically we load scene at engine start up time, parse and build the graph on gamethread etc. now during rendering which is immediately kicked off 
+            // at app begin time we take a RZWorld and render that, for this we need to rebuild framegraph everyframe, thanks to transient resource allocator, they survive through cache
+            // Now lets call this every frame and make sure shit works with this design, builting the framegraph should be sub ms thing.
+            void buildFrameGraph(const RZWorld& world);
+            void drawFrame(const RZWorld& world);
 
             void OnUpdate(RZTimestep dt);
             void OnImGui();
@@ -132,7 +140,7 @@ namespace Razix {
             void flushGPUWork();
 
             inline void clearFrameGraph() { m_FrameGraph.destroy(); }
-            inline void pushRenderPass(IRZPass* pass, RZScene* scene, RZRendererSettings* settings) { pass->addPass(m_FrameGraph, scene, settings); }
+            inline void pushRenderPass(IRZPass* pass, const RZWorld* world) { pass->addPass(m_FrameGraph, world); }
 
             // Getters/Setters
             inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }
@@ -157,7 +165,8 @@ namespace Razix {
             inline rz_gfx_descriptor_table_handle getGlobalSamplerTable() const { return m_GlobalSamplerTable; }
             inline rz_gfx_descriptor_table_handle getFrameDataTable() const { return m_FrameDataTable; }
             inline rz_gfx_descriptor_table_handle getSceneLightsDataTable() const { return m_SceneLightsDataTable; }
-
+            inline u64 getFrameCount() const { return m_FrameCount; }
+        
         private:
             static rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
             static rz_gfx_descriptor_heap_handle m_DepthRenderTargetHeap;
@@ -170,7 +179,7 @@ namespace Razix {
             LightProbe                           m_GlobalLightProbes                                     = {};
             rz_gfx_texture_readback              m_LastSwapchainReadback                                 = {0};
             RZWindow*                            m_Window                                                = NULL;
-            u32                                  m_FrameCount                                            = 0;
+            u64                                  m_FrameCount                                            = 0;
             bool                                 m_FrameGraphBuildingInProgress                          = false;
             bool                                 m_IsFGFilePathDirty                                     = false;
             bool                                 m_ReadSwapchainThisFrame                                = false;
@@ -204,6 +213,8 @@ namespace Razix {
             rz_gfx_texture_handle                m_AppleNeedsADepthTextureHandle                         = {};
             RZSkyboxPass                         m_SkyboxPass                                            = {};
             RZToneMapPass                        m_TonemapPass                                           = {};
+            RZTimestep                           m_FPSTimestep                                           = {};
+            rz_time_stamp                        m_TotalTimeElapsedRendererTS                            = {};
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);

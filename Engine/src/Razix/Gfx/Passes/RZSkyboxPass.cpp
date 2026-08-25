@@ -19,6 +19,9 @@
 #include "Razix/Gfx/Resources/RZFrameGraphBuffer.h"
 #include "Razix/Gfx/Resources/RZFrameGraphTexture.h"
 #include "Razix/Gfx/Resources/RZResourceManager.h"
+#include <Gfx/Passes/IRZPass.h>
+
+#include "Razix/Gfx/RZWorld.h"
 
 #define NUM_SKYBOX_VERTICES 8
 #define NUM_SKYBOX_INDICES  36
@@ -84,7 +87,7 @@ namespace Razix {
             ib                        = RZResourceManager::Get().createBuffer("IB.Skybox", ibDesc);
         }
 
-        void RZSkyboxPass::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZSkyboxPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
         {
             CreateSkyboxGeometry(m_VertexBuffer, m_IndexBuffer);
 
@@ -170,7 +173,7 @@ namespace Razix {
                 },
                 [=](const SceneData& data, RZPassResourceDirectory& resources) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-                    RETURN_IF_BIT_NOT_SET(settings->renderFeatures, RendererFeature_Skybox);
+                    RETURN_IF_BIT_NOT_SET(world->rendererSettings.renderFeatures, RendererFeature_Skybox);
 
                     RAZIX_TIME_STAMP_BEGIN("Skybox Pass");
                     rz_gfx_cmdbuf_handle cmdBuffer = RZEngine::Get().getWorldRenderer().getCurrCmdBufHandle();

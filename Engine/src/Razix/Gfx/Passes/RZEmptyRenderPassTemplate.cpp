@@ -17,7 +17,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZEmptyRenderPassTemplate::addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings)
+        void RZEmptyRenderPassTemplate::addPass(RZFrameGraph& framegraph, const RZWorld* world)
         {
             framegraph.addCallbackPass(
                 "",

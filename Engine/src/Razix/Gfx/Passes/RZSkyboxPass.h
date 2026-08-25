@@ -11,9 +11,7 @@ namespace Razix {
             RZSkyboxPass() {}
             ~RZSkyboxPass() {}
 
-            void addPass(RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
-            // Note: From now on use the onExit lamdbda callback on the frame graph to destroy pass resources
-            void destroy() override {}
+            void addPass(RZFrameGraph& framegraph, const RZWorld* world) override;
 
         private:
             rz_gfx_pipeline_handle       m_SkyboxPipeline          = {};

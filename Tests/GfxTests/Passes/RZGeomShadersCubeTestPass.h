@@ -12,8 +12,8 @@ namespace Razix {
         class RZGeomShadersCubeTestPass final : public IRZPass
         {
         public:
-            void addPass(FrameGraph::RZFrameGraph& framegraph, Razix::RZScene* scene, RZRendererSettings* settings) override;
-            void destroy() override;
+            void addPass(FrameGraph::RZFrameGraph& framegraph, const RZWorld* world) override;
+            void destroy();
 
         private:
             RZPipelineHandle m_Pipeline;

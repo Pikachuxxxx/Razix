@@ -1,8 +1,12 @@
 #pragma once
 
 #include "Razix/Core/std/thread.h"
+#include "Razix/Core/std/atomics.h"
 
 #include "Razix/Gfx/RZWorld.h"
+#include <Core/RZCore.h>
+
+#define RAZIX_WORLDS_IN_FLIGHT (RAZIX_MAX_FRAMES_IN_FLIGHT + 1)
 
 namespace Razix {
     namespace Gfx {
@@ -19,15 +23,22 @@ namespace Razix {
         // House is responsible for translating the scene data into RZWorld data
         struct WorldRingBuffer
         {
-            RZWorld worldBuffers[RAZIX_MAX_FRAMES_IN_FLIGHT + 1];   // +1 for the frame being rendered while the other frames in flight are being recorded
-            rz_atomic_u32 writeBufferIdx = 0;                       // index of the current buffer being used for writing, will be incremented atomically at the end of each frame recording
-            rz_atomic_u32 readBufferIdx = 0;                        // index of the buffer being read by the render thread, used internally by render thread and for debugging purposes 
+            RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+            rz_atomic_u64 m_RenderThreadWorldDataReadCounter = 0; 
+            
+            RAZIX_ALIGN_TO(RAZIX_CACHE_LINE_SIZE)
+            rz_atomic_u64 m_GameThreadWorldDataWriteCounter = 0;
+            
+            RZWorld worldBuffers[RAZIX_WORLDS_IN_FLIGHT];
         };
+
+        extern WorldRingBuffer g_RenderThreadRingBuffer;
+        extern rz_atomic_u32 g_RenderThreadIsRunning;
 
         rz_thread_handle RenderThreadCreate();
         void RenderThreadDestroy(rz_thread_handle thread);
         
         // Main render function where RZWorldRenderer::drawFrame is called
-        void RenderThreadRunRenderLoop();
+        // void RenderThreadRunRenderLoop();
     }
 }    // namespace Razix
