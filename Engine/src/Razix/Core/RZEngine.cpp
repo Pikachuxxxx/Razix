@@ -85,6 +85,7 @@ namespace Razix {
         // Start Up Memory
         //--------------------------
         m_SystemAllocatorMutex = rz_critical_section_create();
+        m_Stats.PassTimingsMutex = rz_critical_section_create();
 
         // This is used by the asset system and other core engine system with big allocations
         // RZResourceManager has it's own set of pools and allocators, their memory comes from rz_malloc/rz_free directly
@@ -237,6 +238,7 @@ namespace Razix {
         m_PacketAllocator.shutdown();
 
         rz_critical_section_destroy(&m_SystemAllocatorMutex);
+        rz_critical_section_destroy(&m_Stats.PassTimingsMutex);
         // Shutdown the VFS last
         RZVirtualFileSystem::Get().ShutDown();
 

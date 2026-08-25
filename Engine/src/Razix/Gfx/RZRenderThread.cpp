@@ -124,9 +124,12 @@ namespace Razix {
                     //ImGui::Text("Pass Timings");
                     if (ImGui::TreeNode("Pass Timings")) {
                         f32 Totaldt = 0.0f;
-                        for (auto& [name, dt]: stats.PassTimings) {
-                            Totaldt += dt;
-                            ImGui::BulletText("%-23s : %5.2f ms", name.c_str(), dt);
+                        {
+                            Razix::RZScopedCriticalSection lock(stats.PassTimingsMutex);
+                            for (auto& [name, dt]: stats.PassTimings) {
+                                Totaldt += dt;
+                                ImGui::BulletText("%-23s : %5.2f ms", name.c_str(), dt);
+                            }
                         }
                         ImGui::Separator();
                         ImGui::BulletText("%-23s : %5.2f ms", "Passes Sum", Totaldt);

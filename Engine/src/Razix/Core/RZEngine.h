@@ -54,6 +54,7 @@ namespace Razix {
             u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
             // Pass timings
             RZHashMap<RZString, f32> PassTimings; /* Holds references to frame graph pass node Idx and it's CPU execution time */
+            rz_critical_section PassTimingsMutex; // Protects PassTimings access across render and game threads
 
             void reset()
             {
