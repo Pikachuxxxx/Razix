@@ -972,11 +972,6 @@ namespace Razix {
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
                     ImDrawData* imDrawData = ImGui::GetDrawData();
-                    RAZIX_CORE_TRACE("[ImGui] DrawData: valid={0}, CmdListsCount={1}, TotalVtxCount={2}, TotalIdxCount={3}",
-                        imDrawData != NULL,
-                        imDrawData ? imDrawData->CmdListsCount : 0,
-                        imDrawData ? imDrawData->TotalVtxCount : 0,
-                        imDrawData ? imDrawData->TotalIdxCount : 0);
                     if (!imDrawData || imDrawData->TotalVtxCount == 0 || imDrawData->TotalIdxCount == 0)
                         return;
 
@@ -1042,8 +1037,6 @@ namespace Razix {
                         // FIXME: ImGuizmo integration //ImGuizmo::SetDrawlist(cmd_list);
                         for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++) {
                             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
-                            RAZIX_CORE_TRACE("[ImGui] DrawCmd list={0} idx={1}: ElemCount={2}, UserCallback={3}, TextureId={4}",
-                                i, j, pcmd->ElemCount, pcmd->UserCallback != NULL, (void*) pcmd->TextureId);
                             // Note: pcmd->GetTexID(); // Use this to bind the appropriate descriptor set
                             rz_gfx_descriptor_table_handle fontAtlasTexTable = *(rz_gfx_descriptor_table_handle*) pcmd->TextureId;
 

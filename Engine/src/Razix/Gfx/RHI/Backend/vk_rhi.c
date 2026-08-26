@@ -102,18 +102,6 @@ static const char* s_RequiredInstanceExtensions[] = {
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #endif
 
-#if defined(RAZIX_PLATFORM_LINUX)
-    #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
-    #endif
-    #if defined(VK_USE_PLATFORM_XCB_KHR)
-    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
-    #endif
-    #if defined(VK_USE_PLATFORM_XLIB_KHR)
-    VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
-    #endif
-#endif
-
 #if defined(RAZIX_PLATFORM_MACOS)
     VK_EXT_METAL_SURFACE_EXTENSION_NAME,
     #if !defined(RAZIX_MACOS_KOSMICKRISP_DRIVER)
@@ -131,6 +119,26 @@ static const char* s_RequiredInstanceExtensions[] = {
     VK_EXT_DEBUG_REPORT_EXTENSION_NAME,    // Required dependency for VK_EXT_debug_marker
 #endif
 };
+
+#if defined(RAZIX_PLATFORM_LINUX)
+// Linux has no single "the" surface extension: the actual windowing backend
+// (native Wayland, X11, or XWayland) is only known at runtime, and tools like
+// RenderDoc only implement some of them (e.g. xlib/XCB, not wayland). So unlike
+// the other platforms above, these are NOT all mandatory - at least one must be
+// present in the Vulkan instance's available extensions, checked and enabled
+// dynamically in vk_util_build_instance_extensions().
+static const char* s_LinuxSurfaceExtensionCandidates[] = {
+    #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+    VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    #endif
+    #if defined(VK_USE_PLATFORM_XCB_KHR)
+    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    #endif
+    #if defined(VK_USE_PLATFORM_XLIB_KHR)
+    VK_KHR_XLIB_SURFACE_EXTENSION_NAME,
+    #endif
+};
+#endif
 
 //---------------------------------------------------------------------------------------------
 // DEVICE EXTENSIONS - Vulkan 1.3 Compatible
@@ -1432,7 +1440,7 @@ static bool vk_util_check_validation_layer_support(void)
 #endif
 }
 
-static bool vk_util_check_instance_extension_support(void)
+static bool vk_util_build_instance_extensions(const char** outExtensions, uint32_t* outCount)
 {
     uint32_t extensionCount = 0;
     CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, NULL));
@@ -1444,7 +1452,9 @@ static bool vk_util_check_instance_extension_support(void)
     }
     CHECK_VK(vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, availableExtensions));
 
-    for (uint32_t i = 0; i < sizeof(s_RequiredInstanceExtensions) / sizeof(s_RequiredInstanceExtensions[0]); i++) {
+    uint32_t count = 0;
+
+    for (uint32_t i = 0; i < REQUIRED_INSTANCE_EXT_COUNT; i++) {
         bool extensionFound = false;
 
         for (uint32_t j = 0; j < extensionCount; j++) {
@@ -1459,9 +1469,31 @@ static bool vk_util_check_instance_extension_support(void)
             free(availableExtensions);
             return false;
         }
+
+        outExtensions[count++] = s_RequiredInstanceExtensions[i];
     }
 
+#if defined(RAZIX_PLATFORM_LINUX)
+    uint32_t linuxSurfaceExtensionsFound = 0;
+    for (uint32_t i = 0; i < ARRAY_SIZE(s_LinuxSurfaceExtensionCandidates); i++) {
+        for (uint32_t j = 0; j < extensionCount; j++) {
+            if (strcmp(s_LinuxSurfaceExtensionCandidates[i], availableExtensions[j].extensionName) == 0) {
+                outExtensions[count++] = s_LinuxSurfaceExtensionCandidates[i];
+                linuxSurfaceExtensionsFound++;
+                break;
+            }
+        }
+    }
+
+    if (linuxSurfaceExtensionsFound == 0) {
+        RAZIX_RHI_LOG_ERROR("No supported Linux surface extension found (checked wayland/xcb/xlib)");
+        free(availableExtensions);
+        return false;
+    }
+#endif
+
     free(availableExtensions);
+    *outCount = count;
     return true;
 }
 
@@ -2552,8 +2584,16 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
         }
     }
 
-    // Check instance extension support
-    if (!vk_util_check_instance_extension_support()) {
+    // Check instance extension support and build the final enabled extension list
+    // (on Linux this picks whichever surface extension(s) are actually available,
+    // since it isn't known at compile time which windowing backend will be used)
+#if defined(RAZIX_PLATFORM_LINUX)
+    const char* enabledInstanceExtensions[REQUIRED_INSTANCE_EXT_COUNT + ARRAY_SIZE(s_LinuxSurfaceExtensionCandidates)];
+#else
+    const char* enabledInstanceExtensions[REQUIRED_INSTANCE_EXT_COUNT];
+#endif
+    uint32_t enabledInstanceExtensionCount = 0;
+    if (!vk_util_build_instance_extensions(enabledInstanceExtensions, &enabledInstanceExtensionCount)) {
         RAZIX_RHI_LOG_ERROR("Required instance extensions not available");
         return;
     }
@@ -2570,8 +2610,8 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     VkInstanceCreateInfo createInfo    = {0};
     createInfo.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo        = &appInfo;
-    createInfo.enabledExtensionCount   = sizeof(s_RequiredInstanceExtensions) / sizeof(s_RequiredInstanceExtensions[0]);
-    createInfo.ppEnabledExtensionNames = s_RequiredInstanceExtensions;
+    createInfo.enabledExtensionCount   = enabledInstanceExtensionCount;
+    createInfo.ppEnabledExtensionNames = enabledInstanceExtensions;
 
 #ifdef RAZIX_DEBUG
     if (init.opts.enableValidation) {
