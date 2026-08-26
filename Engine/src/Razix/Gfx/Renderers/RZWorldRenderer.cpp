@@ -1154,8 +1154,8 @@ namespace Razix {
                     sceneLDRViewDesc.textureViewDesc.baseMip        = 0;
                     sceneLDRViewDesc.textureViewDesc.baseArrayLayer = 0;
                     sceneLDRViewDesc.textureViewDesc.dimension      = 1;
-                    sceneData.LDR                                   = builder.write(sceneData.LDR, sceneLDRViewDesc);
-                    data.sceneColor                                 = sceneData.LDR;
+                    sceneData.HDR                                   = builder.write(sceneData.HDR, sceneLDRViewDesc);
+                    data.sceneColor                                 = sceneData.HDR;
 
                     RZShaderBindMap::RegisterBindMap(compositionShader);
                 },
@@ -1198,7 +1198,7 @@ namespace Razix {
                             .init()
                             .setDescriptorTable(RZEngine::Get().getWorldRenderer().getGlobalSamplerTable())
                             .setDescriptorBlacklist(s_GlobalSamplersBlacklistPreset)
-                            .setResourceView("FinalSceneColor", resources.getResourceViewHandle<RZFrameGraphTexture>(sceneData.LDR))
+                            .setResourceView("FinalSceneColor", resources.getResourceViewHandle<RZFrameGraphTexture>(sceneData.HDR))
                             .validate()
                             .build();
                     }
