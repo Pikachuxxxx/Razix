@@ -4364,6 +4364,7 @@ static void vk_Present(rz_gfx_present_desc presentDesc)
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         RAZIX_RHI_LOG_WARN("Swapchain out of date or suboptimal during present, VK_SUBOPTIMIAL_KHR means the presentation was successful and you probably resized, or requires to recreate the swapchain again because it's out of date.");
+        vkDeviceWaitIdle(VKDEVICE);
         // Deliberate const removal cast, as we are requried to recreate swapchain again
         rz_gfx_swapchain* sc = (rz_gfx_swapchain*) presentDesc.pSwapchain;
         // destroy old swapchain images and views
@@ -4376,6 +4377,7 @@ static void vk_Present(rz_gfx_present_desc presentDesc)
 
         // create new swapchain
         vk_util_create_swapchain(sc, sc->width, sc->height);
+        vkDeviceWaitIdle(VKDEVICE);
     } else if (result != VK_SUCCESS) {
         RAZIX_RHI_LOG_ERROR("Failed to present swapchain image (VkResult): %d", result);
         return;
