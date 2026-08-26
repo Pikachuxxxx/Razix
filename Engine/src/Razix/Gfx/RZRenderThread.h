@@ -34,6 +34,7 @@ namespace Razix {
 
         extern WorldRingBuffer g_RenderThreadRingBuffer;
         extern rz_atomic_u32 g_RenderThreadIsRunning;
+        extern rz_atomic_u32 g_ResizePending;
 
         rz_thread_handle RenderThreadCreate();
         void RenderThreadDestroy(rz_thread_handle thread);

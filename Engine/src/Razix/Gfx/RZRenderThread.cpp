@@ -23,7 +23,13 @@ namespace Razix {
         WorldRingBuffer g_RenderThreadRingBuffer;
         rz_atomic_u32 g_RenderThreadIsRunning = false;
         //--------------------------------------------
+        
+        // Resizing stuff
+        rz_atomic_u32 g_ResizePending = false;
+        
+        //--------------------------------------------
         RAZIX_TLS u64 renderThreadReadCounter = 0;
+        //--------------------------------------------
 
         static void RenderRuntimeAssetsIconsOnImGui()
         {
@@ -179,6 +185,15 @@ namespace Razix {
             while (rz_atomic32_load(&g_RenderThreadIsRunning, RZ_MEMORY_ORDER_RELAXED))
             {
                 RAZIX_PROFILE_SCOPEC("RenderThreadLoop", RZ_PROFILE_COLOR_RENDERERS);
+
+                // Handle resizing
+                if (rz_atomic32_load(&g_ResizePending, RZ_MEMORY_ORDER_ACQUIRE)) {
+                    u32 width = RZApplication::Get().getWindow()->getWidth();
+                    u32 height = RZApplication::Get().getWindow()->getHeight();
+                    Razix::RZEngine::Get().getWorldRenderer().OnResize(width, height);
+
+                    rz_atomic32_store(&g_ResizePending, false, RZ_MEMORY_ORDER_RELEASE);
+                }
                 
                 u64 currGameWriteIdx = rz_atomic64_load(&g_RenderThreadRingBuffer.m_GameThreadWorldDataWriteCounter, RZ_MEMORY_ORDER_ACQUIRE);
                 RAZIX_CORE_TRACE("Reading atomic curr game write idx: {0}", currGameWriteIdx);

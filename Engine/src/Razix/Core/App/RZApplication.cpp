@@ -164,8 +164,8 @@ namespace Razix {
             io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
         }
 
-        // Resize the frame graph resource before resizing the RHI
-        Razix::RZEngine::Get().getWorldRenderer().OnResize(e.GetWidth(), e.GetHeight());
+        // set the render thread to resize
+        rz_atomic32_store(&Razix::Gfx::g_ResizePending, true, RZ_MEMORY_ORDER_RELEASE);
 
         OnResize(e.GetWidth(), e.GetHeight());
         return true;
