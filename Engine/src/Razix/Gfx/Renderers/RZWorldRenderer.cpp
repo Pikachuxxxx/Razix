@@ -1090,8 +1090,6 @@ namespace Razix {
             //-------------------------------
 
             // For testing purposes only: skip the composition pass to test resizing issues
-#define ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING 1
-#if ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING
             struct CompositionPassData
             {
                 RZFrameGraphResource sceneColor;
@@ -1225,7 +1223,6 @@ namespace Razix {
                     }
     #endif
                 });
-#endif    // ENABLE_COMPO_PASS_TO_TEST_INTERNAL_RESIZING
 
 #if 0
 
