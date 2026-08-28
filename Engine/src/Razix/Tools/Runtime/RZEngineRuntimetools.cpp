@@ -393,6 +393,19 @@ namespace Razix {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 0, 1));
                 ImGui::Text(ICON_FA_MEMORY "  GPU Memory: %4.2f", RZEngine::Get().GetStatistics().TotalGPUMemory);
                 ImGui::PopStyleColor(1);
+
+                // Tanu and version
+                {
+                    ImGui::SameLine();
+                    ImGui::Text(" | Project: Tanu");
+                    ImGui::SameLine();
+                    ImGui::Text(" | Scene: Tanu Test Bed | PlayerPos: (x, y, z)");
+                    ImGui::SameLine();
+                    ImGui::Text(" | Version: x.x");
+                    ImGui::SameLine();
+                    ImGui::Text("Build CL#: 00000000");
+                }
+
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
                 ImGui::Text(ICON_FA_BALANCE_SCALE " Used GPU Memory: %4.2f |", RZEngine::Get().GetStatistics().GPUMemoryUsed);
                 ImGui::PopStyleColor(1);
