@@ -88,7 +88,7 @@ namespace Razix {
             samplesBufferDesc.data         = ssaoKernel.data();
             samplesBufferDesc.usage        = BufferUsage::Static;
             auto ssaoKernelBuffer          = Gfx::RZResourceManager::Get().createUniformBuffer(samplesBufferDesc);
-            ssaoData.SSAOKernelSamples     = framegraph.import <RZFrameGraphBuffer>(samplesBufferDesc.name, CAST_TO_FG_BUF_DESC samplesBufferDesc, {ssaoKernelBuffer});
+            ssaoData.SSAOKernelSamples     = framegraph.import<RZFrameGraphBuffer>(samplesBufferDesc.name, CAST_TO_FG_BUF_DESC samplesBufferDesc, {ssaoKernelBuffer});
 
             // SSAO Noise texture
             RZTextureDesc noiseTextureDesc{};
@@ -102,7 +102,7 @@ namespace Razix {
             noiseTextureDesc.enableMips = false;
             noiseTextureDesc.dataSize   = sizeof(float);
             auto ssaoNoiseTexture       = Gfx::RZResourceManager::Get().createTexture(noiseTextureDesc);
-            ssaoData.SSAONoiseTexture   = framegraph.import <RZFrameGraphTexture>(noiseTextureDesc.name, CAST_TO_FG_TEX_DESC noiseTextureDesc, {ssaoNoiseTexture});
+            ssaoData.SSAONoiseTexture   = framegraph.import<RZFrameGraphTexture>(noiseTextureDesc.name, CAST_TO_FG_TEX_DESC noiseTextureDesc, {ssaoNoiseTexture});
 
             framegraph.getBlackboard()
                 .add<SSAOData>() = framegraph.addCallbackPass<SSAOData>(

@@ -20,14 +20,14 @@
 // https://www.lunarg.com/wp-content/uploads/2025/10/XDC-2025-KosmicKrisp-Overview.pdf
 // mesa 26.0.0-devel has vulkan 1.3 conformant kosmickrisp driver and Raizx Gfx tests all pass
 // build using meson setup build \
-        // -Dvulkan-drivers=kosmickrisp \
-        // -Dgallium-drivers= \
-        // -Dplatforms=macos \
-        // -Dglx=disabled \
-        // -Degl=disabled \
-        // -Dllvm=enabled \
-        // --strip \
-        // --buildtype=release
+// -Dvulkan-drivers=kosmickrisp \
+// -Dgallium-drivers= \
+// -Dplatforms=macos \
+// -Dglx=disabled \
+// -Degl=disabled \
+// -Dllvm=enabled \
+// --strip \
+// --buildtype=release
 // use export VK_ICD_FILENAMES to load the kosmickrisp_mesa_devenv_icd.aarch64.json and load the libvulkan_kosmickrisp.dylib
 // instead of libvulkan_moltenvk.dylib, this is still experimental but works fine, enable the RAZIX_MACOS_KOSMICKRISP_DRIVER
 // when you have a working setup of kosmickrisp build, until it's released in mesa/lunarg upcoming vulkan SDK we will stick to MVK for stability
@@ -1068,7 +1068,7 @@ static VkPipelineColorBlendAttachmentState vk_util_blend_preset(rz_gfx_blend_pre
     VkPipelineColorBlendAttachmentState desc = {0};
     desc.blendEnable                         = VK_TRUE;
     desc.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+                                               VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
     switch (preset) {
         case RZ_GFX_BLEND_PRESET_ADDITIVE:
@@ -1940,11 +1940,11 @@ static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_de
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = texture->vk.image,
         .subresourceRange    = {
-               .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1},
+            .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
         .srcAccessMask = 0,
         .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT};
 
@@ -1956,10 +1956,10 @@ static void vk_util_upload_pixel_data(rz_gfx_texture* texture, rz_gfx_texture_de
         .bufferRowLength   = 0,
         .bufferImageHeight = 0,
         .imageSubresource  = {
-             .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
-             .mipLevel       = 0,
-             .baseArrayLayer = 0,
-             .layerCount     = 1},
+            .aspectMask     = vk_util_deduce_image_aspect_flags(desc->format),
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
         .imageOffset = {0, 0, 0},
         .imageExtent = {desc->width, desc->height, desc->depth}};
 
@@ -2356,11 +2356,11 @@ static void vk_util_create_swapchain(rz_gfx_swapchain* sc, uint32_t width, uint3
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = sc->vk.images[i],
             .subresourceRange    = {
-                   .aspectMask     = vk_util_deduce_image_aspect_flags(RAZIX_SWAPCHAIN_FORMAT),
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1},
+                .aspectMask     = vk_util_deduce_image_aspect_flags(RAZIX_SWAPCHAIN_FORMAT),
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1},
         };
 
         // Temp memory but fine
@@ -2483,11 +2483,11 @@ static void vk_util_transition_subresource(vk_cmdbuf cmdBuf, rz_gfx_texture* tex
                 .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
                 .image               = texture->vk.image,
                 .subresourceRange    = {
-                       .aspectMask     = aspectMask,
-                       .baseMipLevel   = mipBase + m,
-                       .levelCount     = VK_REMAINING_MIP_LEVELS,
-                       .baseArrayLayer = layerBase + l,
-                       .layerCount     = VK_REMAINING_ARRAY_LAYERS,
+                    .aspectMask     = aspectMask,
+                    .baseMipLevel   = mipBase + m,
+                    .levelCount     = VK_REMAINING_MIP_LEVELS,
+                    .baseArrayLayer = layerBase + l,
+                    .layerCount     = VK_REMAINING_ARRAY_LAYERS,
                 },
             };
         }
@@ -2657,12 +2657,12 @@ static void vk_GlobalCtxInit(rz_gfx_context_desc init)
     VkDebugUtilsMessengerCreateInfoEXT debugInfo = {0};
     debugInfo.sType                              = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     debugInfo.messageSeverity                    = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    debugInfo.pfnUserCallback = vk_util_debug_callback;
+                                                   VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                                   VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    debugInfo.messageType                        = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                                   VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                                   VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    debugInfo.pfnUserCallback                    = vk_util_debug_callback;
 
     // Create debug messenger using dynamically loaded function
     VkResult debugResult = vkCreateDebugUtilsMessengerEXT(
@@ -3597,9 +3597,9 @@ static void vk_CreateTexture(void* where)
         .sType     = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = vk_util_translate_texture_type_image_type(desc->textureType),
         .extent    = {
-               .width  = desc->width,
-               .height = desc->height,
-               .depth  = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 1 : desc->depth},
+            .width  = desc->width,
+            .height = desc->height,
+            .depth  = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 1 : desc->depth},
         .mipLevels     = desc->mipLevels,
         .arrayLayers   = (desc->textureType == RZ_GFX_TEXTURE_TYPE_CUBE) ? 6 : desc->depth,
         .format        = vk_util_translate_format(desc->format),
@@ -4824,11 +4824,11 @@ static void vk_InsertImageBarrier(const rz_gfx_cmdbuf* cmdBuf, rz_gfx_texture* t
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = texture->vk.image,
         .subresourceRange    = {
-               .aspectMask     = vk_util_deduce_image_aspect_flags(texture->resource.pCold->desc.textureDesc.format),
-               .baseMipLevel   = 0,
-               .levelCount     = texture->resource.pCold->desc.textureDesc.mipLevels,
-               .baseArrayLayer = 0,
-               .layerCount     = texture->resource.pCold->desc.textureDesc.depth},
+            .aspectMask     = vk_util_deduce_image_aspect_flags(texture->resource.pCold->desc.textureDesc.format),
+            .baseMipLevel   = 0,
+            .levelCount     = texture->resource.pCold->desc.textureDesc.mipLevels,
+            .baseArrayLayer = 0,
+            .layerCount     = texture->resource.pCold->desc.textureDesc.depth},
     };
 
     vkCmdPipelineBarrier(
@@ -4972,11 +4972,11 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = srcImage,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1},
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
         .srcAccessMask = srcAccessMask,
         .dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT};
 
@@ -4997,10 +4997,10 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
         .bufferRowLength   = 0,
         .bufferImageHeight = 0,
         .imageSubresource  = {
-             .aspectMask     = aspectFlags,
-             .mipLevel       = 0,
-             .baseArrayLayer = 0,
-             .layerCount     = 1},
+            .aspectMask     = aspectFlags,
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
         .imageOffset = {0, 0, 0},
         .imageExtent = {width, height, 1}};
 
@@ -5015,11 +5015,11 @@ static void vk_InsertTextureReadback(const rz_gfx_texture* texture, rz_gfx_textu
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = srcImage,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1},
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
         .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
         .dstAccessMask = srcAccessMask};
 
@@ -5292,11 +5292,11 @@ static void vk_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = src->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = srcAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1}},
+                .aspectMask     = srcAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1}},
         // Destination image barrier -> convert to transfer write
         {
             .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -5333,9 +5333,9 @@ static void vk_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
         .dstSubresource = {.aspectMask = dstAspectFlags, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
         .dstOffset      = {0, 0, 0},
         .extent         = {
-                    .width  = src->resource.pCold->desc.textureDesc.width,
-                    .height = src->resource.pCold->desc.textureDesc.height,
-                    .depth  = src->resource.pCold->desc.textureDesc.depth,
+            .width  = src->resource.pCold->desc.textureDesc.width,
+            .height = src->resource.pCold->desc.textureDesc.height,
+            .depth  = src->resource.pCold->desc.textureDesc.depth,
         },
     };
 
@@ -5359,11 +5359,11 @@ static void vk_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = src->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = srcAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = srcAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
         {
@@ -5376,11 +5376,11 @@ static void vk_CopyTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = dst->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = dstAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = dstAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
     };
@@ -5432,11 +5432,11 @@ static void vk_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buf
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = dst->vk.image,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1,
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
         },
     };
 
@@ -5457,10 +5457,10 @@ static void vk_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buf
         .bufferRowLength   = 0,
         .bufferImageHeight = 0,
         .imageSubresource  = {
-             .aspectMask     = aspectFlags,
-             .mipLevel       = 0,
-             .baseArrayLayer = 0,
-             .layerCount     = 1},
+            .aspectMask     = aspectFlags,
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
         .imageOffset = {0, 0, 0},
         .imageExtent = {.width = dst->resource.pCold->desc.textureDesc.width, .height = dst->resource.pCold->desc.textureDesc.height, .depth = dst->resource.pCold->desc.textureDesc.depth}};
 
@@ -5492,11 +5492,11 @@ static void vk_CopyBufferToTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_buf
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = dst->vk.image,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1,
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
         },
     };
 
@@ -5537,11 +5537,11 @@ static void vk_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_t
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = src->vk.image,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1,
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
         },
     };
 
@@ -5572,10 +5572,10 @@ static void vk_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_t
         .bufferRowLength   = 0,
         .bufferImageHeight = 0,
         .imageSubresource  = {
-             .aspectMask     = aspectFlags,
-             .mipLevel       = 0,
-             .baseArrayLayer = 0,
-             .layerCount     = 1},
+            .aspectMask     = aspectFlags,
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = 1},
         .imageOffset = {0, 0, 0},
         .imageExtent = {.width = src->resource.pCold->desc.textureDesc.width, .height = src->resource.pCold->desc.textureDesc.height, .depth = src->resource.pCold->desc.textureDesc.depth}};
 
@@ -5597,11 +5597,11 @@ static void vk_CopyTextureToBufferFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_t
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = src->vk.image,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1,
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1,
         },
     };
 
@@ -5652,11 +5652,11 @@ static void vk_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textu
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = image,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = 1,
-               .baseArrayLayer = 0,
-               .layerCount     = 1}};
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1}};
 
     vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
@@ -5684,11 +5684,11 @@ static void vk_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textu
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = image,
             .subresourceRange    = {
-                   .aspectMask     = aspectFlags,
-                   .baseMipLevel   = i,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1}};
+                .aspectMask     = aspectFlags,
+                .baseMipLevel   = i,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1}};
 
         vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
             VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -5734,11 +5734,11 @@ static void vk_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textu
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = image,
             .subresourceRange    = {
-                   .aspectMask     = aspectFlags,
-                   .baseMipLevel   = i,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1}};
+                .aspectMask     = aspectFlags,
+                .baseMipLevel   = i,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1}};
 
         vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
             VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -5767,11 +5767,11 @@ static void vk_GenerateMipmapsFn(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_textu
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = image,
         .subresourceRange    = {
-               .aspectMask     = aspectFlags,
-               .baseMipLevel   = 0,
-               .levelCount     = mipLevels,
-               .baseArrayLayer = 0,
-               .layerCount     = 1}};
+            .aspectMask     = aspectFlags,
+            .baseMipLevel   = 0,
+            .levelCount     = mipLevels,
+            .baseArrayLayer = 0,
+            .layerCount     = 1}};
 
     vkCmdPipelineBarrier(cmdBuf->vk.cmdBuf,
         VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -5814,11 +5814,11 @@ static void vk_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = src->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = srcAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = srcAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
         {
@@ -5832,11 +5832,11 @@ static void vk_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = dst->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = dstAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = dstAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
     };
@@ -5884,11 +5884,11 @@ static void vk_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = src->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = srcAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = srcAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
         {
@@ -5901,11 +5901,11 @@ static void vk_BlitTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture* sr
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = dst->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = dstAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = dstAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
     };
@@ -5949,11 +5949,11 @@ static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = src->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = srcAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = srcAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
         {
@@ -5966,11 +5966,11 @@ static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = dst->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = dstAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = dstAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
     };
@@ -6002,9 +6002,9 @@ static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*
         },
         .dstOffset = {0, 0, 0},
         .extent    = {
-               .width  = src->resource.pCold->desc.textureDesc.width,
-               .height = src->resource.pCold->desc.textureDesc.height,
-               .depth  = src->resource.pCold->desc.textureDesc.depth,
+            .width  = src->resource.pCold->desc.textureDesc.width,
+            .height = src->resource.pCold->desc.textureDesc.height,
+            .depth  = src->resource.pCold->desc.textureDesc.depth,
         },
     };
 
@@ -6028,11 +6028,11 @@ static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = src->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = srcAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = srcAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
         {
@@ -6045,11 +6045,11 @@ static void vk_ResolveTexture(const rz_gfx_cmdbuf* cmdBuf, const rz_gfx_texture*
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .image               = dst->vk.image,
             .subresourceRange    = {
-                   .aspectMask     = dstAspectFlags,
-                   .baseMipLevel   = 0,
-                   .levelCount     = 1,
-                   .baseArrayLayer = 0,
-                   .layerCount     = 1,
+                .aspectMask     = dstAspectFlags,
+                .baseMipLevel   = 0,
+                .levelCount     = 1,
+                .baseArrayLayer = 0,
+                .layerCount     = 1,
             },
         },
     };

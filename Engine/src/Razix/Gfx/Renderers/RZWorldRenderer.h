@@ -125,10 +125,10 @@ namespace Razix {
 
             void create(RZWindow* window, u32 width, u32 height);
             void destroy();
-            
-            // FIXME: this is run only once and when we hot-reload the framegraph from file, now we can let the RenderThread run this once but 
+
+            // FIXME: this is run only once and when we hot-reload the framegraph from file, now we can let the RenderThread run this once but
             // the problem is with RZWorld lifetime, we need some world to build the framegraph for, now when is the first and least we can get this?
-            // Let's see, typically we load scene at engine start up time, parse and build the graph on gamethread etc. now during rendering which is immediately kicked off 
+            // Let's see, typically we load scene at engine start up time, parse and build the graph on gamethread etc. now during rendering which is immediately kicked off
             // at app begin time we take a RZWorld and render that, for this we need to rebuild framegraph everyframe, thanks to transient resource allocator, they survive through cache
             // Now lets call this every frame and make sure shit works with this design, builting the framegraph should be sub ms thing.
             void buildFrameGraph(const RZWorld& world);
@@ -165,8 +165,8 @@ namespace Razix {
             inline rz_gfx_descriptor_table_handle getGlobalSamplerTable() const { return m_GlobalSamplerTable; }
             inline rz_gfx_descriptor_table_handle getFrameDataTable() const { return m_FrameDataTable; }
             inline rz_gfx_descriptor_table_handle getSceneLightsDataTable() const { return m_SceneLightsDataTable; }
-            inline u64 getFrameCount() const { return m_FrameCount; }
-        
+            inline u64                            getFrameCount() const { return m_FrameCount; }
+
         private:
             static rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
             static rz_gfx_descriptor_heap_handle m_DepthRenderTargetHeap;

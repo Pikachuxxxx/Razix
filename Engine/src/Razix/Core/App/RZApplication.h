@@ -122,7 +122,7 @@ namespace Razix {
         RZDynamicArray<RZString> m_SceneFilePaths            = {};
         RZEventDispatcher        m_EventDispatcher           = {};
         WindowProperties         m_WindowProperties          = {};
-        rz_thread_handle         m_RenderThread = {};
+        rz_thread_handle         m_RenderThread              = {};
 
     private:
         RAZIX_NONCOPYABLE_CLASS(RZApplication);

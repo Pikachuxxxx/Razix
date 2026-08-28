@@ -21,14 +21,14 @@ namespace Razix {
 
     struct RZWorld
     {
-        u32                        worldInFlightIdx = 0; // index of the current world buffer in flight, used for debugging only 
-        RZDynamicArray<rz_handle>  meshes;
-        RZDynamicArray<rz_handle>  decals;
-        RZDynamicArray<rz_handle>  lights; 
-        RZCamera3D                 primaryCamera;
-        rz_gfx_texture_handle      sceneRenderTarget;
-        Gfx::RZRendererSettings    rendererSettings;
+        u32                       worldInFlightIdx = 0;    // index of the current world buffer in flight, used for debugging only
+        RZDynamicArray<rz_handle> meshes;
+        RZDynamicArray<rz_handle> decals;
+        RZDynamicArray<rz_handle> lights;
+        RZCamera3D                primaryCamera;
+        rz_gfx_texture_handle     sceneRenderTarget;
+        Gfx::RZRendererSettings   rendererSettings;
     };
 
 }    // namespace Razix
-#endif   // RZ_WORLD_H
+#endif    // RZ_WORLD_H

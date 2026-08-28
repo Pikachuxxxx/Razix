@@ -34,7 +34,7 @@ namespace Razix {
 #ifdef RAZIX_DEBUG
         auto start = rz_time_now();
 #endif    // RAZIX_DEBUG \
-    // Log the Engine Ignition
+          // Log the Engine Ignition
         RAZIX_CORE_INFO("***********************************");
         RAZIX_CORE_INFO("*          Igniting Engine....    *");
         RAZIX_CORE_INFO("***********************************");
@@ -84,7 +84,7 @@ namespace Razix {
         //--------------------------------------------------------------------------
         // Start Up Memory
         //--------------------------
-        m_SystemAllocatorMutex = rz_critical_section_create();
+        m_SystemAllocatorMutex   = rz_critical_section_create();
         m_Stats.PassTimingsMutex = rz_critical_section_create();
 
         // This is used by the asset system and other core engine system with big allocations

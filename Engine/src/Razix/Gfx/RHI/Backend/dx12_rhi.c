@@ -2520,10 +2520,10 @@ static void dx12_CreateGraphicsPipeline(rz_gfx_pipeline* pso)
     depth.StencilReadMask          = D3D12_DEFAULT_STENCIL_READ_MASK;
     depth.StencilWriteMask         = D3D12_DEFAULT_STENCIL_WRITE_MASK;
     depth.FrontFace                = (D3D12_DEPTH_STENCILOP_DESC) {
-                       .StencilFailOp      = D3D12_STENCIL_OP_KEEP,
-                       .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
-                       .StencilPassOp      = D3D12_STENCIL_OP_KEEP,
-                       .StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS};
+        .StencilFailOp      = D3D12_STENCIL_OP_KEEP,
+        .StencilDepthFailOp = D3D12_STENCIL_OP_KEEP,
+        .StencilPassOp      = D3D12_STENCIL_OP_KEEP,
+        .StencilFunc        = D3D12_COMPARISON_FUNC_ALWAYS};
     depth.BackFace         = depth.FrontFace;
     desc.DepthStencilState = depth;
 
@@ -3706,9 +3706,9 @@ static void dx12_InsertBufferReadback(const rz_gfx_buffer* buffer, rz_gfx_buffer
     uint32_t              size           = (uint32_t) srcDesc.Width;
     ID3D12Resource*       readbackBuffer = NULL;
     D3D12_HEAP_PROPERTIES heap_props     = {
-            .Type                 = D3D12_HEAP_TYPE_READBACK,
-            .CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-            .MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN};
+        .Type                 = D3D12_HEAP_TYPE_READBACK,
+        .CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+        .MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN};
     D3D12_RESOURCE_DESC buffer_desc = {
         .Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER,
         .Alignment        = 0,

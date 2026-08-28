@@ -50,8 +50,6 @@
 #include "Razix/Events/RZMouseEvent.h"
 
 // Asset System
-#include "Razix/AssetSystem/RZAssetDB.h"
-#include "Razix/AssetSystem/RZAssetPool.h"
 #include "Razix/Asset/RZAnimationAsset.h"
 #include "Razix/Asset/RZAssetRefAsset.h"
 #include "Razix/Asset/RZAudioAsset.h"
@@ -66,6 +64,8 @@
 #include "Razix/Asset/RZTextureAsset.h"
 #include "Razix/Asset/RZTransformAsset.h"
 #include "Razix/Asset/RZVignerePuzzleAsset.h"
+#include "Razix/AssetSystem/RZAssetDB.h"
+#include "Razix/AssetSystem/RZAssetPool.h"
 
 // Graphics API
 #include "Razix/Gfx/RHI/RHI.h"

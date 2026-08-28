@@ -21,7 +21,7 @@ namespace Razix {
         float3   BoundsMin;
         f32      BoundsRadius;
         float3   BoundsMax;
-       u8       _pad0[4];
+        u8       _pad0[4];
         RZString MeshPath;
         RZString MaterialPath;
     };

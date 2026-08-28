@@ -265,8 +265,8 @@ namespace Razix {
         // Start the Engine Client side!
         Start();
         //-----------------
-        
-        // Launch render thread once we know all app start up is done 
+
+        // Launch render thread once we know all app start up is done
         Razix::RZSplashScreen::Get().setLogString("Launching Render Thread...");
         // Launch the render thread here
         m_RenderThread = Gfx::RenderThreadCreate();

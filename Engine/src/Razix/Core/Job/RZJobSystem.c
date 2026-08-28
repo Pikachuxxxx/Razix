@@ -58,7 +58,7 @@ static rz_job* _rz_global_queue_pop_()
             while (g_JobSystem.globalQueue.ppJobs[head] == NULL) {
                 RAZIX_YIELD();
             }
-            rz_job* pJob = g_JobSystem.globalQueue.ppJobs[head];
+            rz_job* pJob                         = g_JobSystem.globalQueue.ppJobs[head];
             g_JobSystem.globalQueue.ppJobs[head] = NULL;
             return pJob;
         }

@@ -22,12 +22,12 @@ rz_scene_graph* rz_scene_graph_create(const char* name, Memory::RZHeapAllocator&
     memset(sg, 0x00, sizeof(rz_scene_graph));
 
     const u32 numZones = gridDim * gridDim;
-    
+
     memcpy(sg->name, name, RAZIX_ZONE_NAME_MAX);
     sg->version          = RAZIX_SCENE_GRAPH_VERSION;
     sg->gridDims[0]      = gridDim;
     sg->gridDims[1]      = gridDim;
-    sg->gridDims[2]      = 1; // Doesn't make sense in Tanu it'a a simple FPS 3d game, we don't have openworld skies.
+    sg->gridDims[2]      = 1;    // Doesn't make sense in Tanu it'a a simple FPS 3d game, we don't have openworld skies.
     sg->zonePhysicalSize = RAZIX_ZONE_DIM_IN_METERS;
     sg->activeZoneIndex  = 0;
     sg->zoneCount        = numZones;
@@ -57,7 +57,8 @@ rz_scene_graph* rz_scene_graph_create(const char* name, Memory::RZHeapAllocator&
         pZone->dirtyTransforms.pTempEntries = (rz_dirty_entry*) heapAllocator.allocate(sizeof(rz_dirty_entry) * pZone->dirtyTransforms.capacity);
 
         RAZIX_CORE_ASSERT(pZone->pNodes && pZone->pNodeFreelist && pZone->dirtyTransforms.pEntries && pZone->dirtyTransforms.pTempEntries,
-            "[SceneGraph] Failed to allocate zone buffers for zone {}", i);
+            "[SceneGraph] Failed to allocate zone buffers for zone {}",
+            i);
 
         memset(pZone->pNodes, 0, sizeof(rz_scene_node) * pZone->nodeCapacity);
         memset(pZone->pNodeFreelist, 0, sizeof(u32) * pZone->nodeCapacity);
@@ -121,7 +122,7 @@ void rz_scene_graph_update(rz_scene_graph* sg, float3 observerPosition, f32 delt
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
     RAZIX_UNUSED(observerPosition);
     RAZIX_UNUSED(deltaTime);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
 
     if (!sg)
         return;
@@ -129,7 +130,7 @@ void rz_scene_graph_update(rz_scene_graph* sg, float3 observerPosition, f32 delt
     i32 currentPlayerActiveZone = rz_scene_graph_resolve_zone_index(sg, observerPosition);
     if (currentPlayerActiveZone != (i32) sg->activeZoneIndex) {
         RAZIX_CORE_ASSERT(currentPlayerActiveZone >= 0 && (u32) currentPlayerActiveZone < sg->zoneCount, "Resolved active zone index {} is out of bounds", currentPlayerActiveZone);
-        
+
         RAZIX_CORE_INFO("[SceneGraph] Active zone changed from {} to {}", sg->activeZoneIndex, currentPlayerActiveZone);
         rz_zone_activate(sg, (u32) currentPlayerActiveZone);
         rz_zone_deactivate(sg, sg->activeZoneIndex);
@@ -138,16 +139,13 @@ void rz_scene_graph_update(rz_scene_graph* sg, float3 observerPosition, f32 delt
     rz_zone* activeZone = rz_scene_graph_get_active_zone(sg);
     if (!activeZone)
         return;
-
-
 }
 //-----------------------------------------------------------------------------
-
 
 bool rz_zone_activate(rz_scene_graph* sg, u32 zoneIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg || zoneIdx >= sg->zoneCount)
         return false;
 
@@ -159,7 +157,7 @@ bool rz_zone_activate(rz_scene_graph* sg, u32 zoneIdx)
 void rz_zone_deactivate(rz_scene_graph* sg, u32 zoneIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg || zoneIdx >= sg->zoneCount)
         return;
 
@@ -169,14 +167,14 @@ void rz_zone_deactivate(rz_scene_graph* sg, u32 zoneIdx)
 rz_zone* rz_zone_get(rz_scene_graph* sg, u32 zoneIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     return (!sg || zoneIdx >= sg->zoneCount) ? NULL : &sg->pZones[zoneIdx];
 }
 
 const rz_zone* rz_zone_get_const(const rz_scene_graph* sg, u32 zoneIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     return (!sg || zoneIdx >= sg->zoneCount) ? NULL : &sg->pZones[zoneIdx];
 }
 
@@ -196,7 +194,7 @@ i32 rz_zone_find_by_name(const rz_scene_graph* sg, const char* name)
 i32 rz_zone_find_by_grid_pos(const rz_scene_graph* sg, i32 x, i32 y, i32 z)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg)
         return RAZIX_SCENE_NODE_NULL;
 
@@ -212,7 +210,7 @@ i32 rz_zone_find_by_grid_pos(const rz_scene_graph* sg, i32 x, i32 y, i32 z)
 i32 rz_scene_graph_resolve_zone_index(const rz_scene_graph* sg, float3 posInMeters)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg || sg->zonePhysicalSize <= 0.0f)
         return RAZIX_SCENE_NODE_NULL;
 
@@ -229,14 +227,14 @@ i32 rz_scene_graph_resolve_zone_index(const rz_scene_graph* sg, float3 posInMete
 u32 rz_scene_graph_get_active_zone_index(const rz_scene_graph* sg)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     return sg ? sg->activeZoneIndex : 0;
 }
 
 rz_zone* rz_scene_graph_get_active_zone(rz_scene_graph* sg)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     return (!sg || sg->activeZoneIndex >= sg->zoneCount) ? NULL : &sg->pZones[sg->activeZoneIndex];
 }
 
@@ -244,7 +242,7 @@ i32 rz_scene_graph_attach_asset(rz_scene_graph* sg, i32 parentNodeIdx, const cha
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
     RAZIX_UNUSED(name);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
 
     rz_zone* zone = rz_scene_graph_get_active_zone(sg);
     if (!zone)
@@ -274,7 +272,7 @@ i32 rz_scene_graph_attach_asset(rz_scene_graph* sg, i32 parentNodeIdx, const cha
     node->parent      = parentNodeIdx;
     node->firstChild  = RAZIX_SCENE_NODE_NULL;
     node->nextSibling = zone->pNodes[parentNodeIdx].firstChild;
-    
+
     // Update the parent to reference this child
     zone->pNodes[parentNodeIdx].firstChild = nodeIdx;
     if ((u32) nodeIdx >= zone->nodeCount)
@@ -286,7 +284,7 @@ i32 rz_scene_graph_attach_asset(rz_scene_graph* sg, i32 parentNodeIdx, const cha
 i32 rz_scene_graph_create_node(rz_scene_graph* sg, i32 parentNodeIdx, const char* name, rz_uuid uuid, Razix::RZAssetType type)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg)
         return RAZIX_SCENE_NODE_NULL;
 
@@ -306,7 +304,7 @@ i32 rz_scene_graph_create_node(rz_scene_graph* sg, i32 parentNodeIdx, const char
 void rz_scene_graph_detach_node(rz_scene_graph* sg, i32 nodeIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     rz_zone* zone = rz_scene_graph_get_active_zone(sg);
     if (!zone || nodeIdx <= 0 || (u32) nodeIdx >= zone->nodeCapacity)
         return;
@@ -337,14 +335,14 @@ void rz_scene_graph_destroy_node(rz_scene_graph* sg, struct rz_asset_db* pAssetD
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
     RAZIX_UNUSED(pAssetDb);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     rz_scene_graph_detach_node(sg, nodeIdx);
 }
 
 rz_scene_node* rz_scene_graph_get_node(rz_scene_graph* sg, i32 nodeIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     rz_zone* zone = rz_scene_graph_get_active_zone(sg);
     return (!zone || nodeIdx < 0 || (u32) nodeIdx >= zone->nodeCapacity) ? NULL : &zone->pNodes[nodeIdx];
 }
@@ -352,7 +350,7 @@ rz_scene_node* rz_scene_graph_get_node(rz_scene_graph* sg, i32 nodeIdx)
 const rz_scene_node* rz_scene_graph_get_node_const(const rz_scene_graph* sg, i32 nodeIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg || sg->activeZoneIndex >= sg->zoneCount)
         return NULL;
 
@@ -363,7 +361,7 @@ const rz_scene_node* rz_scene_graph_get_node_const(const rz_scene_graph* sg, i32
 i32 rz_scene_graph_find_node(const rz_scene_graph* sg, rz_uuid uuid)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg || sg->activeZoneIndex >= sg->zoneCount)
         return RAZIX_SCENE_NODE_NULL;
 
@@ -378,7 +376,7 @@ i32 rz_scene_graph_find_node(const rz_scene_graph* sg, rz_uuid uuid)
 i32 rz_scene_graph_find_node_by_name(const rz_scene_graph* sg, const char* name)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     RAZIX_UNUSED(sg);
     RAZIX_UNUSED(name);
     RAZIX_CORE_WARN("[SceneGraph] find_node_by_name is not supported yet (node names are not stored in rz_scene_node)");
@@ -388,7 +386,7 @@ i32 rz_scene_graph_find_node_by_name(const rz_scene_graph* sg, const char* name)
 i32 rz_scene_graph_find_node_global(const rz_scene_graph* sg, rz_uuid uuid)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg)
         return RAZIX_SCENE_NODE_NULL;
 
@@ -405,7 +403,7 @@ i32 rz_scene_graph_find_node_global(const rz_scene_graph* sg, rz_uuid uuid)
 rz_asset_handle rz_scene_graph_get_transform(const rz_scene_graph* sg, i32 nodeIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     const rz_scene_node* node = rz_scene_graph_get_node_const(sg, nodeIdx);
     return node ? node->handle : RAZIX_ASSET_INVALID_HANDLE;
 }
@@ -413,7 +411,7 @@ rz_asset_handle rz_scene_graph_get_transform(const rz_scene_graph* sg, i32 nodeI
 void rz_scene_graph_set_position(rz_scene_graph* sg, i32 nodeIdx, float3 posInMeters)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     RAZIX_UNUSED(posInMeters);
     rz_scene_graph_mark_dirty(sg, (u32) nodeIdx);
 }
@@ -421,7 +419,7 @@ void rz_scene_graph_set_position(rz_scene_graph* sg, i32 nodeIdx, float3 posInMe
 void rz_scene_graph_set_rotation(rz_scene_graph* sg, i32 nodeIdx, quat rot)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     RAZIX_UNUSED(rot);
     rz_scene_graph_mark_dirty(sg, (u32) nodeIdx);
 }
@@ -429,7 +427,7 @@ void rz_scene_graph_set_rotation(rz_scene_graph* sg, i32 nodeIdx, quat rot)
 void rz_scene_graph_set_scale(rz_scene_graph* sg, i32 nodeIdx, float3 scale)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     RAZIX_UNUSED(scale);
     rz_scene_graph_mark_dirty(sg, (u32) nodeIdx);
 }
@@ -437,7 +435,7 @@ void rz_scene_graph_set_scale(rz_scene_graph* sg, i32 nodeIdx, float3 scale)
 void rz_scene_graph_mark_dirty(rz_scene_graph* sg, u32 nodeIdx)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     if (!sg || sg->activeZoneIndex >= sg->zoneCount)
         return;
 
@@ -475,7 +473,7 @@ void rz_scene_graph_mark_dirty(rz_scene_graph* sg, u32 nodeIdx)
 void rz_scene_graph_resolve_asset(rz_scene_graph* sg, i32 nodeIdx, rz_asset_handle resolvedHandle)
 {
     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
-    RAZIX_CORE_ASSERT(sg , "SceneGraph is NULL, catastriphy incoming!");
+    RAZIX_CORE_ASSERT(sg, "SceneGraph is NULL, catastriphy incoming!");
     rz_scene_node* node = rz_scene_graph_get_node(sg, nodeIdx);
     if (!node)
         return;
@@ -538,7 +536,7 @@ void rz_scene_graph_manager_set_active_scene(rz_scene_graph_manager* mgr, rz_sce
 
 rz_scene_graph* rz_scene_graph_get_active_scene(const rz_scene_graph_manager* mgr)
 {
-     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
+    RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_SCENE);
     if (mgr)
         return mgr->pActiveScene;
     return NULL;

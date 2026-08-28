@@ -83,8 +83,7 @@ static void* _rz_thread_entry(void* args)
             _rz_set_thread_priority_high();
             break;
     }
-    
-    
+
     if (local.cb)
         local.cb(local.pUserData);
     return NULL;

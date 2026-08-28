@@ -21,12 +21,12 @@ namespace Razix {
 
         //--------------------------------------------
         WorldRingBuffer g_RenderThreadRingBuffer;
-        rz_atomic_u32 g_RenderThreadIsRunning = false;
+        rz_atomic_u32   g_RenderThreadIsRunning = false;
         //--------------------------------------------
-        
+
         // Resizing stuff
         rz_atomic_u32 g_ResizePending = false;
-        
+
         //--------------------------------------------
         RAZIX_TLS u64 renderThreadReadCounter = 0;
         //--------------------------------------------
@@ -182,30 +182,28 @@ namespace Razix {
             RAZIX_PROFILE_SETTHREADNAME(pThreadName);
 
             RZWorldRenderer& worldRenderer = RZEngine::Get().getWorldRenderer();
-            while (rz_atomic32_load(&g_RenderThreadIsRunning, RZ_MEMORY_ORDER_RELAXED))
-            {
+            while (rz_atomic32_load(&g_RenderThreadIsRunning, RZ_MEMORY_ORDER_RELAXED)) {
                 RAZIX_PROFILE_SCOPEC("RenderThreadLoop", RZ_PROFILE_COLOR_RENDERERS);
 
                 // Handle resizing
                 if (rz_atomic32_load(&g_ResizePending, RZ_MEMORY_ORDER_ACQUIRE)) {
-                    u32 width = RZApplication::Get().getWindow()->getWidth();
+                    u32 width  = RZApplication::Get().getWindow()->getWidth();
                     u32 height = RZApplication::Get().getWindow()->getHeight();
                     Razix::RZEngine::Get().getWorldRenderer().OnResize(width, height);
 
                     rz_atomic32_store(&g_ResizePending, false, RZ_MEMORY_ORDER_RELEASE);
                 }
-                
+
                 u64 currGameWriteIdx = rz_atomic64_load(&g_RenderThreadRingBuffer.m_GameThreadWorldDataWriteCounter, RZ_MEMORY_ORDER_ACQUIRE);
                 RAZIX_CORE_TRACE("Reading atomic curr game write idx: {0}", currGameWriteIdx);
                 RAZIX_CORE_TRACE("current TLS render thread read counter: {0}", renderThreadReadCounter);
 
                 // yay we got new data
-                if(currGameWriteIdx != renderThreadReadCounter || renderThreadReadCounter == 0)
-                {
+                if (currGameWriteIdx != renderThreadReadCounter || renderThreadReadCounter == 0) {
                     RAZIX_CORE_TRACE("Got new world data from game thread, world renderer is free to render this now.");
                     renderThreadReadCounter = currGameWriteIdx;
                     RAZIX_CORE_TRACE("Updating render thread read counter to : {0}, now this will be blocked by m_RenderThreadWorldDataReadCounter so that game thread cannot write to this world buffer slot.");
-                    
+
                     // immediately update the read index so that game thread knows we cannot write to this slot
                     rz_atomic64_store(&g_RenderThreadRingBuffer.m_RenderThreadWorldDataReadCounter, renderThreadReadCounter, RZ_MEMORY_ORDER_RELEASE);
 
@@ -236,10 +234,10 @@ namespace Razix {
             rz_thread_handle handle;
             RAZIX_CORE_TRACE("Creating render thread!");
 
-            rz_atomic32_store(&g_RenderThreadIsRunning, true, RZ_MEMORY_ORDER_RELAXED); // we just want it published dont really care about ordering
-           
+            rz_atomic32_store(&g_RenderThreadIsRunning, true, RZ_MEMORY_ORDER_RELAXED);    // we just want it published dont really care about ordering
+
             const char* pRenderThreadName = g_ThreadNames_Tanu[RZ_THREAD_NAME_RENDER];
-            handle = rz_thread_create(pRenderThreadName, RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_RENDER, RenderThreadRunRenderLoop, &s_DummyRenderThreadUserData);
+            handle                        = rz_thread_create(pRenderThreadName, RZ_THREAD_PRIORITY_NORMAL, RZ_THREAD_AFFINITY_RENDER, RenderThreadRunRenderLoop, &s_DummyRenderThreadUserData);
             // Note: not detached, RenderThreadDestroy joins it so callers can rely on the
             // render thread (and its GPU teardown) having fully finished before returning.
             return handle;
@@ -255,5 +253,5 @@ namespace Razix {
             // the rest of the engine (RHI backend, resource pools, etc.)
             rz_thread_join(handle);
         }
-    }
+    }    // namespace Gfx
 }    // namespace Razix

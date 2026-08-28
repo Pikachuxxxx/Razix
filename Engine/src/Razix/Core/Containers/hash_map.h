@@ -170,11 +170,11 @@ namespace Razix {
 
         friend class RZHashMapIterator<Key, Value, !IsConst>;
 
-        Key*                  m_Keys;
-        Value*                m_Values;
-        bool*                 m_Occupied;
-        size_type             m_Index;
-        size_type             m_Capacity;
+        Key*      m_Keys;
+        Value*    m_Values;
+        bool*     m_Occupied;
+        size_type m_Index;
+        size_type m_Capacity;
         alignas(pair_type) mutable unsigned char m_ProxyStorage[sizeof(pair_type)];
 
         RZHashMapIterator(Key* keys, Value* values, bool* occupied, size_type capacity, size_type start_index = 0);

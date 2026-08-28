@@ -16,4 +16,4 @@ namespace Razix {
     //
     //};
 
-}
+}    // namespace Razix

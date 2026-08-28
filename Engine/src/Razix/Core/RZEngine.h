@@ -53,8 +53,8 @@ namespace Razix {
             u32 TexturesInMemory      = 0;
             u32 DescriptorSetCapacity = 0;    //[ ] // Add this after the debug font renderer is done
             // Pass timings
-            RZHashMap<RZString, f32> PassTimings; /* Holds references to frame graph pass node Idx and it's CPU execution time */
-            rz_critical_section PassTimingsMutex; // Protects PassTimings access across render and game threads
+            RZHashMap<RZString, f32> PassTimings;         /* Holds references to frame graph pass node Idx and it's CPU execution time */
+            rz_critical_section      PassTimingsMutex;    // Protects PassTimings access across render and game threads
 
             void reset()
             {
@@ -91,13 +91,13 @@ namespace Razix {
         inline const EngineSettings&          getGlobalEngineSettings() { return m_EngineSettings; }
         inline Gfx::RZWorldRenderer&          getWorldRenderer() { return m_WorldRenderer; }
         inline Scripting::RZLuaScriptHandler& getScriptHandler() { return m_LuaScriptHandlerSystem; }
-        inline rz_scene_graph_manager& getSceneManager() { return *m_SceneGraphManager; }
+        inline rz_scene_graph_manager&        getSceneManager() { return *m_SceneGraphManager; }
 
         inline Razix::Memory::RZHeapAllocator&     getSystemAllocator() { return m_SystemAllocator; }
         inline Razix::Memory::RZHeapAllocator&     getAssetAllocator() { return m_AssetAllocator; }
         inline Razix::Memory::RZBumpAllocator&     getFrameAllocator() { return m_FrameAllocator; }
         inline Razix::Memory::RZTwoSidedAllocator& getPacketAllocator() { return m_PacketAllocator; }
-        inline rz_critical_section& getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
+        inline rz_critical_section&                getSystemAllocatorMutex() { return m_SystemAllocatorMutex; }
 
     private:
         RZCommandLineParser                m_CommandLineParser;

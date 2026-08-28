@@ -21,7 +21,7 @@ namespace Razix {
          * to final frame graph execution.
          * '
          */
-        namespace House{
+        namespace House {
 
 #if 0
         // These structs are only used by the Render Thread for building RHI commands
@@ -60,7 +60,7 @@ namespace Razix {
         };
 #endif
 
-            RZWorld  BuildRazixWorldFromSceneData(const rz_scene_graph* sceneGraph);
+            RZWorld BuildRazixWorldFromSceneData(const rz_scene_graph* sceneGraph);
 
             // TODO: Will be implemented when asset system is done and Render thread is in full effect
             //Drawables BuildDrawables(RZWorld* world);

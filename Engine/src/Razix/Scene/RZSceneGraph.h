@@ -28,7 +28,7 @@
 #define RAZIX_TANU_ZONE_DIM_IN_METERS 128                              // each zone covers 128x128 meters grid in Tanu
 #define RAZIX_ZONE_DIM_IN_METERS      RAZIX_TANU_ZONE_DIM_IN_METERS    // abstracting game specific needs
 #define RAZIX_SCENE_DIMS              2                                // by default we will the scene with a 2x2 grid of zones
-#define RAZIX_DEFAULT_ZONES_COUNT     RAZIX_SCENE_DIMS * RAZIX_SCENE_DIMS
+#define RAZIX_DEFAULT_ZONES_COUNT     RAZIX_SCENE_DIMS* RAZIX_SCENE_DIMS
 
 using namespace Razix;
 
@@ -133,7 +133,7 @@ extern "C"
     {
         char    name[RAZIX_NODE_NAME_MAX];
         rz_aabb bounds;
-        u32     eventHash; // TODO: Use RZUUID instead?
+        u32     eventHash;    // TODO: Use RZUUID instead?
     } rz_global_trigger;
 
     // Scene Graph

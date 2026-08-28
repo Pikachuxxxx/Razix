@@ -407,10 +407,10 @@ namespace Razix {
         void RZWorldRenderer::buildFrameGraph(const RZWorld& world)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-           
+
             // if(world.worldInFlightIdx < 0)
-            //     return; 
-            
+            //     return;
+
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
             m_FrameGraphBuildingInProgress = true;
 
@@ -420,7 +420,7 @@ namespace Razix {
             m_BRDFfLUTTextureHandle             = CreateTextureFromFile("//RazixContent/Textures/Texture.Builtin.BrdfLUT.png");
             rz_gfx_texture_desc brdfTextureDesc = RZResourceManager::Get().getTextureResource(m_BRDFfLUTTextureHandle)->resource.pCold->desc.textureDesc;
             BRDFData&           brdfData        = m_FrameGraph.getBlackboard().add<BRDFData>();
-            brdfData.lut                        = m_FrameGraph.import <RZFrameGraphTexture>("BRDFLut", CAST_TO_FG_TEX_DESC brdfTextureDesc, {m_BRDFfLUTTextureHandle});
+            brdfData.lut                        = m_FrameGraph.import<RZFrameGraphTexture>("BRDFLut", CAST_TO_FG_TEX_DESC brdfTextureDesc, {m_BRDFfLUTTextureHandle});
 
             //-----------------------------------------------------------------------------------
             // Frame common data upload pass
@@ -643,7 +643,7 @@ namespace Razix {
             //auto DiffuseDesc  = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.diffuse)->resource.pCold->desc.textureDesc;
             //auto SpecularDesc = RZResourceManager::Get().getTextureResource(m_GlobalLightProbes.specular)->resource.pCold->desc.textureDesc;
 
-            globalLightProbeData.environmentMap = m_FrameGraph.import <RZFrameGraphTexture>("FG.Tex.EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {m_GlobalLightProbes.skybox});
+            globalLightProbeData.environmentMap = m_FrameGraph.import<RZFrameGraphTexture>("FG.Tex.EnvironmentMap", CAST_TO_FG_TEX_DESC SkyboxDesc, {m_GlobalLightProbes.skybox});
             //globalLightProbeData.diffuseIrradianceMap   = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.IrradianceMap", CAST_TO_FG_TEX_DESC DiffuseDesc, {m_GlobalLightProbes.diffuse});
             //globalLightProbeData.specularPreFilteredMap = m_FrameGraph.import <RZFrameGraphTexture>("FGTexture.PreFilteredMap", CAST_TO_FG_TEX_DESC SpecularDesc, {m_GlobalLightProbes.specular});
 
@@ -1124,7 +1124,7 @@ namespace Razix {
                     pipelineDesc.inputLayoutMode        = RZ_GFX_INPUT_LAYOUT_AOS;    // doesn't matter, no vertex data
                     m_CompositionPassPipeline           = RZResourceManager::Get().createPipeline("Pipeline.Composition", pipelineDesc);
 
-    #if __APPLE__
+#if __APPLE__
                     // keep the platform-specific dummy depth texture creation but use C-style desc if needed
                     rz_gfx_texture_desc depthTextureDesc = {};
                     depthTextureDesc.width               = RZApplication::Get().getWindow()->getWidth();
@@ -1144,7 +1144,7 @@ namespace Razix {
                     depthTexViewDesc.textureViewDesc.dimension      = 1;
                     depthTexViewDesc.pRtvDsvHeap                    = RZResourceManager::Get().getDescriptorHeapResource(RZEngine::Get().getWorldRenderer().getDepthRenderTargetHeap());
                     data.sceneDepth                                 = builder.write(data.sceneDepth, depthTexViewDesc);
-    #endif
+#endif
 
                     rz_gfx_resource_view_desc sceneLDRViewDesc      = {};
                     sceneLDRViewDesc.descriptorType                 = RZ_GFX_DESCRIPTOR_TYPE_TEXTURE;
@@ -1217,11 +1217,11 @@ namespace Razix {
                         .getShaderBindMapRef(RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kComposition))
                         .destroy();
                     RZResourceManager::Get().destroyPipeline(m_CompositionPassPipeline);
-    #if __APPLE__
+#if __APPLE__
                     if (rz_handle_is_valid(&m_AppleNeedsADepthTextureHandle)) {
                         RZResourceManager::Get().destroyTexture(m_AppleNeedsADepthTextureHandle);
                     }
-    #endif
+#endif
                 });
 
 #if 0
@@ -1280,7 +1280,7 @@ namespace Razix {
             m_FrameCount++;
 
             rz_time_stamp currTime = rz_time_now();
-            auto& stats = RZEngine::Get().GetStatistics();
+            auto&         stats    = RZEngine::Get().GetStatistics();
             m_FPSTimestep.Update(currTime);
 
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
@@ -1380,10 +1380,9 @@ namespace Razix {
             {
                 if (rz_get_elapsed_ms(m_TotalTimeElapsedRendererTS, currTime) > 1000.0f) {
                     m_TotalTimeElapsedRendererTS = currTime;
-                    stats.FramesPerSecond = (u32) m_FPSTimestep.GetCurrentFPS();
+                    stats.FramesPerSecond        = (u32) m_FPSTimestep.GetCurrentFPS();
                 }
             }
-
         }
 
         void RZWorldRenderer::OnUpdate(RZTimestep dt)
