@@ -5,7 +5,7 @@
 
 namespace Razix {
     namespace Gfx {
-        namespace HouseMD {
+        namespace House {
 
             RZWorld BuildRazixWorldFromSceneData(const rz_scene_graph* sceneGraph)
             {
@@ -13,10 +13,10 @@ namespace Razix {
                 // Use the gather list in scene graph to get list of all active meshes in the scene scene graph
 
                 RZWorld world;
-                world.worldInFlightIdx = -1;    // will be filled by scene graph before hand-off so we don't care about it yet
+                world.worldInFlightIdx = -1; // will be filled by scene graph before hand-off so we don't care about it yet
 
                 return world;
             }
-        }    // namespace HouseMD
+        }   // namespace House
     }    // namespace Gfx
 }    // namespace Razix

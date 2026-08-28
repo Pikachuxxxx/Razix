@@ -19,6 +19,8 @@
 
 #include "Razix/Gfx/RZRenderThread.h"
 
+#include "Razix/Gfx/House/House.h"
+
 #include "Razix/Scene/RZSceneGraph.h"
 
 #include <Core/Log/RZLog.h>
@@ -359,11 +361,28 @@ namespace Razix {
         RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_APPLICATION);
 
         // TODO: Update Scene Graph here and then build the RZWorld for handoff to Render Thread via atomics and ring buffer
-        // const rz_scene_graph_manager& sceneGraphMgr   = RZEngine::Get().getSceneManager();
-        // rz_scene_graph*               currActiveScene = rz_scene_graph_get_active_scene(&sceneGraphMgr);
-        // rz_scene_graph_update(currActiveScene, float3(0, 0, 0), dt.GetTimestepMs());
+        const rz_scene_graph_manager& sceneGraphMgr   = RZEngine::Get().getSceneManager();
+        rz_scene_graph*               currActiveScene = rz_scene_graph_get_active_scene(&sceneGraphMgr);
+        rz_scene_graph_update(currActiveScene, float3(0, 0, 0), dt.GetTimestepMs());
 
         // Now use the House API to build the RZWorld and update the global render thread world slot using atomics for safe hand-off
+        RZWorld world              = Gfx::House::BuildRazixWorldFromSceneData(currActiveScene);
+        u64     renderWorldReadIdx = rz_atomic64_load(&Gfx::g_RenderThreadRingBuffer.m_RenderThreadWorldDataReadCounter, RZ_MEMORY_ORDER_ACQUIRE);
+        u64     gameWorldWriteIdx  = rz_atomic64_load(&Gfx::g_RenderThreadRingBuffer.m_GameThreadWorldDataWriteCounter, RZ_MEMORY_ORDER_ACQUIRE);
+        RAZIX_CORE_TRACE("[MAIN THREAD] renderWorldReadIdx: {} and gameWorldWriteIdx: {}", renderWorldReadIdx, gameWorldWriteIdx);
+
+        gameWorldWriteIdx++;
+        // if this slot is being used by renderworldreandIdx move ahead more
+        while ((gameWorldWriteIdx % RAZIX_WORLDS_IN_FLIGHT) ==
+               (renderWorldReadIdx % RAZIX_WORLDS_IN_FLIGHT))
+        {
+            ++gameWorldWriteIdx;
+        }
+
+        u32 worldSlotIdx = gameWorldWriteIdx % RAZIX_WORLDS_IN_FLIGHT;
+        RAZIX_CORE_TRACE("[MAIN THREAD] Writing world data from game thread into idx: {0} | gameWriteCouner@ {1}, updating counter for rendeerer to read from here", worldSlotIdx, gameWorldWriteIdx);
+        Gfx::g_RenderThreadRingBuffer.worldBuffers[worldSlotIdx] = world;
+        rz_atomic64_store(&Gfx::g_RenderThreadRingBuffer.m_GameThreadWorldDataWriteCounter, gameWorldWriteIdx, RZ_MEMORY_ORDER_RELEASE);
 
         auto ctx = ImGui::GetCurrentContext();
         if (ctx) {

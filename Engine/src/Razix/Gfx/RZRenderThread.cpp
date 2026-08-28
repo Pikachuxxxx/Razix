@@ -195,21 +195,22 @@ namespace Razix {
                 }
 
                 u64 currGameWriteIdx = rz_atomic64_load(&g_RenderThreadRingBuffer.m_GameThreadWorldDataWriteCounter, RZ_MEMORY_ORDER_ACQUIRE);
-                RAZIX_CORE_TRACE("Reading atomic curr game write idx: {0}", currGameWriteIdx);
-                RAZIX_CORE_TRACE("current TLS render thread read counter: {0}", renderThreadReadCounter);
+                RAZIX_CORE_TRACE("[RENDER_THREAD] --> Reading atomic curr game write idx: {0}", currGameWriteIdx);
+                RAZIX_CORE_TRACE("[RENDER_THREAD] --> current TLS render thread read counter: {0}", renderThreadReadCounter);
 
                 // yay we got new data
-                if (currGameWriteIdx != renderThreadReadCounter || renderThreadReadCounter == 0) {
-                    RAZIX_CORE_TRACE("Got new world data from game thread, world renderer is free to render this now.");
+                if(currGameWriteIdx != renderThreadReadCounter || renderThreadReadCounter == 0)
+                {
+                    RAZIX_CORE_TRACE("[RENDER_THREAD] --> Got new world data from game thread, world renderer is free to render this now.");
                     renderThreadReadCounter = currGameWriteIdx;
-                    RAZIX_CORE_TRACE("Updating render thread read counter to : {0}, now this will be blocked by m_RenderThreadWorldDataReadCounter so that game thread cannot write to this world buffer slot.");
-
+                    RAZIX_CORE_TRACE("[RENDER_THREAD] --> Updating render thread read counter to : {0}, now this will be blocked by m_RenderThreadWorldDataReadCounter so that game thread cannot write to this world buffer slot.", renderThreadReadCounter);
+                    
                     // immediately update the read index so that game thread knows we cannot write to this slot
                     rz_atomic64_store(&g_RenderThreadRingBuffer.m_RenderThreadWorldDataReadCounter, renderThreadReadCounter, RZ_MEMORY_ORDER_RELEASE);
 
                     // now get the world corresponding to this index
                     u32 worldBufferIdx = currGameWriteIdx % RAZIX_WORLDS_IN_FLIGHT;
-                    RAZIX_CORE_TRACE("Reading world data from frin inflight buffer at idx: {0}", worldBufferIdx);
+                    RAZIX_CORE_TRACE("[RENDER_THREAD] --> Reading world data from in-flight buffer at idx: {0}", worldBufferIdx);
                     const RZWorld& world = g_RenderThreadRingBuffer.worldBuffers[worldBufferIdx];
 
                     RenderThreadRenderGUI();
