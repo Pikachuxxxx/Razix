@@ -1046,6 +1046,15 @@ namespace Razix {
                             };
                             rzRHI_BindDescriptorTables(cmdBuffer, RZ_GFX_PIPELINE_TYPE_GRAPHICS, m_ImGuiRootSigHandle, tables, 2);
 
+                            rz_gfx_viewport viewport = {};
+                            // viewport.x = 0;
+                            // viewport.y = 0;
+                            // viewport.width = io.DisplaySize.x;
+                            // viewport.height = io.DisplaySize.y;
+                            // viewport.minDepth = 0.0f;
+                            // viewport.maxDepth = 1.0f;
+                            // rzRHI_SetViewport(cmdBuffer, &viewport);
+
                             rz_gfx_rect scissorRect = {};
                             scissorRect.x           = std::max((int32_t) (pcmd->ClipRect.x), 0);
                             scissorRect.y           = std::max((int32_t) (pcmd->ClipRect.y), 0);

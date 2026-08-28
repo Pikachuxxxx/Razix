@@ -20,6 +20,10 @@ Texture2D    FinalSceneColor : register(t0, space1);
 float4 PS_MAIN(PsIn input)
     : SV_TARGET
 {
+    #ifdef __GLSL__
+        input.uv = float2(input.uv.x, 1.0f - input.uv.y);
+    #endif
+
     float4 result = FinalSceneColor.Sample(g_Sampler, input.uv);
     return result;
 }
