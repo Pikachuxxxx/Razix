@@ -444,8 +444,8 @@ namespace Razix {
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu(ICON_FA_WRENCH " Tools")) {
                     ImGui::MenuItem(ICON_FA_TASKS " FG Resource Vis", NULL, &drawConfig.showFrameGraphResourceVis);
-                    ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", NULL, drawConfig.showEngineBudgetBook);
-                    ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", NULL, drawConfig.showRHIStats);
+                    ImGui::MenuItem(ICON_FA_MONEY_BILL " Frame Budgets", NULL, &drawConfig.showEngineBudgetBook);
+                    ImGui::MenuItem(ICON_FA_MEMORY " RHI Memory Stats", NULL, &drawConfig.showRHIStats);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
