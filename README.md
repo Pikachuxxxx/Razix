@@ -9,8 +9,6 @@ Tanu Mood Board:
 
 [tanu_mood.txt - thoughts about the direction of the game](./Tanu/Design/tanu_mood.txt)
 
-Tanu GDD - https://docs.google.com/document/d/1KJfJEfFvvFI-W3ds4QYUtDr4HzlRucB5HWJ4fz1qyw0/edit?usp=sharing
-
 # About
 Razix is a cross-Platform 3D engine with multi render API support (Vulkan, DirectX 12). It's being built on a new design principle of **"Everything is as asset"** to replace traditonal 
 gameobject and ECS systems and primarily focusing on making a game one day soon. I have a game idea that I'll be showcasing using the engine hopefully, eventually I hope razix will be mature enough one day. It's also my portfolio + practice sandbox for making a trippy game.
