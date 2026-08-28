@@ -274,6 +274,7 @@ namespace Razix {
                 rzGfxCtx_SetRenderAPI((rz_render_api) renderAPI);
 
                 engineConfigParser.getValue<bool>("Rendering", "EnableAPIValidation", m_EngineSettings.EnableAPIValidation);
+                engineConfigParser.getValue<bool>("Rendering", "WorldRingbufferDebugLogs", m_EngineSettings.EnableWorldRingbufferDebugLogs);
                 engineConfigParser.getValue<bool>("Rendering", "EnableMSAA", m_EngineSettings.EnableMSAA);
                 engineConfigParser.getValue<bool>("Rendering", "EnableBindless", m_EngineSettings.EnableBindless);
                 engineConfigParser.getValue<bool>("Rendering", "EnableBarrierLogging", m_EngineSettings.EnableBarrierLogging);
