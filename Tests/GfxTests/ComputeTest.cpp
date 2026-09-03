@@ -20,7 +20,7 @@ public:
     {
         RZEngine::Get().getWorldRenderer().clearFrameGraph();
         // Push compute then blit
-        RZEngine::Get().getWorldRenderer().pushRenderPass(&m_MandleBrotPass, nullptr);
+        RZEngine::Get().getWorldRenderer().pushRenderPass(&m_MandleBrotPass);
 
         Razix::Gfx::MandleBrotPassData& passData = RZEngine::Get()
                                                        .getWorldRenderer()
@@ -28,7 +28,7 @@ public:
                                                        .getBlackboard()
                                                        .get<Razix::Gfx::MandleBrotPassData>();
         m_BlitPass.setBlitTexture(passData.Output);
-        RZEngine::Get().getWorldRenderer().pushRenderPass(&m_BlitPass, nullptr);
+        RZEngine::Get().getWorldRenderer().pushRenderPass(&m_BlitPass);
 
         RAZIX_CORE_INFO("Compiling FrameGraph ....");
         RZEngine::Get().getWorldRenderer().getFrameGraph().compile();

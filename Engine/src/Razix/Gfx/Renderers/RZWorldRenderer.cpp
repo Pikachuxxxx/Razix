@@ -408,12 +408,9 @@ namespace Razix {
          * 1. In Razix we use CCW winding order for front facing triangles => Also, back facing faces are pointed towards the camera
          */
 
-        void RZWorldRenderer::buildFrameGraph(const RZWorld& world)
+        void RZWorldRenderer::buildFrameGraph()
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
-
-            // if(world.worldInFlightIdx < 0)
-            //     return;
 
             memset(&m_LastSwapchainReadback, 0, sizeof(rz_gfx_texture_readback));
             m_FrameGraphBuildingInProgress = true;
@@ -666,7 +663,7 @@ namespace Razix {
             //-------------------------------
             // Skybox Pass
             //-------------------------------
-            m_SkyboxPass.addPass(m_FrameGraph, &world);
+            m_SkyboxPass.addPass(m_FrameGraph);
             auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
@@ -1096,7 +1093,7 @@ namespace Razix {
             //-------------------------------
             // Tonemap Pass
             //-------------------------------
-            m_TonemapPass.addPass(m_FrameGraph, &world);
+            m_TonemapPass.addPass(m_FrameGraph);
 
             //-------------------------------
             // Composition Pass
@@ -1255,25 +1252,25 @@ namespace Razix {
             //-------------------------------
             // Simple Shadow map Pass
             //-------------------------------
-            m_ShadowPass.addPass(m_FrameGraph, &world);
+            m_ShadowPass.addPass(m_FrameGraph);
 
             //-------------------------------
             // GBuffer Pass
             //-------------------------------
-            m_GBufferPass.addPass(m_FrameGraph, &world);
+            m_GBufferPass.addPass(m_FrameGraph);
             auto& gBufferData = m_FrameGraph.getBlackboard().get<GBufferData>();
 
             //-------------------------------
             // PBR Deferred Pass
             //-------------------------------
-            m_PBRDeferredPass.addPass(m_FrameGraph, &world);
+            m_PBRDeferredPass.addPass(m_FrameGraph);
             auto& sceneData = m_FrameGraph.getBlackboard().get<SceneData>();
 
             //-------------------------------
             // Composition Pass
             //-------------------------------
             m_FrameGraph.getBlackboard().setFinalOutputName("SceneHDR");
-            m_CompositePass.addPass(m_FrameGraph, &world);
+            m_CompositePass.addPass(m_FrameGraph);
             // Compile the Frame Graph
             RAZIX_CORE_INFO("Compiling FrameGraph....");
             m_FrameGraph.compile();
@@ -1301,7 +1298,7 @@ namespace Razix {
             if (m_IsFGFilePathDirty) {
                 destroy();
                 RZFrameGraph::ResetFirstFrame();
-                buildFrameGraph(world);
+                buildFrameGraph();
                 m_IsFGFilePathDirty = false;
             }
 

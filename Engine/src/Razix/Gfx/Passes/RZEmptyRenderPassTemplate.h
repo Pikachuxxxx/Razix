@@ -8,7 +8,7 @@ namespace Razix {
         class RZEmptyRenderPassTemplate : public IRZPass
         {
         public:
-            void addPass(RZFrameGraph& framegraph, const RZWorld* world) override;
+            void addPass(RZFrameGraph& framegraph) override;
             void destroy();
         };
     }    // namespace Gfx

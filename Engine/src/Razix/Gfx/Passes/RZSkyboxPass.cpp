@@ -87,7 +87,7 @@ namespace Razix {
             ib                        = RZResourceManager::Get().createBuffer("IB.Skybox", ibDesc);
         }
 
-        void RZSkyboxPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
+        void RZSkyboxPass::addPass(RZFrameGraph& framegraph)
         {
             CreateSkyboxGeometry(m_VertexBuffer, m_IndexBuffer);
 

@@ -5,7 +5,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZHelloTextureTestPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
+        void RZHelloTextureTestPass::addPass(RZFrameGraph& framegraph)
         {
             // Create the shader and the pipeline
             rz_gfx_shader_desc desc = {};

@@ -132,7 +132,7 @@ namespace Razix {
 
         static PrimitiveCBData cbData = {};
 
-        void RZPrimitiveTestPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
+        void RZPrimitiveTestPass::addPass(RZFrameGraph& framegraph)
         {
             rz_gfx_shader_desc shaderDesc = {};
             shaderDesc.pipelineType       = RZ_GFX_PIPELINE_TYPE_GRAPHICS;

@@ -8,7 +8,7 @@ namespace Razix {
         class RZToneMapPass : public IRZPass
         {
         public:
-            void addPass(RZFrameGraph& framegraph, const RZWorld* world) override;
+            void addPass(RZFrameGraph& framegraph) override;
 
         private:
             rz_gfx_pipeline_handle       m_Pipeline;

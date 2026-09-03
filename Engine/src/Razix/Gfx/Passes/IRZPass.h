@@ -8,7 +8,6 @@
 namespace Razix {
 
     class RZScene;
-    struct RZWorld;
 
     namespace Gfx {
 
@@ -20,7 +19,7 @@ namespace Razix {
             IRZPass()          = default;
             virtual ~IRZPass() = default;
 
-            virtual void addPass(RZFrameGraph& framegraph, const RZWorld* world) = 0;
+            virtual void addPass(RZFrameGraph& framegraph) = 0;
         };
     }    // namespace Gfx
 }    // namespace Razix

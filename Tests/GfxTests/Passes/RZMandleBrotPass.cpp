@@ -3,7 +3,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZMandleBrotPass::addPass(RZFrameGraph& framegraph, const RZWorld* /*world*/)
+        void RZMandleBrotPass::addPass(RZFrameGraph& framegraph)
         {
             // Create compute shader
             rz_gfx_shader_desc shaderDesc = {};

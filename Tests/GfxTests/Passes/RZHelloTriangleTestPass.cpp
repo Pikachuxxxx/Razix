@@ -3,7 +3,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZHelloTriangleTestPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
+        void RZHelloTriangleTestPass::addPass(RZFrameGraph& framegraph)
         {
             // Create the shader and the pipeline
             rz_gfx_shader_desc desc = {};

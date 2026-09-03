@@ -8,7 +8,7 @@ namespace Razix {
         class RZHelloTriangleTestPass final : public IRZPass
         {
         public:
-            void addPass(RZFrameGraph& framegraph, const RZWorld* world) override;
+            void addPass(RZFrameGraph& framegraph) override;
             void destroy();
 
         private:

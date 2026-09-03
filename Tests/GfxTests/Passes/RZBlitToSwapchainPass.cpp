@@ -3,7 +3,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZBlitToSwapchainPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
+        void RZBlitToSwapchainPass::addPass(RZFrameGraph& framegraph)
         {
             struct PassData
             {

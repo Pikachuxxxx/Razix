@@ -20,7 +20,7 @@ public:
     void OnStart() override
     {
         RZEngine::Get().getWorldRenderer().clearFrameGraph();
-        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTriangleTestPass, nullptr);
+        RZEngine::Get().getWorldRenderer().pushRenderPass(&helloTriangleTestPass);
         RAZIX_CORE_INFO("Compiling FrameGraph ....");
         RZEngine::Get().getWorldRenderer().getFrameGraph().compile();
 

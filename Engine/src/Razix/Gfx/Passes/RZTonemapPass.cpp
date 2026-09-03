@@ -26,7 +26,7 @@
 namespace Razix {
     namespace Gfx {
 
-        void RZToneMapPass::addPass(RZFrameGraph& framegraph, const RZWorld* world)
+        void RZToneMapPass::addPass(RZFrameGraph& framegraph)
         {
             auto tonemapShader = Gfx::RZShaderLibrary::Get().getBuiltInShader(ShaderBuiltin::kTonemap);
 

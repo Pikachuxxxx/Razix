@@ -132,7 +132,7 @@ namespace Razix {
             // Let's see, typically we load scene at engine start up time, parse and build the graph on gamethread etc. now during rendering which is immediately kicked off
             // at app begin time we take a RZWorld and render that, for this we need to rebuild framegraph everyframe, thanks to transient resource allocator, they survive through cache
             // Now lets call this every frame and make sure shit works with this design, builting the framegraph should be sub ms thing.
-            void buildFrameGraph(const RZWorld& world);
+            void buildFrameGraph();
             void drawFrame(const RZWorld& world);
 
             void OnUpdate(RZTimestep dt);
@@ -141,7 +141,7 @@ namespace Razix {
             void flushGPUWork();
 
             inline void clearFrameGraph() { m_FrameGraph.destroy(); }
-            inline void pushRenderPass(IRZPass* pass, const RZWorld* world) { pass->addPass(m_FrameGraph, world); }
+            inline void pushRenderPass(IRZPass* pass) { pass->addPass(m_FrameGraph); }
 
             // Getters/Setters
             inline RZFrameGraph& getFrameGraph() { return m_FrameGraph; }

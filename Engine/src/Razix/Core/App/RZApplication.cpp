@@ -247,7 +247,7 @@ namespace Razix {
 
         // Build the framegraph when we feel it's good to go, maybe once we build a new world, but typically it must be done everyframe and we compile it everytime
         if (!RZEngine::Get().isEngineInTestMode()) {
-            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph(RZWorld{});
+            Razix::RZEngine::Get().getWorldRenderer().buildFrameGraph();
         }
 
         m_CurrentState = AppState::kRunning;
