@@ -171,7 +171,7 @@ namespace Razix {
                     envMapTexViewDesc.textureViewDesc.dimension      = 1;
                     builder.read(lightProbesData.environmentMap, envMapTexViewDesc);
                 },
-                [=](const SceneData& data, RZPassResourceDirectory& resources) {
+                [=](const SceneData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RETURN_IF_BIT_NOT_SET(world->rendererSettings.renderFeatures, RendererFeature_Skybox);
 

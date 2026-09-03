@@ -67,7 +67,7 @@ namespace Razix {
                     textureViewDesc.textureViewDesc.dimension      = 1;
                     builder.read(checkerMap, textureViewDesc);
                 },
-                [=](const HelloTexturePassData& data, RZPassResourceDirectory& resources) {
+                [=](const HelloTexturePassData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Texture Pass");
 

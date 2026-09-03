@@ -75,7 +75,7 @@ namespace Razix {
                     debugBufferViewDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_AUTO_POPULATE;
                     data.DebugBuffer                              = builder.write(data.DebugBuffer, debugBufferViewDesc);
                 },
-                [=](const WaveIntrinsicsData& data, RZPassResourceDirectory& resources) {
+                [=](const WaveIntrinsicsData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("[Test] WaveIntrinsics Pass");
 

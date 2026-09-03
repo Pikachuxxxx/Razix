@@ -224,7 +224,7 @@ namespace Razix {
                     cbvDesc.bufferViewDesc.offset     = 0;
                     data.primitiveCB                  = builder.write(data.primitiveCB, cbvDesc);
                 },
-                [=](const PrimitivePassData& data, RZPassResourceDirectory& resources) {
+                [=](const PrimitivePassData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("[Test] Primitive Draw Pass");
 

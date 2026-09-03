@@ -96,7 +96,7 @@ namespace Razix {
 
                     sceneData.LDR = data.LDR;
                 },
-                [=](const ToneMapPassData& data, RZPassResourceDirectory& resources) {
+                [=](const ToneMapPassData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     RETURN_IF_BIT_NOT_SET(world->rendererSettings.renderFeatures, RendererFeature_Tonemap);

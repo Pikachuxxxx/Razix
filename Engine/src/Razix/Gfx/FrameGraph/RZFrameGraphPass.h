@@ -2,6 +2,7 @@
 
 namespace Razix {
     struct SceneDrawParams;
+    struct RZWorld;
 }
 namespace Razix {
 
@@ -49,7 +50,7 @@ namespace Razix {
 
             RAZIX_NONCOPYABLE_IMMOVABLE_CLASS(IRZFrameGraphPass)
 
-            virtual void operator()(RZPassNode& node, RZPassResourceDirectory& resources)  = 0;
+            virtual void operator()(RZPassNode& node, RZPassResourceDirectory& resources, const RZWorld* world)  = 0;
             virtual void resize(RZPassResourceDirectory& resources, u32 width, u32 height) = 0;
             virtual void onExit()                                                          = 0;
         };
@@ -62,10 +63,10 @@ namespace Razix {
 
             RAZIX_VIRTUAL_DESCTURCTOR(RZFrameGraphCodePass)
 
-            void operator()(RZPassNode& node, RZPassResourceDirectory& resources) override
+            void operator()(RZPassNode& node, RZPassResourceDirectory& resources, const RZWorld* world) override
             {
-                // Note: Node isn't is used here it's for the RZFrameGraphDataPass
-                execFunction(data, resources);
+                // Note: Node isn't used here, it's for the RZFrameGraphDataPass
+                execFunction(data, resources, world);
             }
 
             void resize(RZPassResourceDirectory& resources, u32 width, u32 height) override
@@ -102,7 +103,7 @@ namespace Razix {
 
             FrameGraphDataPassDesc m_Desc;
 
-            void operator()(RZPassNode& node, RZPassResourceDirectory& resources) override;
+            void operator()(RZPassNode& node, RZPassResourceDirectory& resources, const RZWorld* world) override;
             void resize(RZPassResourceDirectory& resources, u32 width, u32 height) override;
             void onExit() override {}
         };

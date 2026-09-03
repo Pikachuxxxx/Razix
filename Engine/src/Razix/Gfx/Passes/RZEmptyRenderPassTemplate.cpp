@@ -24,7 +24,7 @@ namespace Razix {
                 [&](auto& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                 },
-                [=](const auto& data, RZPassResourceDirectory& resources) {
+                [=](const auto& data, RZPassResourceDirectory& resources, const RZWorld* world) {
 #if 0
                     
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);

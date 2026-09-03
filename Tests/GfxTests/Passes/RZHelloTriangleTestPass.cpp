@@ -38,7 +38,7 @@ namespace Razix {
                 [&](HelloTriangleData& data, RZPassResourceBuilder& builder) {
                     builder.setAsStandAlonePass();
                 },
-                [=](const HelloTriangleData& data, RZPassResourceDirectory& resources) {
+                [=](const HelloTriangleData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("[Test] Hello Triangle Pass");
 

@@ -727,7 +727,7 @@ namespace Razix {
             pass.createDeferredResourceView(id, resourceHandle, accessView);
         }
 
-        void RZFrameGraph::execute()
+        void RZFrameGraph::execute(const RZWorld* world)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
@@ -782,7 +782,7 @@ namespace Razix {
                 // call the ExecuteFunc (same for Code and DataDriven passes)
                 RZPassResourceDirectory resources{*this, pass};
                 // https://stackoverflow.com/questions/43680182/what-is-stdinvoke-in-c
-                std::invoke(*pass.m_Exec, pass, resources);
+                std::invoke(*pass.m_Exec, pass, resources, world);
 
                 /**
                   * Current nodes resources can still be used by other nodes so we check

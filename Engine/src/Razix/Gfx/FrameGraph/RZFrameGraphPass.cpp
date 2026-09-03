@@ -21,7 +21,7 @@ namespace Razix {
         {
         }
 
-        void RZFrameGraphDataPass::operator()(RZPassNode& node, RZPassResourceDirectory& resources)
+        void RZFrameGraphDataPass::operator()(RZPassNode& node, RZPassResourceDirectory& resources, const RZWorld* world)
         {
             RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 

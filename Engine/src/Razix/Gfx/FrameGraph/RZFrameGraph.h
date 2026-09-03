@@ -13,6 +13,9 @@
 #include "Razix/Gfx/RHI/RHI.h"
 
 namespace Razix {
+    struct RZWorld;
+}
+namespace Razix {
     namespace Gfx {
 
         /**
@@ -64,7 +67,7 @@ namespace Razix {
             {
                 // Compile time checks to make sure that the lambda functions are valid and have the right signature to be called by the pass
                 static_assert(std::is_invocable_v<SetupFunc, PassData&, RZPassResourceBuilder&>, "Invalid setup callback, check the signature again");
-                static_assert(std::is_invocable_v<ExecuteFunc, const PassData&, RZPassResourceDirectory&>, "Invalid exec callback, check the signature again");
+                static_assert(std::is_invocable_v<ExecuteFunc, const PassData&, RZPassResourceDirectory&, const RZWorld*>, "Invalid exec callback, check the signature again");
                 static_assert(std::is_invocable_v<ExitFunc>, "Invalid exit callback, check the signature again");
                 // Also make sure the ExecuteFunc isn't too big
                 static_assert(sizeof(ExecuteFunc) < 1024, "Execute function captures too much");
@@ -179,7 +182,7 @@ namespace Razix {
             RAZIX_NO_DISCARD RZPassNode& parsePass(const RZString& passPath);
 
             void compile();
-            void execute();
+            void execute(const RZWorld* world);
             void resize(u32 width, u32 height);
             void exportToGraphViz(std::ostream&) const;
             void exportToGraphViz(const RZString& location) const;

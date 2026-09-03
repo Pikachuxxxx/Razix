@@ -47,7 +47,7 @@ namespace Razix {
                     uavView.textureViewDesc.baseArrayLayer = 0;
                     data.Output                            = builder.write(data.Output, uavView);
                 },
-                [=](const MandleBrotPassData& data, RZPassResourceDirectory& resources) {
+                [=](const MandleBrotPassData& data, RZPassResourceDirectory& resources, const RZWorld* /*world*/) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("[Test] MandleBrot Compute Pass");
 

@@ -446,7 +446,7 @@ namespace Razix {
                     frameDataIgnoreViewDesc.opFlags                   = RZ_GFX_RES_VIEW_OP_FLAG_SKIP_BARRIER;
                     data.frameData                                    = builder.write(data.frameData, frameDataIgnoreViewDesc);
                 },
-                [=](const FrameData& data, RZPassResourceDirectory& resources) {
+                [=](const FrameData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     rz_gfx_cmdbuf_handle cmdBufHandle = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
@@ -459,7 +459,7 @@ namespace Razix {
                     gpuData.time += gpuData.deltaTime;
                     gpuData.deltaTime      = RZEngine::Get().GetStatistics().DeltaTime;
                     gpuData.resolution     = {RZApplication::Get().getWindow()->getWidth(), RZApplication::Get().getWindow()->getHeight()};
-                    gpuData.renderFeatures = world.rendererSettings.renderFeatures;
+                    gpuData.renderFeatures = world->rendererSettings.renderFeatures;
 
                     // TODO: Support other types of frame jittering (Stratified etc.)
                     m_Jitter = m_TAAJitterHaltonSamples[(m_FrameCount % NUM_HALTON_SAMPLES_TAA_JITTER)];
@@ -561,7 +561,7 @@ namespace Razix {
                     sceneLightsDataIgnoreViewDesc.bufferViewDesc.pBuffer    = RZ_FG_BUF_RES_VIEW_IGNORE;
                     data.lightsDataBuffer                                   = builder.write(data.lightsDataBuffer, sceneLightsDataIgnoreViewDesc);
                 },
-                [=](const SceneLightsData& data, RZPassResourceDirectory& resources) {
+                [=](const SceneLightsData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
 
                     rz_gfx_cmdbuf_handle cmdBufHandle = m_InFlightDrawCmdBufHandles[m_RenderSync.frameSync.inFlightSyncIdx];
@@ -707,7 +707,7 @@ namespace Razix {
 
                     RZDebugDraw::StartUp();
                 },
-                [=](const DebugPassData& data, RZPassResourceDirectory& resources) {
+                [=](const DebugPassData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("DebugDraw Pass");
 
@@ -971,7 +971,7 @@ namespace Razix {
                     ImTextureID  atlasTexID = (ImTextureID) &m_ImGuiFontAtlasDescriptorSet;
                     atlas[0].SetTexID(atlasTexID);
                 },
-                [=](const ImGuiPassData& data, RZPassResourceDirectory& resources) {
+                [=](const ImGuiPassData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("ImGui Pass");
 
@@ -1170,7 +1170,7 @@ namespace Razix {
 
                     RZShaderBindMap::RegisterBindMap(compositionShader);
                 },
-                [=](const CompositionPassData& data, RZPassResourceDirectory& resources) {
+                [=](const CompositionPassData& data, RZPassResourceDirectory& resources, const RZWorld* world) {
                     RAZIX_PROFILE_FUNCTIONC(RZ_PROFILE_COLOR_GRAPHICS);
                     RAZIX_TIME_STAMP_BEGIN("Composition Pass");
 
@@ -1347,7 +1347,7 @@ namespace Razix {
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_PRESENT, RZ_GFX_RESOURCE_STATE_RENDER_TARGET);
 
                 // Execute the Frame Graph passes --> Records commands onto the current command buffer
-                m_FrameGraph.execute();
+                m_FrameGraph.execute(&world);
 
                 // Insert barrier to transition the swapchain image (RENDER_TARGET) to PRESENT
                 rzRHI_InsertSwapchainImageBarrier(cmdBuffer, &m_Swapchain.backbuffers[m_Swapchain.currBackBufferIdx], RZ_GFX_RESOURCE_STATE_RENDER_TARGET, RZ_GFX_RESOURCE_STATE_PRESENT);
