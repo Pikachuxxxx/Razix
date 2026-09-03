@@ -73,10 +73,10 @@ namespace Razix {
 #define X(name) k##name,
         ASSET_TYPE_LIST
 #undef X
-            COUNT
+            kCOUNT
     };
 #define RAZIX_ASSET_TYPE_COUNT 14
-    static_assert((u32) RZAssetType::COUNT == 14, "More asset types have been added, make changes to apt places!");
+    static_assert((u32) RZAssetType::kCOUNT == 14, "More asset types have been added, make changes to apt places!");
 
     RAZIX_API RZString AssetTypeToVFSFilePath(RZAssetType type, const RZString& name);
 
@@ -192,6 +192,24 @@ namespace Razix {
     RAZIX_REFLECT_OBJECT(metadata)
     RAZIX_REFLECT_TYPE_END(RZAssetColdData)
 
+    using PostAsyncLoadFn = void (*)(rz_asset_handle);
+
+    struct PostAsyncLoadCallbacks
+    {
+        PostAsyncLoadFn onLoad;
+        PostAsyncLoadFn onUnload;
+    };
+
+    inline PostAsyncLoadCallbacks g_PostAsyncLoadCallbacks[(u32) RZAssetType::kCOUNT];
+
+#define RAZIX_NOOP_FUNCTION nullptr
+
+#define RAZIX_REGISTER_ASSET_POST_ASYNC_LOAD_CALLBACKS(name, type, ctor, dtor) \
+    inline const bool g_RazixAssetCallback_##name = [] { \
+        g_PostAsyncLoadCallbacks[(u32)(type)] = {ctor, dtor}; \
+        return true; \
+    }()
+
     RAZIX_REFLECT_FRIEND_FWD_DECL(RZAsset)
     /**
      * RZAsset is the base class for the all assets in the engine
@@ -205,7 +223,8 @@ namespace Razix {
      * Handles to link and reference is a lot easier and efficient than pointers especially when dealing with asset databases and pools 
      * and is very data-oriented design friendly
      * 
-     * We have a central RZAsset pool to manage the metadata etc. and assets and their data are stored in separate pools, the handle can easily refer on need to basis
+     * We have a central RZAsset pool to manage the metadata etc. and assets and their data are stored in separate pools, 
+     * the handle can easily refer on need to basis
      * 
      * Hot data will be loaded along with the asset handle in the asset pools for faster access
      * Cold data will be allocated separately and will be accessed via pointer indirection, in a corresponding sister pool

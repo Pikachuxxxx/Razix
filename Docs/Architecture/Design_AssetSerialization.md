@@ -341,3 +341,7 @@ struct RZPakChunkEntry {
 
 **Q: What about cross-zone mission triggers?**
 **A:** Use global triggers defined in the scene graph file. We handle these as a separate system outside the independent zone hierarchy.
+
+**Q: How will asset be backed with GPU handles for textures and meshes?**
+**A:** This happens in Async during asset create, now as for calling the ResourceManager API this is done via installing custom hooks to the AsyncLoad 
+function, that the user can register for asset types. One way to do this is to install global hooks for asset types and the assetdb will call this hook during async load.

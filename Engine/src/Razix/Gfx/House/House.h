@@ -24,40 +24,8 @@ namespace Razix {
         namespace House {
 
 #if 0
-        // These structs are only used by the Render Thread for building RHI commands
-        struct Drawable
-        {
-            rz_handle material;
-            rz_handle     mesh;
-            uint32_t         transformID;
-        };
+        // These structs are only used by the Render Thread for building RHI commands 
 
-        using Drawables = RZFixedArray<Drawable, 1024>; // 1024 drawables per job
-
-        struct Batch
-        {
-            rz_handle vertexBuffer;
-            rz_handle  indexBuffer;
-            rz_handle     pso;
-        };
-
-        using Batches = RZFixedArray<Batch, 1024>; // 1024 batches per job
-
-        struct DrawData
-        {
-            u32 drawBatchIdx  = 0;
-            u32 drawableIdx   = 0;
-            u32 vertexCount   = 0;
-            u32 vertexOffset  = 0;
-            u32 indexCount    = 0;
-            u32 indexOffset   = 0;
-            u32 instanceCount = 0;
-            u32 _padding      = 0;
-        };
-
-        struct DrawCommandLists
-        {
-        };
 #endif
 
             RZWorld BuildRazixWorldFromSceneData(const rz_scene_graph* sceneGraph);

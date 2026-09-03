@@ -9,9 +9,6 @@
 
 #include "Razix/Gfx/Renderers/RZRendererSettings.h"
 
-// TODO: remove this dependency, just use rz_handle
-#include "Razix/Gfx/RHI/RHI.h"
-
 #include "Razix/Gfx/Cameras/RZCamera3D.h"
 
 namespace Razix {
@@ -19,15 +16,34 @@ namespace Razix {
     class RZCamera3D;
     struct LightsData;
 
+    // struct Batch
+    // {
+    //     rz_handle geometry;
+    //     rz_handle pso;
+    //     rz_handle material;
+    //     u64       _pad0;
+    // };
+
+    struct DrawData
+    {
+        u32 RESERVED_drawBatchIdx = 0;
+        u32 vertexCount           = 0;
+        u32 vertexOffset          = 0;
+        u32 indexCount            = 0;
+        u32 indexOffset           = 0;
+        u32 instanceCount         = 0;
+        u32 transformIdx          = 0xFFFFFFFF;
+        u32 geometryIdx           = 0xFFFFFFFF;
+    };
+
     struct RZWorld
     {
-        u32                       worldInFlightIdx = 0;    // index of the current world buffer in flight, used for debugging only
-        RZDynamicArray<rz_handle> meshes;
-        RZDynamicArray<rz_handle> decals;
-        RZDynamicArray<rz_handle> lights;
-        RZCamera3D                primaryCamera;
-        rz_gfx_texture_handle     sceneRenderTarget;
-        Gfx::RZRendererSettings   rendererSettings;
+        u32                            worldInFlightIdx = 0;    // index of the current world buffer in flight, used for debugging only
+        RZDynamicArray<DrawData>       drawdata;
+        RZDynamicArray<rz_handle>      lights;
+        RZCamera3D                     primaryCamera;
+        rz_handle                      sceneRenderTarget;    // TODO: do we really need this in RZWorld here?
+        Gfx::RZRendererSettings        rendererSettings;
     };
 
 }    // namespace Razix

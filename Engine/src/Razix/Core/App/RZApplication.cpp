@@ -393,7 +393,8 @@ namespace Razix {
         // for handoff to Render Thread via atomics and ring buffer
         const rz_scene_graph_manager& sceneGraphMgr   = RZEngine::Get().getSceneManager();
         rz_scene_graph*               currActiveScene = rz_scene_graph_get_active_scene(&sceneGraphMgr);
-        rz_scene_graph_update(currActiveScene, float3(0, 0, 0), dt.GetTimestepMs());
+        if (currActiveScene)
+            rz_scene_graph_update(currActiveScene, float3(0, 0, 0), dt.GetTimestepMs());
 
         // Now use the House API to build the RZWorld and update the global render thread world slot using atomics for safe hand-off
         RZWorld world = Gfx::House::BuildRazixWorldFromSceneData(currActiveScene);

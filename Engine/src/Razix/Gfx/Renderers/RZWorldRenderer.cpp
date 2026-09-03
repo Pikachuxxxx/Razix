@@ -221,6 +221,8 @@ namespace Razix {
             memset(&m_RenderSync, 0, sizeof(RenderSyncPrimitives));
             m_FrameCount = 0;
 
+            m_MeshPool.init(RAZIX_MAX_OBJECTS);
+
             // Create the swapchain
             GLFWwindow*   glfwWindow = static_cast<GLFWwindow*>(window->GetNativeWindow());
             rz_render_api api        = rzGfxCtx_GetRenderAPI();
@@ -397,6 +399,8 @@ namespace Razix {
             }
 
             rzRHI_DestroySwapchain(&m_Swapchain);
+
+            m_MeshPool.destroy();
         }
 
         /**

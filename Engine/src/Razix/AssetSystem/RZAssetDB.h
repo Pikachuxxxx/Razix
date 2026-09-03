@@ -355,7 +355,7 @@ namespace Razix {
 
             requestAssetLoadFromDiskInternal(assetUUID, typeid(T), pPlaceholderAsset);
             // TODO:!!! Create a default asset per asset type to return here while the actual asset is being loaded async, so that the game can start
-            // Create a dummy asset with default places holder
+            // Create a dummy asset with default place holder
 
             return handle;
         }

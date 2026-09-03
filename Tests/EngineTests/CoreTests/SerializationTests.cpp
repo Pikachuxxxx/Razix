@@ -836,7 +836,7 @@ namespace Razix {
         for (int i = 0; i < 3; ++i) {
             Razix::RZAssetDependecy dep = {};
             dep.assetID                 = rz_uuid_generate();
-            dep.type                    = static_cast<Razix::RZAssetType>(((int) Razix::RZAssetType::kLuaScript + i) % (int) Razix::RZAssetType::COUNT);
+            dep.type                    = static_cast<Razix::RZAssetType>(((int) Razix::RZAssetType::kLuaScript + i) % (int) Razix::RZAssetType::kCOUNT);
             asset.addDependency(dep.type, dep.assetID);
         }
 
@@ -1387,8 +1387,6 @@ namespace Razix {
         RZMeshAsset original        = {};
         original.VertexCount        = 24576;
         original.IndexCount         = 49152;
-        original.VertexBufferHandle = 301;
-        original.IndexBufferHandle  = 302;
 
         original.BoundsMin    = float3{-1.0f, -1.0f, -1.0f};
         original.BoundsMax    = float3{1.0f, 1.0f, 1.0f};
@@ -1423,8 +1421,6 @@ namespace Razix {
 
         EXPECT_EQ(deserialized.VertexCount, original.VertexCount);
         EXPECT_EQ(deserialized.IndexCount, original.IndexCount);
-        EXPECT_EQ(deserialized.VertexBufferHandle, original.VertexBufferHandle);
-        EXPECT_EQ(deserialized.IndexBufferHandle, original.IndexBufferHandle);
 
         EXPECT_EQ(deserialized.BoundsMin, original.BoundsMin);
         EXPECT_EQ(deserialized.BoundsMax, original.BoundsMax);

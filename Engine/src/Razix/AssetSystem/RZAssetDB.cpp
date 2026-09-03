@@ -33,7 +33,7 @@ namespace Razix {
         AssetLoadFn load = NULL;
     };
 
-    static RZAssetIOHandlers s_AssetIORegistry[(size_t) RZAssetType::COUNT];
+    static RZAssetIOHandlers s_AssetIORegistry[(size_t) RZAssetType::kCOUNT];
 
     template<typename T>
     static void RegisterAssetIOHandlers(RZAssetType type)
@@ -325,6 +325,15 @@ namespace Razix {
         if (loadFn) {
             loadFn(*jobData);
         }
+
+        // post async load callback from user registered functions
+        PostAsyncLoadFn loadCB = g_PostAsyncLoadCallbacks[(size_t) jobData->AssetType].onLoad; 
+        if (loadCB!= RAZIX_NOOP_FUNCTION) {
+            // TODO: Pass the payload as userdata to onload/onunload
+            // RZAssetType type = jobData->pAsset->getType();
+            // RZAssetDB::Get().GetAssetPoolFromType(type)->
+            loadCB(jobData->pAsset->getHandle());
+        }
     }
 
     template<typename AllocatorT>
@@ -373,7 +382,7 @@ namespace Razix {
         const u64 budgetInBytes = Mib(static_cast<u64>(assetBudget.HeapSizeMB));
         RAZIX_CORE_ASSERT(budgetInBytes > 0, "[AssetSystem] Asset pool budget is 0 bytes!");
 
-        const u32 numPayloadPools = static_cast<u32>(RZAssetType::COUNT);
+        const u32 numPayloadPools = static_cast<u32>(RZAssetType::kCOUNT);
         RAZIX_CORE_ASSERT(numPayloadPools > 0, "[AssetSystem] No asset pools configured!");
 
         const u64 headerSlotBytes       = sizeof(RZAsset) + sizeof(RZAssetColdData) + sizeof(u32);
@@ -529,10 +538,16 @@ namespace Razix {
             return false;
         }
 
+        // TODO: Move this all to job wrapper named RZAssetAsyncUnloadJob simiar to what we have up here
+
         auto fn = s_AssetIORegistry[(size_t) type].save;
         if (!fn)
             return false;
         fn(handle);
+
+        auto savecb = g_PostAsyncLoadCallbacks[(size_t) type].onUnload;
+        if (savecb != RAZIX_NOOP_FUNCTION)
+            savecb(hdr->getHandle());
 
         return true;
     }
@@ -552,7 +567,7 @@ namespace Razix {
         const RZString& assetPath = it->second;
         char            uuid_str[37];
         rz_uuid_to_pretty_str(&assetUUID, uuid_str);
-        RAZIX_CORE_INFO("[AssetSystem] [ASYNC] Loading asset from disk: UUID={}, Path={}", uuid_str, assetPath);
+        RAZIX_CORE_INFO("[AssetSystem] [ASYNC] Loading asset from disk: UUID={o}, Path={}", uuid_str, assetPath);
         // async load the asset from disk using the path, and once loaded, update the handle in the registry with the actual rz_asset_handle
         // For now, just return an invalid handle as a placeholder
         // using the default asset immediately and then switch to the actual asset once it's loaded

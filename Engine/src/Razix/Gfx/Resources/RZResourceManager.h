@@ -73,6 +73,7 @@ private:                                                                        
             //-----------------------------------------------------------------------------------
             RAZIX_REGISTER_RESOURCE_POOL(DescriptorTable, rz_gfx_descriptor_table)
             //-----------------------------------------------------------------------------------
+            
 
         public:
             inline RZShaderBindMap& getShaderBindMapRef(const rz_gfx_shader_handle& shaderHandle)

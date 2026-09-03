@@ -1,5 +1,7 @@
 #include <Razix.h>
 
+#include "Razix/Gfx/RZMeshFactory.h"
+
 using namespace Razix;
 
 class TanuGameApp : public Razix::RZApplication
@@ -42,9 +44,14 @@ public:
             RZAssetDB::Get().GetAssetPoolRef<RZTransformAsset>().setScale(default_transform_payload_idx, float4(1.0f, 1.0f, 1.0f, 1.0f));
 
             RZMeshAsset* cube_mesh_asset_data = RZAssetDB::Get().getAssetResourceMutablePtr<RZMeshAsset>(cube_mesh_asset);
-            RAZIX_UNUSED(cube_mesh_asset_data);
 
-            // TODO: Fill this mesh data, for the sake of testing let's leave it empty, we will use a placeholder cube with unlit default shader for testing with initial render thread and RZWorld
+            // TODO: Fill this mesh data properly once RZMeshAsset has a path/vertices/indices layout for serialization, for now just a basic cube primitive
+            Gfx::RZMesh cubeMesh = Gfx::CreatePrimitive(Gfx::MeshPrimitive::kCube);
+
+            cube_mesh_asset_data->VertexCount = cubeMesh.getVerticesCount();
+            cube_mesh_asset_data->IndexCount  = cubeMesh.getIndexCount();
+            cube_mesh_asset_data->MeshType    = MeshType::kStaticMesh;
+            cube_mesh_asset_data->MeshHandle  = RZEngine::Get().getWorldRenderer().getMeshPool().allocate(std::move(cubeMesh));
 
             i32 cube_transform_node_idx = rz_scene_graph_attach_asset(m_TanuDefaultSceneGraph, default_tanu_scn_zone_0->rootNodeIndex, "<rz_scn_node_cube_transform>", rz_uuid_generate(), cube_transform_asset);
             // Now add Mesh node as child to this first level parent node

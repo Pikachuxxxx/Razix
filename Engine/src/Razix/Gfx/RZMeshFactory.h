@@ -1,12 +1,11 @@
 #pragma once
 
-#include <glm/fwd.hpp>
+#include "Razix/Gfx/RZMesh.h"
 
 namespace Razix {
     namespace Gfx {
 
-        // TODO: Use RZMeshHandle
-        class RZMesh;
+        // TODO: Return RZMeshHandle once the mesh pool is threaded through here instead of a raw RZMesh value
 
         /* Mesh primitive describes the primitive geometry */
         enum class MeshPrimitive : int32_t
@@ -14,11 +13,11 @@ namespace Razix {
             kPlane = 0,
             kCube,
             kSphere,
-            kPyramid,    // WIP
-            kCapsule,    // WIP
-            kCylinder    // WIP
+            kPyramid,
+            kCapsule,
+            kCylinder
         };
 
-        RAZIX_API RZMesh* CreatePrimitive(MeshPrimitive primitive);
+        RAZIX_API RZMesh CreatePrimitive(MeshPrimitive primitive);
     }    // namespace Gfx
 }    // namespace Razix

@@ -4,6 +4,7 @@
 #include "Razix/Core/std/thread.h"
 
 #include "Razix/Gfx/RZWorld.h"
+#include "Razix/Gfx/RHI/RHI.h"
 #include <Core/RZCore.h>
 
 #define RAZIX_WORLDS_IN_FLIGHT (RAZIX_MAX_FRAMES_IN_FLIGHT + 1)

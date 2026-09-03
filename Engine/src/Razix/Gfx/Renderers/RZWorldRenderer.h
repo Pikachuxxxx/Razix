@@ -34,6 +34,7 @@
 #include "Razix/Math/Grid.h"
 
 #include "Razix/Gfx/RZWorld.h"
+#include "Razix/Gfx/RZMeshPool.h"
 #include <Core/Utils/RZTime.h>
 
 // Debug Macro Settings
@@ -166,6 +167,7 @@ namespace Razix {
             inline rz_gfx_descriptor_table_handle getFrameDataTable() const { return m_FrameDataTable; }
             inline rz_gfx_descriptor_table_handle getSceneLightsDataTable() const { return m_SceneLightsDataTable; }
             inline u64                            getFrameCount() const { return m_FrameCount; }
+            inline RZMeshPool&                    getMeshPool() { return m_MeshPool; }
 
         private:
             static rz_gfx_descriptor_heap_handle m_RenderTargetHeap;
@@ -215,6 +217,7 @@ namespace Razix {
             RZToneMapPass                        m_TonemapPass                                           = {};
             RZTimestep                           m_FPSTimestep                                           = {};
             rz_time_stamp                        m_TotalTimeElapsedRendererTS                            = {};
+            RZMeshPool                           m_MeshPool                                              = {};
 
         private:
             //void importGlobalLightProbes(LightProbe globalLightProbe);

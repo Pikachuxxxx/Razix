@@ -277,7 +277,7 @@ extern "C"
     // SceneGraph Rules for node tagging
     //-----------------------------------------------------------------------------
 
-    static const u32 s_scene_graph_child_rules[(u32) RZAssetType::COUNT] = {
+    static const u32 s_scene_graph_child_rules[(u32) RZAssetType::kCOUNT] = {
         /* kTransform */
         RZ_BIT_SHIFT(RZAssetType::kMesh) |
             RZ_BIT_SHIFT(RZAssetType::kLight) |
